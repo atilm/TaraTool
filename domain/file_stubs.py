@@ -32,4 +32,9 @@ Use drawio.png files or mermaid diagrams to illustrate the system architecture.
 | --- | ---- | ------ | ----------- | --------- | ------- | --------- | ------- |
 |     |      |        |             |           |         |           |         |
 """),
+    FileStub("MethodDescription.md",
+"""# Method Description
+
+work in progress: will give help for selecting impacct ratings and feasibility ratings for the attack trees.
+"""),
 ]
