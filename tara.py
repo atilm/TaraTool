@@ -4,12 +4,14 @@ from domain.file_stubs import file_stubs
 usage_help = "Usage: python tara.py [init|check|gentrees|generate]"
 
 def init():
+    """The init command initializes the directory tara with stubs for the necessary files."""
+
     print("Initializing...")
     if os.path.exists("tara"):
         print("Directory 'tara' already exists. Please remove it before initializing.")
         sys.exit(1)
     os.makedirs("tara")
-    
+
     for file_stub in file_stubs:
         with open(os.path.join("tara", file_stub.path), 'w') as f:
             f.write(file_stub.content)
@@ -22,6 +24,7 @@ def generate_attack_trees():
 
 def generate():
     print("Generating...")
+
 
 def main():
     if len(sys.argv) < 2:
