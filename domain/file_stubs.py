@@ -1,40 +1,63 @@
+from enum import Enum
+
 class FileStub:
     def __init__(self, file_path: str, file_content: str):
         self.path = file_path
         self.content = file_content
 
-
-file_stubs = [
-    FileStub("00_SystemDescritpion.md", 
+class FileType(Enum):
+    DESCRIPTION = "description"
+    ASSUMPTIONS = "assumptions"
+    ASSETS = "assets"
+    DAMAGE_SCENARIOS = "damage_scenarios"
+    METHOD_DESCRIPTION = "method_description"
+        
+    @classmethod
+    def to_path(cls, file_type: 'FileType') -> str:
+        if file_type == cls.DESCRIPTION:
+            return "00_SystemDescription.md"
+        elif file_type == cls.ASSUMPTIONS:
+            return "01_Assumptions.md"
+        elif file_type == cls.ASSETS:
+            return "02_Assets.md"
+        elif file_type == cls.DAMAGE_SCENARIOS:
+            return "03_DamageScenarios.md"
+        elif file_type == cls.METHOD_DESCRIPTION:
+            return "MethodDescription.md"
+        else:
+            raise ValueError(f"Unknown file type: {file_type}")
+        
+file_stubs = {
+    FileType.DESCRIPTION: FileStub(FileType.to_path(FileType.DESCRIPTION), 
 """# System Description and Scope
 
 Describe the systems interfaces, data flows, and any external systems that interact with the system.
 Use drawio.png files or mermaid diagrams to illustrate the system architecture.
 """),
-    FileStub("01_Assumptions.md", 
+   FileType.ASSUMPTIONS: FileStub(FileType.to_path(FileType.ASSUMPTIONS), 
 """# Assumptions
 
 | ID  | Name | Security Claim | Comment |
 | --- | ---- | -------------- | ------- |
 |     |      |                |         |
 """),
-    FileStub("02_Assets.md", 
+    FileType.ASSETS: FileStub(FileType.to_path(FileType.ASSETS), 
 """# Assets
 
 | ID  | Name | Availability | Integrity | Confidentiality | Reasoning | Description |
 | --- | ---- | ------------ | --------- | --------------- | --------- | ----------- |
 |     |      |              |           |                 |           |             |
 """),
-    FileStub("03_DamageScenarios.md", 
+    FileType.DAMAGE_SCENARIOS: FileStub(FileType.to_path(FileType.DAMAGE_SCENARIOS), 
 """# Damage Scenarios
 
 | ID  | Name | Safety | Operational | Financial | Privacy | Reasoning | Comment |
 | --- | ---- | ------ | ----------- | --------- | ------- | --------- | ------- |
 |     |      |        |             |           |         |           |         |
 """),
-    FileStub("MethodDescription.md",
+    FileType.METHOD_DESCRIPTION: FileStub(FileType.to_path(FileType.METHOD_DESCRIPTION),
 """# Method Description
 
 work in progress: will give help for selecting impacct ratings and feasibility ratings for the attack trees.
 """),
-]
+}

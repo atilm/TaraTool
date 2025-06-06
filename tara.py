@@ -1,5 +1,7 @@
 import sys, os
 from domain.file_stubs import file_stubs
+from domain.tara_parser import TaraParser
+from utilities.file_reader import FileReader
 
 usage_help = "Usage: python tara.py [init|check|gentrees|generate]"
 
@@ -12,11 +14,12 @@ def init():
         sys.exit(1)
     os.makedirs("tara")
 
-    for file_stub in file_stubs:
+    for file_stub in file_stubs.values():
         with open(os.path.join("tara", file_stub.path), 'w') as f:
             f.write(file_stub.content)
 
 def check():
+    parser = TaraParser(FileReader())
     print("Checking...")
 
 def generate_attack_trees():
