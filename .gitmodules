@@ -1,0 +1,3 @@
+[submodule "MarkdownLib"]
+	path = MarkdownLib
+	url = https://github.com/atilm/MarkdownLib.git
