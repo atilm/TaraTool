@@ -26,7 +26,6 @@ class TaraParserTests(unittest.TestCase):
 | Ast-1 | abc  | def            | ghi     |
 | Ast-2 | jkl  | mno            | pqr     |
 """)
-        # mock_reader.setup_file("assumptions.txt", "Assumption1\nAssumption2")
         # mock_reader.setup_file("damage_scenarios.txt", "Scenario1\nScenario2")
         # mock_reader.setup_file("attack_trees.txt", "Tree1\nTree2")
 
@@ -38,7 +37,13 @@ class TaraParserTests(unittest.TestCase):
         # Assert
         self.assertEqual(len(tara.assumptions), 2)
         self.assertEqual(tara.assumptions[0].id, "Ast-1")
+        self.assertEqual(tara.assumptions[0].name, "abc")
+        self.assertEqual(tara.assumptions[0].security_claim, "def")
+        self.assertEqual(tara.assumptions[0].comment, "ghi")
         self.assertEqual(tara.assumptions[1].id, "Ast-2")
+        self.assertEqual(tara.assumptions[1].name, "jkl")
+        self.assertEqual(tara.assumptions[1].security_claim, "mno")
+        self.assertEqual(tara.assumptions[1].comment, "pqr")
         # self.assertEqual(len(tara.assets), 2)
         # self.assertEqual(len(tara.damage_scenarios), 2)
         # self.assertEqual(len(tara.attack_trees), 2)

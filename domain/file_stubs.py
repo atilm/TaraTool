@@ -58,6 +58,6 @@ Use drawio.png files or mermaid diagrams to illustrate the system architecture.
     FileType.METHOD_DESCRIPTION: FileStub(FileType.to_path(FileType.METHOD_DESCRIPTION),
 """# Method Description
 
-work in progress: will give help for selecting impacct ratings and feasibility ratings for the attack trees.
+work in progress: will give help for selecting impact ratings and feasibility ratings for the attack trees.
 """),
 }

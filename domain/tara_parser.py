@@ -31,6 +31,9 @@ class TaraParser:
         for row in range(table.getRowCount()):
             assumption = Assumption()
             assumption.id = table.getCell(row, 0)
+            assumption.name = table.getCell(row, 1)
+            assumption.security_claim = table.getCell(row, 2)
+            assumption.comment = table.getCell(row, 3)
             tara.assumptions.append(assumption)
 
         return tara
