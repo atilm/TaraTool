@@ -2,6 +2,7 @@ import sys, os
 from domain.file_stubs import file_stubs
 from domain.tara_parser import TaraParser
 from utilities.file_reader import FileReader
+from utilities.error_logger import ErrorLogger
 
 usage_help = "Usage: python tara.py [init|check|gentrees|generate]"
 
@@ -19,11 +20,16 @@ def init():
             f.write(file_stub.content)
 
 def check():
-    parser = TaraParser(FileReader())
     print("Checking...")
+    parser = TaraParser(FileReader(), ErrorLogger())
+    parser.parse(".")
 
 def generate_attack_trees():
+    error_logger = ErrorLogger()
+    print("Parsing input files...")
+    parser = TaraParser(FileReader(), error_logger)
     print("Generating attack trees...")
+    
 
 def generate():
     print("Generating...")

@@ -1,3 +1,5 @@
+from domain.feasibility import Feasibility
+
 class AttackTreeNode:
     def __init__(self):
         self.name: str = ""
@@ -5,6 +7,14 @@ class AttackTreeNode:
 
     def add_child(self, child_node):
         self.children.append(child_node)
+
+    def get_feasibility(self) -> Feasibility:
+        """
+        Returns the feasibility of the node.
+        This method should be overridden in subclasses to provide specific feasibility logic.
+        """
+        raise NotImplementedError("This method should be overridden in subclasses.")
+
 
 class AttackTreeAndNode(AttackTreeNode):
     def __init__(self):
@@ -24,7 +34,7 @@ class AttackTreeLeafNode(AttackTreeNode):
         self.name = ""
         self.type = "LEAF"
 
-class AttackTreeSubtreeReferenceNode(AttackTreeNode):
+class AttackTreeReferenceNode(AttackTreeNode):
     def __init__(self):
         super().__init__()
 
