@@ -20,6 +20,8 @@
 ### Error Cases
 
 * [x] Missing Assumptions Table
-* [ ] Missing Assumptions File
+* [ ] Missing Files
+  * [ ] Assumptions
+  * [ ] ...
 * [ ] Misformatted tables
-* [ ] Damage Scenarios: only accept defined impacts
+* [x] Damage Scenarios: only accept defined impacts

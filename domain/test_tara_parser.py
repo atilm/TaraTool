@@ -114,3 +114,28 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(len(tara.assumptions), 2)
         self.assertEqual(len(default_test_case.logger.get_errors()), 1)
         self.assertIn("Duplicate ID found: Ast-1", default_test_case.logger.get_errors()[0])
+
+    def test_only_exising_impact_values_are_accepted(self):
+        # Arrange
+        default_test_case = TestCase()
+        default_test_case.mock_reader.setup_file(os.path.join(default_test_case.directory, FileType.to_path(FileType.DAMAGE_SCENARIOS)),
+"""# Damage Scenarios
+
+| ID   | Name                | Safety     | Operational | Financial | Privacy    | Reasoning | Comment   |
+| ---- | ------------------- | ---------- | ----------- | --------- | ---------- | --------- | --------- |
+| DS-1 | Electrocuted person | Sever      | major       | oderate   | NEGLIGIBLE | Reason 1  | Comment 1 |
+""")
+        # Act
+        tara = default_test_case.parser.parse(default_test_case.directory)
+
+        # Assert
+        self.assertEqual(len(tara.damage_scenarios), 1)
+        self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Safety], Impact.Severe)
+        self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Operational], Impact.Severe)
+        self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Financial], Impact.Severe)
+        self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Privacy], Impact.Severe)
+        self.assertEqual(len(default_test_case.logger.get_errors()), 4)
+        self.assertIn("Invalid impact rating found: Sever", default_test_case.logger.get_errors()[0])
+        self.assertIn("Invalid impact rating found: major", default_test_case.logger.get_errors()[1])
+        self.assertIn("Invalid impact rating found: oderate", default_test_case.logger.get_errors()[2])
+        self.assertIn("Invalid impact rating found: NEGLIGIBLE", default_test_case.logger.get_errors()[3])

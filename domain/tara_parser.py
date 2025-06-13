@@ -98,12 +98,27 @@ class TaraParser:
 
             # Assuming impacts are stored in a specific format in the table
             scenario.impacts = {
-                ImpactCategory.Safety: Impact[table.getCell(row, 2).strip()],
-                ImpactCategory.Operational: Impact[table.getCell(row, 3).strip()],
-                ImpactCategory.Financial: Impact[table.getCell(row, 4).strip()],
-                ImpactCategory.Privacy: Impact[table.getCell(row, 5).strip()]
+                ImpactCategory.Safety: self.str_to_impact(table.getCell(row, 2)),
+                ImpactCategory.Operational: self.str_to_impact(table.getCell(row, 3)),
+                ImpactCategory.Financial: self.str_to_impact(table.getCell(row, 4)),
+                ImpactCategory.Privacy: self.str_to_impact(table.getCell(row, 5))
             }
 
             damage_scenarios.append(scenario)
 
         return damage_scenarios
+    
+    def str_to_impact(self, impact_str: str) -> Impact:
+        """
+        Converts a string representation of an impact to an Impact enum.
+        
+        :param impact_str: The string representation of the impact.
+        :return: The corresponding Impact enum.
+        """
+        impact_str = impact_str.strip()
+
+        try:
+            return Impact[impact_str]
+        except KeyError:
+            self.logger.log_error(f"Invalid impact rating found: {impact_str}")
+            return Impact.Severe  # Default to Severe or handle as needed
