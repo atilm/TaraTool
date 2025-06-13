@@ -10,6 +10,8 @@ class TaraParser:
     def __init__(self, file_reader: IFileReader, logger: IErrorLogger):
         self.file_reader = file_reader
         self.logger = logger
+        # map of all objects which are identified by an ID
+        self.id_to_object: dict[str, object] = {}
 
     def parse(self, directory: str) -> Tara:
         """
@@ -22,6 +24,13 @@ class TaraParser:
         tara = Tara()
         assumptions_table = self.read_table(FileType.ASSUMPTIONS, directory)
         tara.assumptions = self.extract_assumptions(assumptions_table)
+
+        # register all objects by their ID
+        for assumption in tara.assumptions:
+            if assumption.id in self.id_to_object:
+                self.logger.log_error(f"Duplicate ID found: {assumption.id}")
+            else:
+                self.id_to_object[assumption.id] = assumption
 
         return tara
     
@@ -61,4 +70,5 @@ class TaraParser:
             assumption.security_claim = table.getCell(row, 2)
             assumption.comment = table.getCell(row, 3)
             assumptions.append(assumption)
+
         return assumptions

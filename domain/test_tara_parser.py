@@ -57,10 +57,30 @@ class TaraParserTests(unittest.TestCase):
 | Ast-2 | jkl  |
 """)
 
-        # Act & Assert
+        # Act
         tara = default_test_case.parser.parse(directory)
         
+        # Assert
         self.assertEqual(len(tara.assumptions), 0)
         self.assertEqual(len(default_test_case.logger.get_errors()), 1)
         self.assertIn("ASSUMPTIONS table not found in the document.", default_test_case.logger.get_errors()[0])
 
+    def test_error_duplicate_assumption_ids(self):
+        # Arrange
+        default_test_case = TestCase()
+        default_test_case.mock_reader.setup_file(os.path.join(default_test_case.directory, FileType.to_path(FileType.ASSUMPTIONS)),
+"""# Assumptions
+
+| ID    | Name | Security Claim | Comment |
+| ----- | ---- | -------------- | ------- |
+| Ast-1 | abc  | def            | ghi     |
+| Ast-1 | jkl  | mno            | pqr     |
+""")
+
+        # Act
+        tara = default_test_case.parser.parse(default_test_case.directory)
+
+        # Assert
+        self.assertEqual(len(tara.assumptions), 2)
+        self.assertEqual(len(default_test_case.logger.get_errors()), 1)
+        self.assertIn("Duplicate ID found: Ast-1", default_test_case.logger.get_errors()[0])
