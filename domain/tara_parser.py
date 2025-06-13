@@ -4,6 +4,8 @@ from domain.file_stubs import FileType
 from domain.assumption import Assumption
 from domain.damage_scenario import DamageScenario
 from domain.impacts import ImpactCategory, Impact
+from domain.asset import Asset
+from domain.security_property import SecurityProperty
 from utilities.file_reader import IFileReader
 from utilities.error_logger import IErrorLogger
 from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
@@ -30,12 +32,16 @@ class TaraParser:
         damage_scenarios_table = self.read_table(FileType.DAMAGE_SCENARIOS, directory)
         tara.damage_scenarios = self.extract_damage_scenarios(damage_scenarios_table)
 
+        assets_table = self.read_table(FileType.ASSETS, directory)
+        tara.assets = self.extract_assets(assets_table)
+
         # register all objects by their ID
         self.add_ids(tara.assumptions)
         self.add_ids(tara.damage_scenarios)
+        self.add_ids(tara.assets)
 
         return tara
-    
+
     def add_ids(self, objects: list[object]) -> None:
         """
         Adds IDs to a list of objects and registers them in the id_to_object map.
@@ -137,3 +143,53 @@ class TaraParser:
         except KeyError:
             self.logger.log_error(f"Invalid impact rating found: {impact_str}")
             return Impact.Severe  # Default to Severe or handle as needed
+        
+    def extract_assets(self, table: MarkdownTable) -> list[Asset]:
+        """
+        Extracts assets from a MarkdownTable.
+        
+        :param table: The MarkdownTable containing assets.
+        :return: A list of Asset objects.
+        """
+        assets = []
+        if table is None:
+            return assets
+
+        for row in range(table.getRowCount()):
+            asset = Asset()
+            asset.id = table.getCell(row, 0)
+            asset.name = table.getCell(row, 1)
+            asset.reasoning = table.getCell(row, 5)
+            asset.description = table.getCell(row, 6)
+
+            asset.damage_scenarios[SecurityProperty.Availability] = self.damage_scenarios_from_column(table, row, 2)
+            asset.damage_scenarios[SecurityProperty.Integrity] = self.damage_scenarios_from_column(table, row, 3)
+            asset.damage_scenarios[SecurityProperty.Confidentiality] = self.damage_scenarios_from_column(table, row, 4)
+            
+            assets.append(asset)
+
+        return assets
+    
+    def damage_scenarios_from_column(self, table: MarkdownTable, row: int, column: int) -> list[str]:
+        """
+        A damage scenario table contains white-space separated damage scenario ids in each security property column.
+        This method extracts damage scenario ids from a specific column in the MarkdownTable.
+        
+        :param table: The MarkdownTable containing assets.
+        :param row: The row index to extract from.
+        :param column: The column index to extract from.
+        :return: A list of DamageScenario ids.
+        """
+        damage_scenarios = []
+        cell_content = table.getCell(row, column)
+
+        if len(cell_content) == 0:
+            return damage_scenarios
+
+        # Split by whitespace and strip whitespace
+        ids = [id.strip() for id in cell_content.split() if id.strip()]
+        
+        for id in ids:
+            damage_scenarios.append(id)
+        
+        return damage_scenarios

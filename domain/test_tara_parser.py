@@ -2,6 +2,7 @@ import unittest, os
 from domain.tara_parser import TaraParser
 from domain.file_stubs import FileType
 from domain.impacts import ImpactCategory, Impact
+from domain.security_property import SecurityProperty
 from utilities.file_reader import MockFileReader
 from utilities.error_logger import MemoryErrorLogger
 
@@ -25,6 +26,14 @@ class TestCase:
 | ---- | ------------------- | ---------- | ----------- | --------- | ---------- | --------- | --------- |
 | DS-1 | Electrocuted person | Severe     | Major       | Moderate  | Negligible | Reason 1  | Comment 1 |
 | DS-2 | Litigation          |            |             | Major     |            | Reason 2  | Comment 2 |
+""")
+        self.mock_reader.setup_file(os.path.join(self.directory, FileType.to_path(FileType.ASSETS)),
+"""# Assets
+
+| ID  | Name    | Availability | Integrity | Confidentiality | Reasoning   | Description   |
+| --- | ------- | ------------ | --------- | --------------- | ----------- | ------------- |
+| A-1 | Asset 1 | DS-1         | DS-2      | DS-1 DS-2       | Reasoning 1 | Description 1 |
+| A-2 | Asset 2 |              | DS-2 DS-1 | DS-2            | Reasoning 2 | Description 2 |
 """)
         self.parser = TaraParser(self.mock_reader, self.logger)
         
@@ -71,7 +80,23 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(tara.damage_scenarios[1].reasoning, "Reason 2")
         self.assertEqual(tara.damage_scenarios[1].comment, "Comment 2")
         
-        # self.assertEqual(len(tara.assets), 2)
+        self.assertEqual(len(tara.assets), 2)
+        self.assertEqual(tara.assets[0].id, "A-1")
+        self.assertEqual(tara.assets[0].name, "Asset 1")
+        self.assertEqual(tara.assets[0].description, "Description 1")
+        self.assertEqual(tara.assets[0].reasoning, "Reasoning 1")
+        self.assertEqual(tara.assets[0].damage_scenarios[SecurityProperty.Availability][0], "DS-1")
+        self.assertEqual(tara.assets[0].damage_scenarios[SecurityProperty.Integrity][0], "DS-2")
+        self.assertEqual(tara.assets[0].damage_scenarios[SecurityProperty.Confidentiality][0], "DS-1")
+        self.assertEqual(tara.assets[0].damage_scenarios[SecurityProperty.Confidentiality][1], "DS-2")
+        self.assertEqual(tara.assets[1].id, "A-2")
+        self.assertEqual(tara.assets[1].name, "Asset 2")
+        self.assertEqual(tara.assets[1].description, "Description 2")
+        self.assertEqual(tara.assets[1].reasoning, "Reasoning 2")
+        self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Availability], [])
+        self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Integrity][0], "DS-2")
+        self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Integrity][1], "DS-1")
+        self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Confidentiality][0], "DS-2")
         # self.assertEqual(len(tara.attack_trees), 2)
 
     def test_error_missing_assumptions_table(self):
@@ -160,3 +185,22 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(len(default_test_case.logger.get_errors()), 2)
         self.assertIn("Duplicate ID found: Ast-1", default_test_case.logger.get_errors()[0])
         self.assertIn("Duplicate ID found: DS-1", default_test_case.logger.get_errors()[1])
+
+    def test_asset_ids_are_checked_for_duplication(self):
+        # Arrange
+        default_test_case = TestCase()
+        default_test_case.mock_reader.setup_file(os.path.join(default_test_case.directory, FileType.to_path(FileType.ASSETS)),
+ """# Assets
+
+| ID  | Name    | Availability | Integrity | Confidentiality | Reasoning   | Description   |
+| --- | ------- | ------------ | --------- | --------------- | ----------- | ------------- |
+| A-1 | Asset 1 | DS-1         | DS-2      | DS-1 DS-2       | Reasoning 1 | Description 1 |
+| A-1 | Asset 2 |              | DS-2 DS-1 | DS-2            | Reasoning 2 | Description 2 |
+""")       
+        # Act
+        tara = default_test_case.parser.parse(default_test_case.directory)
+
+        # Assert
+        self.assertEqual(len(tara.assets), 2)
+        self.assertEqual(len(default_test_case.logger.get_errors()), 1)
+        self.assertIn("Duplicate ID found: A-1", default_test_case.logger.get_errors()[0])
