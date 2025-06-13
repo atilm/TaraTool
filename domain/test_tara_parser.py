@@ -4,13 +4,12 @@ from domain.file_stubs import FileType
 from utilities.file_reader import MockFileReader
 from utilities.error_logger import MemoryErrorLogger
 
-class TaraParserTests(unittest.TestCase):
-    def test_parse_valid_files(self):
-        # Arrange
-        directory = "mock_directory"
-        logger = MemoryErrorLogger()
-        mock_reader = MockFileReader()
-        mock_reader.setup_file(os.path.join(directory, FileType.to_path(FileType.ASSUMPTIONS)),
+class TestCase:
+    def __init__(self):
+        self.directory = "mock_directory"
+        self.logger = MemoryErrorLogger()
+        self.mock_reader = MockFileReader()
+        self.mock_reader.setup_file(os.path.join(self.directory, FileType.to_path(FileType.ASSUMPTIONS)),
 """# Assumptions
 
 | ID    | Name | Security Claim | Comment |
@@ -18,13 +17,16 @@ class TaraParserTests(unittest.TestCase):
 | Ast-1 | abc  | def            | ghi     |
 | Ast-2 | jkl  | mno            | pqr     |
 """)
-        # mock_reader.setup_file("damage_scenarios.txt", "Scenario1\nScenario2")
-        # mock_reader.setup_file("attack_trees.txt", "Tree1\nTree2")
-
-        parser = TaraParser(mock_reader, logger)
+        self.parser = TaraParser(self.mock_reader, self.logger)
+        
+class TaraParserTests(unittest.TestCase):
+    def test_parse_valid_files(self):
+        # Arrange
+        test_case = TestCase()
+        parser = test_case.parser
 
         # Act
-        tara = parser.parse(directory)
+        tara = parser.parse(test_case.directory)
 
         # Assert
         self.assertEqual(len(tara.assumptions), 2)
@@ -44,10 +46,9 @@ class TaraParserTests(unittest.TestCase):
 
     def test_error_missing_assumptions_table(self):
         # Arrange
-        directory = "mock_directory"
-        logger = MemoryErrorLogger()
-        mock_reader = MockFileReader()
-        mock_reader.setup_file(os.path.join(directory, FileType.to_path(FileType.ASSUMPTIONS)),
+        default_test_case = TestCase()
+        directory = default_test_case.directory
+        default_test_case.mock_reader.setup_file(os.path.join(directory, FileType.to_path(FileType.ASSUMPTIONS)),
 """# Assumptions
 
 | ID    | Name |
@@ -55,12 +56,11 @@ class TaraParserTests(unittest.TestCase):
 | Ast-1 | abc  |
 | Ast-2 | jkl  |
 """)
-        parser = TaraParser(mock_reader, logger)
-    
+
         # Act & Assert
-        tara = parser.parse(directory)
+        tara = default_test_case.parser.parse(directory)
         
         self.assertEqual(len(tara.assumptions), 0)
-        self.assertEqual(len(logger.get_errors()), 1)
-        self.assertIn("ASSUMPTIONS table not found in the document.", logger.get_errors()[0])
-        
+        self.assertEqual(len(default_test_case.logger.get_errors()), 1)
+        self.assertIn("ASSUMPTIONS table not found in the document.", default_test_case.logger.get_errors()[0])
+
