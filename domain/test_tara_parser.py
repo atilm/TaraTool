@@ -1,6 +1,7 @@
 import unittest, os
 from domain.tara_parser import TaraParser
 from domain.file_stubs import FileType
+from domain.impacts import ImpactCategory, Impact
 from utilities.file_reader import MockFileReader
 from utilities.error_logger import MemoryErrorLogger
 
@@ -17,8 +18,18 @@ class TestCase:
 | Ast-1 | abc  | def            | ghi     |
 | Ast-2 | jkl  | mno            | pqr     |
 """)
+        self.mock_reader.setup_file(os.path.join(self.directory, FileType.to_path(FileType.DAMAGE_SCENARIOS)),
+"""# Damage Scenarios
+
+| ID   | Name                | Safety     | Operational | Financial | Privacy    | Reasoning | Comment   |
+| ---- | ------------------- | ---------- | ----------- | --------- | ---------- | --------- | --------- |
+| DS-1 | Electrocuted person | Severe     | Major       | Moderate  | Negligible | Reason 1  | Comment 1 |
+| DS-2 | Litigation          | Negligible | Negligible  | Major     | Negligible | Reason 2  | Comment 2 |
+""")
         self.parser = TaraParser(self.mock_reader, self.logger)
         
+
+
 class TaraParserTests(unittest.TestCase):
     def test_parse_valid_files(self):
         # Arrange
@@ -40,8 +51,27 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(tara.assumptions[1].name, "jkl")
         self.assertEqual(tara.assumptions[1].security_claim, "mno")
         self.assertEqual(tara.assumptions[1].comment, "pqr")
+        
+        self.assertEqual(len(tara.damage_scenarios), 2)
+        self.assertEqual(tara.damage_scenarios[0].id, "DS-1")
+        self.assertEqual(tara.damage_scenarios[0].name, "Electrocuted person")
+        self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Safety], Impact.Severe)
+        self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Operational], Impact.Major)
+        self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Financial], Impact.Moderate)
+        self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Privacy], Impact.Negligible)
+        self.assertEqual(tara.damage_scenarios[0].reasoning, "Reason 1")
+        self.assertEqual(tara.damage_scenarios[0].comment, "Comment 1")
+
+        self.assertEqual(tara.damage_scenarios[1].id, "DS-2")
+        self.assertEqual(tara.damage_scenarios[1].name, "Litigation")
+        self.assertEqual(tara.damage_scenarios[1].impacts[ImpactCategory.Safety], Impact.Negligible)
+        self.assertEqual(tara.damage_scenarios[1].impacts[ImpactCategory.Operational], Impact.Negligible)
+        self.assertEqual(tara.damage_scenarios[1].impacts[ImpactCategory.Financial], Impact.Major)
+        self.assertEqual(tara.damage_scenarios[1].impacts[ImpactCategory.Privacy], Impact.Negligible)
+        self.assertEqual(tara.damage_scenarios[1].reasoning, "Reason 2")
+        self.assertEqual(tara.damage_scenarios[1].comment, "Comment 2")
+        
         # self.assertEqual(len(tara.assets), 2)
-        # self.assertEqual(len(tara.damage_scenarios), 2)
         # self.assertEqual(len(tara.attack_trees), 2)
 
     def test_error_missing_assumptions_table(self):

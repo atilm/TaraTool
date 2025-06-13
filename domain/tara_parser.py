@@ -2,6 +2,8 @@ import os
 from domain.tara import Tara
 from domain.file_stubs import FileType
 from domain.assumption import Assumption
+from domain.damage_scenario import DamageScenario
+from domain.impacts import ImpactCategory, Impact
 from utilities.file_reader import IFileReader
 from utilities.error_logger import IErrorLogger
 from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
@@ -24,6 +26,9 @@ class TaraParser:
         tara = Tara()
         assumptions_table = self.read_table(FileType.ASSUMPTIONS, directory)
         tara.assumptions = self.extract_assumptions(assumptions_table)
+
+        damage_scenarios_table = self.read_table(FileType.DAMAGE_SCENARIOS, directory)
+        tara.damage_scenarios = self.extract_damage_scenarios(damage_scenarios_table)
 
         # register all objects by their ID
         for assumption in tara.assumptions:
@@ -72,3 +77,33 @@ class TaraParser:
             assumptions.append(assumption)
 
         return assumptions
+    
+    def extract_damage_scenarios(self, table: MarkdownTable) -> list:
+        """
+        Extracts damage scenarios from a MarkdownTable.
+        
+        :param table: The MarkdownTable containing damage scenarios.
+        :return: A list of DamageScenario objects.
+        """
+        damage_scenarios = []
+        if table is None:
+            return damage_scenarios
+
+        for row in range(table.getRowCount()):
+            scenario = DamageScenario()
+            scenario.id = table.getCell(row, 0)
+            scenario.name = table.getCell(row, 1)
+            scenario.reasoning = table.getCell(row, 6)
+            scenario.comment = table.getCell(row, 7)
+
+            # Assuming impacts are stored in a specific format in the table
+            scenario.impacts = {
+                ImpactCategory.Safety: Impact[table.getCell(row, 2).strip()],
+                ImpactCategory.Operational: Impact[table.getCell(row, 3).strip()],
+                ImpactCategory.Financial: Impact[table.getCell(row, 4).strip()],
+                ImpactCategory.Privacy: Impact[table.getCell(row, 5).strip()]
+            }
+
+            damage_scenarios.append(scenario)
+
+        return damage_scenarios
