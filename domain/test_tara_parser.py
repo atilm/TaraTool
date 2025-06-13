@@ -1,22 +1,14 @@
 import unittest, os
 from domain.tara_parser import TaraParser
 from domain.file_stubs import FileType
-from utilities.file_reader import IFileReader
-
-class MockFileReader(IFileReader):
-    def __init__(self):
-        self.contents = {}
-
-    def setup_file(self, file_path: str, file_content: str):
-        self.contents[file_path] = file_content
-
-    def read_file(self, file_path: str) -> str:
-        return self.contents.get(file_path, f"No mock has been set up for file path '{file_path}'")
+from utilities.file_reader import MockFileReader
+from utilities.error_logger import MemoryErrorLogger
 
 class TaraParserTests(unittest.TestCase):
     def test_parse_valid_files(self):
         # Arrange
         directory = "mock_directory"
+        logger = MemoryErrorLogger()
         mock_reader = MockFileReader()
         mock_reader.setup_file(os.path.join(directory, FileType.to_path(FileType.ASSUMPTIONS)),
 """# Assumptions
@@ -29,7 +21,7 @@ class TaraParserTests(unittest.TestCase):
         # mock_reader.setup_file("damage_scenarios.txt", "Scenario1\nScenario2")
         # mock_reader.setup_file("attack_trees.txt", "Tree1\nTree2")
 
-        parser = TaraParser(mock_reader)
+        parser = TaraParser(mock_reader, logger)
 
         # Act
         tara = parser.parse(directory)
@@ -49,3 +41,26 @@ class TaraParserTests(unittest.TestCase):
         # self.assertEqual(len(tara.assets), 2)
         # self.assertEqual(len(tara.damage_scenarios), 2)
         # self.assertEqual(len(tara.attack_trees), 2)
+
+    def test_error_missing_assumptions_table(self):
+        # Arrange
+        directory = "mock_directory"
+        logger = MemoryErrorLogger()
+        mock_reader = MockFileReader()
+        mock_reader.setup_file(os.path.join(directory, FileType.to_path(FileType.ASSUMPTIONS)),
+"""# Assumptions
+
+| ID    | Name |
+| ----- | ---- |
+| Ast-1 | abc  |
+| Ast-2 | jkl  |
+""")
+        parser = TaraParser(mock_reader, logger)
+    
+        # Act & Assert
+        tara = parser.parse(directory)
+        
+        self.assertEqual(len(tara.assumptions), 0)
+        self.assertEqual(len(logger.get_errors()), 1)
+        self.assertIn("ASSUMPTIONS table not found in the document.", logger.get_errors()[0])
+        

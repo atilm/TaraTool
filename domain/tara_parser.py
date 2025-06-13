@@ -3,11 +3,13 @@ from domain.tara import Tara
 from domain.file_stubs import FileType
 from domain.assumption import Assumption
 from utilities.file_reader import IFileReader
+from utilities.error_logger import IErrorLogger
 from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
 
 class TaraParser:
-    def __init__(self, file_reader: IFileReader):
+    def __init__(self, file_reader: IFileReader, logger: IErrorLogger):
         self.file_reader = file_reader
+        self.logger = logger
 
     def parse(self, directory: str) -> Tara:
         """
@@ -38,7 +40,8 @@ class TaraParser:
             if isinstance(content, MarkdownTable) and content.hasHeader(FileType.get_header(file_type)):
                 return content
 
-        raise ValueError(f"{file_type} table not found in the document.")
+        self.logger.log_error(f"{file_type} table not found in the document.")
+        return None
 
     def extract_assumptions(self, table: MarkdownTable) -> list[Assumption]:
         """
@@ -48,6 +51,9 @@ class TaraParser:
         :return: A list of Assumption objects.
         """
         assumptions = []
+        if table is None:
+            return assumptions
+
         for row in range(table.getRowCount()):
             assumption = Assumption()
             assumption.id = table.getCell(row, 0)
