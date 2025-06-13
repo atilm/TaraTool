@@ -31,14 +31,26 @@ class TaraParser:
         tara.damage_scenarios = self.extract_damage_scenarios(damage_scenarios_table)
 
         # register all objects by their ID
-        for assumption in tara.assumptions:
-            if assumption.id in self.id_to_object:
-                self.logger.log_error(f"Duplicate ID found: {assumption.id}")
-            else:
-                self.id_to_object[assumption.id] = assumption
+        self.add_ids(tara.assumptions)
+        self.add_ids(tara.damage_scenarios)
 
         return tara
     
+    def add_ids(self, objects: list[object]) -> None:
+        """
+        Adds IDs to a list of objects and registers them in the id_to_object map.
+        
+        :param objects: A list of objects to register by their ID.
+        """
+        for obj in objects:
+            if hasattr(obj, 'id') and obj.id:
+                if obj.id in self.id_to_object:
+                    self.logger.log_error(f"Duplicate ID found: {obj.id}")
+                else:
+                    self.id_to_object[obj.id] = obj
+            else:
+                raise ValueError("Object does not have a valid ID.") from None
+
     def read_table(self, file_type: FileType, directory: str) -> MarkdownTable:
         """
         Each file type is associated with a specific file name and the header

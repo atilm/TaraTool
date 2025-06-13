@@ -139,3 +139,24 @@ class TaraParserTests(unittest.TestCase):
         self.assertIn("Invalid impact rating found: major", default_test_case.logger.get_errors()[1])
         self.assertIn("Invalid impact rating found: oderate", default_test_case.logger.get_errors()[2])
         self.assertIn("Invalid impact rating found: NEGLIGIBLE", default_test_case.logger.get_errors()[3])
+
+    def test_damage_scenario_ids_are_checked_for_duplication(self):
+        # Arrange
+        default_test_case = TestCase()
+        default_test_case.mock_reader.setup_file(os.path.join(default_test_case.directory, FileType.to_path(FileType.DAMAGE_SCENARIOS)),
+"""# Damage Scenarios
+
+| ID    | Name                | Safety     | Operational | Financial | Privacy    | Reasoning | Comment   |
+| ----- | ------------------- | ---------- | ----------- | --------- | ---------- | --------- | --------- |
+| Ast-1 | ID from Assumptions | Severe     | Major       | Moderate  | Negligible | Reason 1  | Comment 1 |
+| DS-1  | Electrocuted person | Severe     | Major       | Moderate  | Negligible | Reason 1  | Comment 1 |
+| DS-1  | Litigation          | Negligible | Negligible  | Major     | Negligible | Reason 2  | Comment 2 |
+""")
+        # Act
+        tara = default_test_case.parser.parse(default_test_case.directory)
+
+        # Assert
+        self.assertEqual(len(tara.damage_scenarios), 3)
+        self.assertEqual(len(default_test_case.logger.get_errors()), 2)
+        self.assertIn("Duplicate ID found: Ast-1", default_test_case.logger.get_errors()[0])
+        self.assertIn("Duplicate ID found: DS-1", default_test_case.logger.get_errors()[1])
