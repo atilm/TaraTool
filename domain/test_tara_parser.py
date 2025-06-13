@@ -149,12 +149,13 @@ class TaraParserTests(unittest.TestCase):
 | ID   | Name                | Safety     | Operational | Financial | Privacy    | Reasoning | Comment   |
 | ---- | ------------------- | ---------- | ----------- | --------- | ---------- | --------- | --------- |
 | DS-1 | Electrocuted person | Sever      | major       | oderate   | NEGLIGIBLE | Reason 1  | Comment 1 |
+| DS-2 | Litigation          |            |             | Major     |            | Reason 2  | Comment 2 |
 """)
         # Act
         tara = default_test_case.parser.parse(default_test_case.directory)
 
         # Assert
-        self.assertEqual(len(tara.damage_scenarios), 1)
+        self.assertEqual(len(tara.damage_scenarios), 2)
         self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Safety], Impact.Severe)
         self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Operational], Impact.Severe)
         self.assertEqual(tara.damage_scenarios[0].impacts[ImpactCategory.Financial], Impact.Severe)
@@ -176,12 +177,13 @@ class TaraParserTests(unittest.TestCase):
 | Ast-1 | ID from Assumptions | Severe     | Major       | Moderate  | Negligible | Reason 1  | Comment 1 |
 | DS-1  | Electrocuted person | Severe     | Major       | Moderate  | Negligible | Reason 1  | Comment 1 |
 | DS-1  | Litigation          | Negligible | Negligible  | Major     | Negligible | Reason 2  | Comment 2 |
+| DS-2  | Litigation          |            |             | Major     |            | Reason 2  | Comment 2 |
 """)
         # Act
         tara = default_test_case.parser.parse(default_test_case.directory)
 
         # Assert
-        self.assertEqual(len(tara.damage_scenarios), 3)
+        self.assertEqual(len(tara.damage_scenarios), 4)
         self.assertEqual(len(default_test_case.logger.get_errors()), 2)
         self.assertIn("Duplicate ID found: Ast-1", default_test_case.logger.get_errors()[0])
         self.assertIn("Duplicate ID found: DS-1", default_test_case.logger.get_errors()[1])
@@ -204,3 +206,24 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(len(tara.assets), 2)
         self.assertEqual(len(default_test_case.logger.get_errors()), 1)
         self.assertIn("Duplicate ID found: A-1", default_test_case.logger.get_errors()[0])
+
+    def test_assets_only_link_to_existing_damage_scenarios(self):
+        # Arrange
+        default_test_case = TestCase()
+        default_test_case.mock_reader.setup_file(os.path.join(default_test_case.directory, FileType.to_path(FileType.ASSETS)),
+ """# Assets
+
+| ID  | Name    | Availability | Integrity | Confidentiality | Reasoning   | Description   |
+| --- | ------- | ------------ | --------- | --------------- | ----------- | ------------- |
+| A-1 | Asset 1 | DS-3         | DS-2      | DS-1 DS-2       | Reasoning 1 | Description 1 |
+| A-2 | Asset 2 |              | DS-2 DS-4 | Ast-1           | Reasoning 2 | Description 2 |
+""")       
+        # Act
+        tara = default_test_case.parser.parse(default_test_case.directory)
+
+        # Assert
+        self.assertEqual(len(tara.assets), 2)
+        self.assertEqual(len(default_test_case.logger.get_errors()), 3)
+        self.assertIn("Damage scenario DS-3 referenced by asset A-1 does not exist.", default_test_case.logger.get_errors()[0])
+        self.assertIn("Damage scenario DS-4 referenced by asset A-2 does not exist.", default_test_case.logger.get_errors()[1])
+        self.assertIn("ID Ast-1 referenced by asset A-2 is not a damage scenario.", default_test_case.logger.get_errors()[2])

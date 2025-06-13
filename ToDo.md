@@ -8,18 +8,22 @@
 
 * [.] Check for duplicate IDs
   * [x] Damage Scenarios
-  * [ ] Assets
+  * [x] Assets
   * [ ] Attack Trees
   * [ ] Security Goals
   * [ ] Security Controls
-* [ ] Check for references to non-existing IDs
+* [.] Check for references to non-existing IDs
+  * [ ] Assets to Damage Scenarios
+  * [ ] Mentions in Reasonings and Comments
 * [x] Parse Damage Scenarios
-* [ ] Parse Assets
+* [x] Parse Assets
 * [ ] Generate Attack Tree Stubs
 * [ ] Update Attack Tree Stubs
 * [ ] Parse Attack Trees
 * [ ] Feasibility-Calculation
 * [ ] Risk Calculation
+* [ ] Create report
+* [ ] Update IDs -> VSCode search / replace?
 * [ ] Simple but non-trivial example document
 
 ### Error Cases

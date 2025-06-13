@@ -40,6 +40,9 @@ class TaraParser:
         self.add_ids(tara.damage_scenarios)
         self.add_ids(tara.assets)
 
+        # check rules
+        self.check_damage_scenario_references_in_assets(tara)
+
         return tara
 
     def add_ids(self, objects: list[object]) -> None:
@@ -56,6 +59,24 @@ class TaraParser:
                     self.id_to_object[obj.id] = obj
             else:
                 raise ValueError("Object does not have a valid ID.") from None
+
+
+    def check_damage_scenario_references_in_assets(self, tara: Tara) -> None:
+        """
+        Checks if all damage scenarios referenced in assets exist in the TARA.
+        
+        :param tara: The Tara object containing assets and damage scenarios.
+        """
+        for asset in tara.assets:
+            for _security_property, damage_scenario_ids in asset.damage_scenarios.items():
+                for ds_id in damage_scenario_ids:
+                    if ds_id not in self.id_to_object:
+                        self.logger.log_error(f"Damage scenario {ds_id} referenced by asset {asset.id} does not exist.")
+                    else:
+                        ds = self.id_to_object[ds_id]
+                        if not isinstance(ds, DamageScenario):
+                            self.logger.log_error(f"ID {ds_id} referenced by asset {asset.id} is not a damage scenario.")
+
 
     def read_table(self, file_type: FileType, directory: str) -> MarkdownTable:
         """
@@ -74,6 +95,7 @@ class TaraParser:
 
         self.logger.log_error(f"{file_type} table not found in the document.")
         return None
+
 
     def extract_assumptions(self, table: MarkdownTable) -> list[Assumption]:
         """
@@ -95,6 +117,7 @@ class TaraParser:
             assumptions.append(assumption)
 
         return assumptions
+    
     
     def extract_damage_scenarios(self, table: MarkdownTable) -> list:
         """
