@@ -36,10 +36,12 @@ class TaraParserTests(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(tara.assumptions), 2)
+        
         self.assertEqual(tara.assumptions[0].id, "Ast-1")
         self.assertEqual(tara.assumptions[0].name, "abc")
         self.assertEqual(tara.assumptions[0].security_claim, "def")
         self.assertEqual(tara.assumptions[0].comment, "ghi")
+
         self.assertEqual(tara.assumptions[1].id, "Ast-2")
         self.assertEqual(tara.assumptions[1].name, "jkl")
         self.assertEqual(tara.assumptions[1].security_claim, "mno")

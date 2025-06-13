@@ -17,23 +17,42 @@ class TaraParser:
         :return: A Tara object populated with parsed data.
         """
 
-        assumption_content = self.file_reader.read_file(os.path.join(directory, FileType.to_path(FileType.ASSUMPTIONS)))
-        parser = MarkdownParser()
-        assumptions_doc: MarkdownDocument = parser.parse(assumption_content)
-
-        table = assumptions_doc.getContent()[1]  # Assuming the second content is the table
-
         tara = Tara()
+        assumptions_table = self.read_table(FileType.ASSUMPTIONS, directory)
+        tara.assumptions = self.extract_assumptions(assumptions_table)
 
-        if not isinstance(table, MarkdownTable):
-            raise ValueError("The second content in the assumptions document is not a table.")
+        return tara
+    
+    def read_table(self, file_type: FileType, directory: str) -> MarkdownTable:
+        """
+        Each file type is associated with a specific file name and the header
+        of a markdown table expected within that file.
+        The method reads the file, finds the table and parses it.
+        """
+
+        content = self.file_reader.read_file(os.path.join(directory, FileType.to_path(file_type)))
+        parser = MarkdownParser()
+        document: MarkdownDocument = parser.parse(content)
+
+        for content in document.getContent():
+            if isinstance(content, MarkdownTable) and content.hasHeader(FileType.get_header(file_type)):
+                return content
+
+        raise ValueError(f"{file_type} table not found in the document.")
+
+    def extract_assumptions(self, table: MarkdownTable) -> list[Assumption]:
+        """
+        Extracts assumptions from a MarkdownTable.
         
+        :param table: The MarkdownTable containing assumptions.
+        :return: A list of Assumption objects.
+        """
+        assumptions = []
         for row in range(table.getRowCount()):
             assumption = Assumption()
             assumption.id = table.getCell(row, 0)
             assumption.name = table.getCell(row, 1)
             assumption.security_claim = table.getCell(row, 2)
             assumption.comment = table.getCell(row, 3)
-            tara.assumptions.append(assumption)
-
-        return tara
+            assumptions.append(assumption)
+        return assumptions

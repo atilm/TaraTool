@@ -27,6 +27,23 @@ class FileType(Enum):
         else:
             raise ValueError(f"Unknown file type: {file_type}")
         
+    @classmethod
+    def get_header(cls, file_type: 'FileType') -> list[str]:
+        if file_type == cls.DESCRIPTION:
+            return []
+        elif file_type == cls.ASSUMPTIONS:
+            return ["ID", "Name", "Security Claim", "Comment"]
+        elif file_type == cls.ASSETS:
+            return ["ID", "Name", "Availability", "Integrity", "Confidentiality", "Reasoning", "Description"]
+        elif file_type == cls.DAMAGE_SCENARIOS:
+            return ["ID", "Name", "Safety", "Operational", "Financial", "Privacy", "Reasoning", "Comment"]
+        elif file_type == cls.METHOD_DESCRIPTION:
+            return []
+        else:
+            raise ValueError(f"Unknown file type: {file_type}")
+        
+    
+        
 file_stubs = {
     FileType.DESCRIPTION: FileStub(FileType.to_path(FileType.DESCRIPTION), 
 """# System Description and Scope
