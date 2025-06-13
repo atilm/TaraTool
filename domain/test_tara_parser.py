@@ -24,7 +24,7 @@ class TestCase:
 | ID   | Name                | Safety     | Operational | Financial | Privacy    | Reasoning | Comment   |
 | ---- | ------------------- | ---------- | ----------- | --------- | ---------- | --------- | --------- |
 | DS-1 | Electrocuted person | Severe     | Major       | Moderate  | Negligible | Reason 1  | Comment 1 |
-| DS-2 | Litigation          | Negligible | Negligible  | Major     | Negligible | Reason 2  | Comment 2 |
+| DS-2 | Litigation          |            |             | Major     |            | Reason 2  | Comment 2 |
 """)
         self.parser = TaraParser(self.mock_reader, self.logger)
         

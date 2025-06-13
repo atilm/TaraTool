@@ -129,6 +129,9 @@ class TaraParser:
         """
         impact_str = impact_str.strip()
 
+        if len(impact_str) == 0:
+            impact_str = "Negligible"  # Default to Negligible if empty
+
         try:
             return Impact[impact_str]
         except KeyError:

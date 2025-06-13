@@ -7,15 +7,20 @@
 ## Features
 
 * [.] Check for duplicate IDs
-  * [ ] Damage Scenarios
+  * [x] Damage Scenarios
   * [ ] Assets
   * [ ] Attack Trees
   * [ ] Security Goals
   * [ ] Security Controls
 * [ ] Check for references to non-existing IDs
-* [ ] Parse Damage Scenarios
+* [x] Parse Damage Scenarios
 * [ ] Parse Assets
+* [ ] Generate Attack Tree Stubs
+* [ ] Update Attack Tree Stubs
 * [ ] Parse Attack Trees
+* [ ] Feasibility-Calculation
+* [ ] Risk Calculation
+* [ ] Simple but non-trivial example document
 
 ### Error Cases
 
