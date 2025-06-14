@@ -1,6 +1,7 @@
 from domain.tara import Tara
 from domain.asset import Asset
 from domain.security_property import SecurityProperty
+from domain.attack_tree import attack_tree_id
 from utilities.file_writer import FileWriter
 from utilities.error_logger import IErrorLogger
 
@@ -26,7 +27,7 @@ class AttackTreeStubGenerator:
                 if not damage_scenarios or len(damage_scenarios) == 0:
                     continue
 
-                tree_id = self.attack_tree_id(asset, security_property)
+                tree_id = attack_tree_id(asset, security_property)
                 file_path = f"{directory}/AttackTrees/{tree_id}.md"
 
                 if self.file_writer.exists(file_path):
@@ -51,18 +52,18 @@ f"""* Node: (OR, AND, LEAF, REF)
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
 * Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
 
-| {self.attack_tree_id(asset, security_property)} | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
+| {attack_tree_id(asset, security_property)} | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
 | ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
 | {security_property.to_attack_description()} of {asset.name} |      |     |     |     |     |     |           |         |         |
 """
         )
     
-    def attack_tree_id(self, asset: Asset, security_property: SecurityProperty) -> str:
-        """
-        Generates the attack tree ID based on the asset and security property.
+    # def attack_tree_id(self, asset: Asset, security_property: SecurityProperty) -> str:
+    #     """
+    #     Generates the attack tree ID based on the asset and security property.
         
-        :param asset: The asset for which the attack tree ID is being generated.
-        :param security_property: The security property associated with the attack tree.
-        :return: A string representing the attack tree ID.
-        """
-        return f"AT_{asset.id}_{security_property.to_attack_id()}"
+    #     :param asset: The asset for which the attack tree ID is being generated.
+    #     :param security_property: The security property associated with the attack tree.
+    #     :return: A string representing the attack tree ID.
+    #     """
+    #     return f"AT_{asset.id}_{security_property.to_attack_id()}"

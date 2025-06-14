@@ -35,6 +35,31 @@ class TestCase:
 | A-1 | Asset 1 | DS-1         | DS-2      | DS-1 DS-2       | Reasoning 1 | Description 1 |
 | A-2 | Asset 2 |              | DS-2 DS-1 | DS-2            | Reasoning 2 | Description 2 |
 """)
+        
+        default_attack_tree = """* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| {0}                      | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Control | Comment |
+| ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
+| Root Threat                          | OR   | 1m  | L   | sC  | M   | St  |           |         |         |"""
+
+        attack_tree_ids = [
+            "AT_A-1_BLOCK",
+            "AT_A-1_MAN",
+            "AT_A-1_EXT",
+            "AT_A-2_MAN",
+            "AT_A-2_EXT",
+        ]
+
+        for attack_tree_id in attack_tree_ids:
+            attack_tree_file_path = os.path.join(self.directory, "AttackTrees", f"{attack_tree_id}.md")
+            attack_tree_file_content = default_attack_tree.format(attack_tree_id)
+            self.mock_reader.setup_file(attack_tree_file_path, attack_tree_file_content)
+
         self.parser = TaraParser(self.mock_reader, self.logger)
         
 
@@ -97,7 +122,9 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Integrity][0], "DS-2")
         self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Integrity][1], "DS-1")
         self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Confidentiality][0], "DS-2")
-        # self.assertEqual(len(tara.attack_trees), 2)
+        
+        self.assertEqual(len(tara.attack_trees), 5)
+        self.fail("Attack tree content validation not implemented yet.")
 
     def test_error_missing_assumptions_table(self):
         # Arrange
@@ -204,8 +231,11 @@ class TaraParserTests(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(tara.assets), 2)
-        self.assertEqual(len(default_test_case.logger.get_errors()), 1)
+        self.assertEqual(len(default_test_case.logger.get_errors()), 3)
         self.assertIn("Duplicate ID found: A-1", default_test_case.logger.get_errors()[0])
+        # Duplicated attack tree IDs follow from the duplicated asset ID
+        self.assertIn("Duplicate ID found: AT_A-1_MAN", default_test_case.logger.get_errors()[1])
+        self.assertIn("Duplicate ID found: AT_A-1_EXT", default_test_case.logger.get_errors()[2])
 
     def test_assets_only_link_to_existing_damage_scenarios(self):
         # Arrange

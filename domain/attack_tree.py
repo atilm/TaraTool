@@ -1,4 +1,16 @@
 from domain.feasibility import Feasibility
+from domain.asset import Asset
+from domain.security_property import SecurityProperty
+
+def attack_tree_id(asset: Asset, security_property: SecurityProperty) -> str:
+    """
+    Generates the attack tree ID based on the asset and security property.
+    
+    :param asset: The asset for which the attack tree ID is being generated.
+    :param security_property: The security property associated with the attack tree.
+    :return: A string representing the attack tree ID.
+    """
+    return f"AT_{asset.id}_{security_property.to_attack_id()}"
 
 class AttackTreeNode:
     def __init__(self):
@@ -40,7 +52,7 @@ class AttackTreeReferenceNode(AttackTreeNode):
 
 
 class AttackTree:
-    def __init__(self, name: str, description: str = None):
-        self.name = name
-        self.description = description
+    def __init__(self, id: str):
+        self.id = id
+        self.description = ""
         self.root_node = []

@@ -14,3 +14,11 @@ class Asset:
         self.damage_scenarios[SecurityProperty.Confidentiality] = []
         # A text continaining an explanation for the asset's security properties and damage scenarios
         self.reasoning: str = ""
+
+    def security_properties(self) -> list[SecurityProperty]:
+        """
+        Returns a list of security properties that have associated damage scenarios.
+        
+        :return: A list of SecurityProperty enums.
+        """
+        return [sp for sp, scenarios in self.damage_scenarios.items() if len(scenarios) > 0]

@@ -6,6 +6,7 @@ from domain.damage_scenario import DamageScenario
 from domain.impacts import ImpactCategory, Impact
 from domain.asset import Asset
 from domain.security_property import SecurityProperty
+from domain.attack_tree import AttackTree, attack_tree_id
 from utilities.file_reader import IFileReader
 from utilities.error_logger import IErrorLogger
 from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
@@ -35,10 +36,17 @@ class TaraParser:
         assets_table = self.read_table(FileType.ASSETS, directory)
         tara.assets = self.extract_assets(assets_table)
 
+        attack_tree_ids = []
+        for asset in tara.assets:
+            for sp in asset.security_properties():
+                attack_tree_ids.append(attack_tree_id(asset, sp))
+                tara.attack_trees.append(AttackTree(attack_tree_id(asset, sp)))
+
         # register all objects by their ID
         self.add_ids(tara.assumptions)
         self.add_ids(tara.damage_scenarios)
         self.add_ids(tara.assets)
+        self.add_ids(tara.attack_trees)
 
         # check rules
         self.check_damage_scenario_references_in_assets(tara)
