@@ -1,4 +1,6 @@
 from domain.tara import Tara
+from domain.asset import Asset
+from domain.security_property import SecurityProperty
 from utilities.file_writer import FileWriter
 from utilities.error_logger import IErrorLogger
 
@@ -25,25 +27,25 @@ class AttackTreeStubGenerator:
                 for ds_id in damage_scenarios:
                     file_name = f"AT_{asset.id}_{security_property.to_attack_id()}.md"
                     file_path = f"{directory}/AttackTrees/{file_name}"
-                    content = self._generate_stub_content(asset, security_property, ds_id)
+                    content = self._generate_stub_content(asset, security_property)
                     self.file_writer.write(file_path, content)
 
-    def _generate_stub_content(self, asset, security_property, ds_id) -> str:
+    def _generate_stub_content(self, asset: Asset, security_property: SecurityProperty) -> str:
         """
         Generates the content for the attack tree stub file.
         
         :param asset: The asset for which the attack tree is being generated.
         :param security_property: The security property associated with the attack tree.
-        :param ds_id: The ID of the damage scenario.
         :return: A string containing the content for the attack tree stub file.
         """
         return (
-            f"# Attack Tree for {asset.name} - {security_property}\n\n"
-            f"## Damage Scenario ID: {ds_id}\n\n"
-            "## Description\n"
-            "This is a stub for the attack tree. Please fill in the details.\n\n"
-            "## Steps\n"
-            "1. Identify threats\n"
-            "2. Analyze vulnerabilities\n"
-            "3. Develop mitigation strategies\n"
+f"""* ET: Elapsed Time
+* Ex: Expertise
+* Kn: Knowledge
+* WoO: Window of Opportunity
+
+| AT_{asset.id}_{security_property.to_attack_id()} | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
+| ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
+| {security_property.to_attack_description()} of {asset.name} |      |     |     |     |     |     |           |         |         |
+"""
         )

@@ -65,3 +65,14 @@ class TestAttackTreeStubGenerator(unittest.TestCase):
 
         for file_name in expected_files:
             self.assertIn(f"./AttackTrees/{file_name}", test_case.file_writer.written_files)
+
+        self.assertEqual(test_case.file_writer.written_files[f"./AttackTrees/AT_AST-DB_BLOCK.md"],
+"""* ET: Elapsed Time
+* Ex: Expertise
+* Kn: Knowledge
+* WoO: Window of Opportunity
+
+| AT_AST-DB_BLOCK | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
+| ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
+| Blocking of Database Server |      |     |     |     |     |     |           |         |         |
+""")
