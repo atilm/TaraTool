@@ -13,12 +13,15 @@
   * [ ] Security Goals
   * [ ] Security Controls
 * [.] Check for references to non-existing IDs
-  * [ ] Assets to Damage Scenarios
+  * [x] Assets to Damage Scenarios
   * [ ] Mentions in Reasonings and Comments
 * [x] Parse Damage Scenarios
 * [x] Parse Assets
-* [ ] Generate Attack Tree Stubs
-* [ ] Update Attack Tree Stubs
+* [ ] Generate & Update Attack Tree Stubs
+  * [x] Create AttackTrees directory
+  * [ ] Create correct content
+  * [ ] Do not overwrite existing files
+  * [ ] Output warnings for unneeded attack tree files
 * [ ] Parse Attack Trees
 * [ ] Feasibility-Calculation
 * [ ] Risk Calculation

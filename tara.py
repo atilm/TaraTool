@@ -1,7 +1,9 @@
 import sys, os
 from domain.file_stubs import file_stubs
 from domain.tara_parser import TaraParser
+from domain.attack_tree_stub_generator import AttackTreeStubGenerator
 from utilities.file_reader import FileReader
+from utilities.file_writer import FileWriter
 from utilities.error_logger import ErrorLogger
 
 usage_help = "Usage: python tara.py [init|check|gentrees|generate]"
@@ -28,8 +30,15 @@ def generate_attack_trees():
     error_logger = ErrorLogger()
     print("Parsing input files...")
     parser = TaraParser(FileReader(), error_logger)
+    directory = "."
+    tara = parser.parse(directory)
+    if error_logger.has_errors():
+        print("Errors found during parsing. Please fix them before generating attack trees.")
+        sys.exit(1)
+        
     print("Generating attack trees...")
-    
+    generator = AttackTreeStubGenerator(FileWriter(), error_logger)
+    generator.update_stubs(tara, directory)
 
 def generate():
     print("Generating...")
