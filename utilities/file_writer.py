@@ -5,7 +5,7 @@ class IFileWriter:
         """Writes content to a file at the specified path."""
         raise NotImplementedError("This method should be overridden by subclasses.")
 
-    def _exists(self, file_path: str) -> bool:
+    def exists(self, file_path: str) -> bool:
         """Checks if a file exists at the specified path."""
         raise NotImplementedError("This method should be overridden by subclasses.")
 
@@ -21,7 +21,7 @@ class FileWriter(IFileWriter):
         except Exception as e:
             raise IOError(f"An error occurred while writing to the file {file_path}: {e}")
 
-    def _exists(self, file_path: str) -> bool:
+    def exists(self, file_path: str) -> bool:
         """Checks if a file exists at the specified path."""
         return os.path.exists(file_path)
 
@@ -39,6 +39,6 @@ class MockFileWriter(IFileWriter):
         """Sets up a list of existing files for the mock writer."""
         self.existing_files.update(file_paths)
 
-    def _exists(self, file_path: str) -> bool:
+    def exists(self, file_path: str) -> bool:
         """Checks if a file exists at the specified path."""
         return file_path in self.existing_files

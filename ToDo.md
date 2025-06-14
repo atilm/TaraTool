@@ -17,12 +17,14 @@
   * [ ] Mentions in Reasonings and Comments
 * [x] Parse Damage Scenarios
 * [x] Parse Assets
-* [ ] Generate & Update Attack Tree Stubs
+* [.] Generate & Update Attack Tree Stubs
   * [x] Create AttackTrees directory
-  * [ ] Create correct content
-  * [ ] Do not overwrite existing files
+  * [x] Create correct content
+  * [x] Do not overwrite existing files
   * [ ] Output warnings for unneeded attack tree files
 * [ ] Parse Attack Trees
+  * [ ] Only accept defined feasibility ratings
+  * [ ] Only accept defined node types (empty = leaf)
 * [ ] Feasibility-Calculation
 * [ ] Risk Calculation
 * [ ] Create report

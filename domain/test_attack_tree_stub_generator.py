@@ -9,8 +9,8 @@ from domain.attack_tree_stub_generator import AttackTreeStubGenerator
 
 class TestCase:
     def __init__(self):
-        self.error_logger = MemoryErrorLogger()
-        self.file_writer = MockFileWriter()
+        self.error_logger: MemoryErrorLogger = MemoryErrorLogger()
+        self.file_writer: MockFileWriter = MockFileWriter()
         self.generator = AttackTreeStubGenerator(self.file_writer, self.error_logger)
         self.tara = Tara()
 
@@ -76,3 +76,22 @@ class TestAttackTreeStubGenerator(unittest.TestCase):
 | ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
 | Blocking of Database Server |      |     |     |     |     |     |           |         |         |
 """)
+        
+    def test_existing_attack_tree_files_are_not_overwritten(self):
+        # Arrange
+        test_case = TestCase()
+        generator = test_case.generator
+        tara = test_case.tara
+
+        # Create a mock file that already exists
+        test_case.file_writer.setup_exisiting_files(["./AttackTrees/AT_AST-DB_BLOCK.md", "./AttackTrees/AT_AST-CRED_EXT.md"])
+
+        # Act
+        generator.update_stubs(tara, ".")
+
+        # Assert
+        self.assertIn(f"./AttackTrees/AT_AST-DB_MAN.md", test_case.file_writer.written_files)
+        self.assertIn(f"./AttackTrees/AT_AST-DB_EXT.md", test_case.file_writer.written_files)
+        
+        self.assertNotIn(f"./AttackTrees/AT_AST-DB_BLOCK.md", test_case.file_writer.written_files)
+        self.assertNotIn(f"./AttackTrees/AT_AST-CRED_EXT.md", test_case.file_writer.written_files)
