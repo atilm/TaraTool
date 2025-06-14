@@ -44,10 +44,12 @@ class AttackTreeStubGenerator:
         :return: A string containing the content for the attack tree stub file.
         """
         return (
-f"""* ET: Elapsed Time
-* Ex: Expertise
-* Kn: Knowledge
-* WoO: Window of Opportunity
+f"""* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (Layman, Proficient, Expert, mExperts)
+* Kn: Knowledge (Public, Restricted, Confidential, sConfidential)
+* WoO: Window of Opportunity (Unlimited, Easy, Moderate, Difficult)
+* Eq: Equipment (Standard, Specialized, Bespoke, mBespoke)
 
 | {self.attack_tree_id(asset, security_property)} | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
 | ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |

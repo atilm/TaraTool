@@ -67,10 +67,12 @@ class TestAttackTreeStubGenerator(unittest.TestCase):
             self.assertIn(f"./AttackTrees/{file_name}", test_case.file_writer.written_files)
 
         self.assertEqual(test_case.file_writer.written_files[f"./AttackTrees/AT_AST-DB_BLOCK.md"],
-"""* ET: Elapsed Time
-* Ex: Expertise
-* Kn: Knowledge
-* WoO: Window of Opportunity
+"""* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (Layman, Proficient, Expert, mExperts)
+* Kn: Knowledge (Public, Restricted, Confidential, sConfidential)
+* WoO: Window of Opportunity (Unlimited, Easy, Moderate, Difficult)
+* Eq: Equipment (Standard, Specialized, Bespoke, mBespoke)
 
 | AT_AST-DB_BLOCK | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
 | ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
