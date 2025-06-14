@@ -46,10 +46,10 @@ class AttackTreeStubGenerator:
         return (
 f"""* Node: (OR, AND, LEAF, REF)
 * ET: Elapsed Time (1w, 1m, 6m, >6m)
-* Ex: Expertise (Layman, Proficient, Expert, mExperts)
-* Kn: Knowledge (Public, Restricted, Confidential, sConfidential)
-* WoO: Window of Opportunity (Unlimited, Easy, Moderate, Difficult)
-* Eq: Equipment (Standard, Specialized, Bespoke, mBespoke)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
 
 | {self.attack_tree_id(asset, security_property)} | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
 | ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
