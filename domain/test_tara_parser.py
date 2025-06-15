@@ -3,6 +3,7 @@ from domain.tara_parser import TaraParser
 from domain.file_stubs import FileType
 from domain.impacts import ImpactCategory, Impact
 from domain.security_property import SecurityProperty
+from domain.feasibility import *
 from utilities.file_reader import MockFileReader
 from utilities.error_logger import MemoryErrorLogger
 
@@ -36,16 +37,18 @@ class TestCase:
 | A-2 | Asset 2 |              | DS-2 DS-1 | DS-2            | Reasoning 2 | Description 2 |
 """)
         
-        default_attack_tree = """* Node: (OR, AND, LEAF, REF)
+        default_attack_tree = """# {0}
+
+* Node: (OR, AND, LEAF, REF)
 * ET: Elapsed Time (1w, 1m, 6m, >6m)
 * Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
 * Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
 * Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
 
-| {0}                      | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Control | Comment |
-| ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
-| Root Threat                          | OR   | 1m  | L   | sC  | M   | St  |           |         |         |"""
+| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------| ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat | OR   | 1m  | L   | sC  | M   | St  | Reasoning 1 |         | Comment 1 |"""
 
         attack_tree_ids = [
             "AT_A-1_BLOCK",
@@ -124,7 +127,18 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Confidentiality][0], "DS-2")
         
         self.assertEqual(len(tara.attack_trees), 5)
-        self.fail("Attack tree content validation not implemented yet.")
+        root_node_0 = tara.attack_trees[0].root_node
+
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = ElapsedTime.OneMonth
+        expected_feasibility.expertise = Expertise.Layman
+        expected_feasibility.knowledge = Knowledge.StrictlyConfidential
+        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Moderate
+        expected_feasibility.equipment = Equipment.Standard
+
+        self.assertEqual(root_node_0.get_feasibility(), expected_feasibility)
+        self.assertEqual(root_node_0.reasoning, "Reasoning 1")
+        self.assertEqual(root_node_0.comment, "Comment 1")
 
     def test_error_missing_assumptions_table(self):
         # Arrange

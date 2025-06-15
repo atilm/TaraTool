@@ -10,6 +10,7 @@ class FileType(Enum):
     ASSUMPTIONS = "assumptions"
     ASSETS = "assets"
     DAMAGE_SCENARIOS = "damage_scenarios"
+    ATTACK_TREE = "attack_tree"
     METHOD_DESCRIPTION = "method_description"
         
     @classmethod
@@ -24,6 +25,8 @@ class FileType(Enum):
             return "03_DamageScenarios.md"
         elif file_type == cls.METHOD_DESCRIPTION:
             return "MethodDescription.md"
+        elif file_type == cls.ATTACK_TREE:
+            raise ValueError("There is no fixed file name for attack tree files.")
         else:
             raise ValueError(f"Unknown file type: {file_type}")
         
@@ -37,6 +40,8 @@ class FileType(Enum):
             return ["ID", "Name", "Availability", "Integrity", "Confidentiality", "Reasoning", "Description"]
         elif file_type == cls.DAMAGE_SCENARIOS:
             return ["ID", "Name", "Safety", "Operational", "Financial", "Privacy", "Reasoning", "Comment"]
+        elif file_type == cls.ATTACK_TREE:
+            return ["Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Reasoning", "Control", "Comment"]
         elif file_type == cls.METHOD_DESCRIPTION:
             return []
         else:

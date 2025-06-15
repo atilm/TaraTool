@@ -43,3 +43,20 @@ class Feasibility:
         self.knowledge: Knowledge = Knowledge.Public
         self.window_of_opportunity: WindowOfOpportunity = WindowOfOpportunity.Unlimited
         self.equipment: Equipment = Equipment.Standard
+        
+    def __eq__(self, other):
+        if not isinstance(other, Feasibility):
+            return False
+        
+        if self.time != other.time:
+            return False
+        if self.expertise != other.expertise:
+            return False
+        if self.knowledge != other.knowledge:
+            return False
+        if self.window_of_opportunity != other.window_of_opportunity:
+            return False
+        if self.equipment != other.equipment:
+            return False
+        
+        return True

@@ -6,7 +6,8 @@ from domain.damage_scenario import DamageScenario
 from domain.impacts import ImpactCategory, Impact
 from domain.asset import Asset
 from domain.security_property import SecurityProperty
-from domain.attack_tree import AttackTree, attack_tree_id
+from domain.attack_tree import *
+from domain.feasibility import *
 from utilities.file_reader import IFileReader
 from utilities.error_logger import IErrorLogger
 from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
@@ -36,11 +37,19 @@ class TaraParser:
         assets_table = self.read_table(FileType.ASSETS, directory)
         tara.assets = self.extract_assets(assets_table)
 
+        # generate all attack tree ids
         attack_tree_ids = []
         for asset in tara.assets:
             for sp in asset.security_properties():
                 attack_tree_ids.append(attack_tree_id(asset, sp))
-                tara.attack_trees.append(AttackTree(attack_tree_id(asset, sp)))
+
+        # parse all attack trees
+        for att_id in attack_tree_ids:
+            file_name = f"{att_id}.md"
+            att_dir = os.path.join(directory, "AttackTrees")
+            attack_tree_table = self.read_table(FileType.ATTACK_TREE, att_dir, file_name) 
+            attack_tree = self.extract_attack_tree(attack_tree_table, att_id)       
+            tara.attack_trees.append(attack_tree)
 
         # register all objects by their ID
         self.add_ids(tara.assumptions)
@@ -86,14 +95,17 @@ class TaraParser:
                             self.logger.log_error(f"ID {ds_id} referenced by asset {asset.id} is not a damage scenario.")
 
 
-    def read_table(self, file_type: FileType, directory: str) -> MarkdownTable:
+    def read_table(self, file_type: FileType, directory: str, file_name: str = None) -> MarkdownTable:
         """
         Each file type is associated with a specific file name and the header
         of a markdown table expected within that file.
         The method reads the file, finds the table and parses it.
         """
 
-        content = self.file_reader.read_file(os.path.join(directory, FileType.to_path(file_type)))
+        if file_name is None:
+            file_name = FileType.to_path(file_type)
+
+        content = self.file_reader.read_file(os.path.join(directory, file_name))
         parser = MarkdownParser()
         document: MarkdownDocument = parser.parse(content)
 
@@ -103,7 +115,6 @@ class TaraParser:
 
         self.logger.log_error(f"{file_type} table not found in the document.")
         return None
-
 
     def extract_assumptions(self, table: MarkdownTable) -> list[Assumption]:
         """
@@ -201,6 +212,32 @@ class TaraParser:
 
         return assets
     
+    def extract_attack_tree(self, table: MarkdownTable, attack_tree_id: str) -> AttackTree:
+        """
+        Parses an attack tree from a markdown table.
+        
+        :param table: The markdown table containing the tree.
+        :param attack_tree_id: The trees id corresponding to the markdown file name.
+        :return: The parsed attack tree.
+        """
+
+        mock_feasibility = Feasibility()
+        mock_feasibility.time = ElapsedTime.OneMonth
+        mock_feasibility.expertise = Expertise.Layman
+        mock_feasibility.knowledge = Knowledge.StrictlyConfidential
+        mock_feasibility.window_of_opportunity = WindowOfOpportunity.Moderate
+        mock_feasibility.equipment = Equipment.Standard
+
+        node = AttackTreeLeafNode(mock_feasibility)
+        node.comment = table.getCell(0, 9) # "Comment 1"
+        node.reasoning = table.getCell(0, 7) # "Reasoning 1"
+        
+        tree =  AttackTree(attack_tree_id)
+        tree.root_node = node
+
+        return tree
+
+
     def damage_scenarios_from_column(self, table: MarkdownTable, row: int, column: int) -> list[str]:
         """
         A damage scenario table contains white-space separated damage scenario ids in each security property column.

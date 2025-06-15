@@ -15,6 +15,8 @@ def attack_tree_id(asset: Asset, security_property: SecurityProperty) -> str:
 class AttackTreeNode:
     def __init__(self):
         self.name: str = ""
+        self.reasoning: str = ""
+        self.comment: str = ""
         self.children = []
 
     def add_child(self, child_node):
@@ -41,18 +43,24 @@ class AttackTreeOrNode(AttackTreeNode):
         self.type = "OR"
 
 class AttackTreeLeafNode(AttackTreeNode):
-    def __init__(self):
+    def __init__(self, feasibility: Feasibility):
         super().__init__()
         self.name = ""
         self.type = "LEAF"
+        self._feasibility = feasibility
+
+    def get_feasibility(self):
+        return self._feasibility
 
 class AttackTreeReferenceNode(AttackTreeNode):
     def __init__(self):
         super().__init__()
+        self.type = "REFERENCE"
+        self.referenced_node = None
 
 
 class AttackTree:
     def __init__(self, id: str):
         self.id = id
         self.description = ""
-        self.root_node = []
+        self.root_node: AttackTreeNode = None
