@@ -45,25 +45,17 @@ class AttackTreeStubGenerator:
         :return: A string containing the content for the attack tree stub file.
         """
         return (
-f"""* Node: (OR, AND, LEAF, REF)
+f"""# {attack_tree_id(asset, security_property)}
+
+* Node: (OR, AND, LEAF, REF)
 * ET: Elapsed Time (1w, 1m, 6m, >6m)
 * Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
 * Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
 * Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
 
-| {attack_tree_id(asset, security_property)} | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
+| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
 | ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
 | {security_property.to_attack_description()} of {asset.name} |      |     |     |     |     |     |           |         |         |
 """
         )
-    
-    # def attack_tree_id(self, asset: Asset, security_property: SecurityProperty) -> str:
-    #     """
-    #     Generates the attack tree ID based on the asset and security property.
-        
-    #     :param asset: The asset for which the attack tree ID is being generated.
-    #     :param security_property: The security property associated with the attack tree.
-    #     :return: A string representing the attack tree ID.
-    #     """
-    #     return f"AT_{asset.id}_{security_property.to_attack_id()}"
