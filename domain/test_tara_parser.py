@@ -48,7 +48,7 @@ class TestCase:
 
 | Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ------------| ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-| Root Threat | OR   | 1m  | L   | sC  | M   | St  | Reasoning 1 |         | Comment 1 |"""
+| Root Threat | LEAF | 1m  | L   | sC  | M   | St  | Reasoning 1 |         | Comment 1 |"""
 
         attack_tree_ids = [
             "AT_A-1_BLOCK",

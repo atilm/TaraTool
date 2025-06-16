@@ -221,22 +221,36 @@ class TaraParser:
         :return: The parsed attack tree.
         """
 
+        row = 0
+
         mock_feasibility = Feasibility()
-        mock_feasibility.time = ElapsedTime.OneMonth
+        mock_feasibility.time = self.parse_elapsed_time(table.getCell(row, 2)) #ElapsedTime.OneMonth
         mock_feasibility.expertise = Expertise.Layman
         mock_feasibility.knowledge = Knowledge.StrictlyConfidential
         mock_feasibility.window_of_opportunity = WindowOfOpportunity.Moderate
         mock_feasibility.equipment = Equipment.Standard
 
         node = AttackTreeLeafNode(mock_feasibility)
-        node.comment = table.getCell(0, 9) # "Comment 1"
-        node.reasoning = table.getCell(0, 7) # "Reasoning 1"
+        node.comment = table.getCell(row, 9) # "Comment 1"
+        node.reasoning = table.getCell(row, 7) # "Reasoning 1"
         
         tree =  AttackTree(attack_tree_id)
         tree.root_node = node
 
         return tree
 
+    def parse_elapsed_time(self, s: str) -> ElapsedTime:
+        s = s.strip()
+        if s == "1w":
+            return ElapsedTime.OneWeek
+        elif s == "1m":
+            return ElapsedTime.OneMonth
+        # elif s == "6m":
+        #     return ElapsedTime.SixMonths
+        # elif s == ">6m":
+        #     return ElapsedTime.MoreThanSixMonths
+        # else:
+        #     self.logger.log_error(f"Invalid elapsed time string found: 'f{s}'")
 
     def damage_scenarios_from_column(self, table: MarkdownTable, row: int, column: int) -> list[str]:
         """
