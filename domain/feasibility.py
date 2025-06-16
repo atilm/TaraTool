@@ -1,10 +1,11 @@
 from enum import Enum
 
 class ElapsedTime(Enum):
-    OneWeek = 1
-    OneMonth = 4
-    SixMonths = 17
-    MoreThanSixMonths = 19
+    OneWeek = 0
+    OneMonth = 1
+    SixMonths = 4
+    ThreeYears = 10
+    MoreThanThreeYears = 19
 
 class Expertise(Enum):
     Layman = 0
@@ -31,10 +32,10 @@ class Equipment(Enum):
     MultipleBespoke = 9
 
 class FeasibilityLevel(Enum):
-    VeryLow = 0
-    Low = 1
-    Medium = 2
-    High = 3
+    High = 13       # 0  to 13: high feasibility
+    Medium = 19     # 14 to 19: medium feasibility
+    Low = 24        # 20 to 24: low feasibility
+    VeryLow = 0     #     > 25: very low feasibility
 
 class Feasibility:
     def __init__(self):

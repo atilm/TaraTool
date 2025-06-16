@@ -70,11 +70,11 @@ class TestAttackTreeStubGenerator(unittest.TestCase):
 """# AT_AST-DB_BLOCK
 
 * Node: (OR, AND, LEAF, REF)
-* ET: Elapsed Time (1w, 1m, 6m, >6m)
-* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
-* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
+* ET: Elapsed Time (1w, 1m, 6m, 3y, >3y)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
-* Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, MB: multiple Bespoke)
 
 | Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
 | ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
