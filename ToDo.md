@@ -25,10 +25,10 @@
   * [x] Do not overwrite existing files
   * [ ] Output warnings for unneeded attack tree files
 * [ ] Parse Attack Trees
-  * [ ] Test for all existing feasibility ratings
   * [ ] Only accept defined feasibility ratings
   * [ ] Only accept defined node types (empty = leaf)
-  * [.] Parse Leaf Nodes
+  * [x] Parse Leaf Nodes
+  * [x] Test for all existing feasibility ratings
   * [ ] Parse Reference Nodes
 * [ ] Feasibility-Calculation
   * [ ] Include Reference Nodes

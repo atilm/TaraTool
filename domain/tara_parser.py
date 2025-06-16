@@ -221,36 +221,97 @@ class TaraParser:
         :return: The parsed attack tree.
         """
 
-        row = 0
+        prev_node = None
 
-        mock_feasibility = Feasibility()
-        mock_feasibility.time = self.parse_elapsed_time(table.getCell(row, 2)) #ElapsedTime.OneMonth
-        mock_feasibility.expertise = Expertise.Layman
-        mock_feasibility.knowledge = Knowledge.StrictlyConfidential
-        mock_feasibility.window_of_opportunity = WindowOfOpportunity.Moderate
-        mock_feasibility.equipment = Equipment.Standard
+        for row in range(table.getRowCount()):
+            comment = table.getCell(row, 9) # "Comment 1"
+            reasoning = table.getCell(row, 7) # "Reasoning 1"
+            
+            row_type = table.getCell(row, 1)
+            if row_type == "OR":
+                node = AttackTreeOrNode()
+                node.comment = comment
+                node.reasoning = reasoning
+                prev_node = node
+            elif row_type == "LEAF" or row_type == "":
+                feasibility = Feasibility()
+                feasibility.time = self.parse_elapsed_time(table.getCell(row, 2))
+                feasibility.expertise = self.parse_expertise(table.getCell(row, 3))
+                feasibility.knowledge = self.parse_knowledge(table.getCell(row, 4))
+                feasibility.window_of_opportunity = self.parse_window_of_opportunity(table.getCell(row, 5))
+                feasibility.equipment = self.parse_equipment(table.getCell(row, 6))
 
-        node = AttackTreeLeafNode(mock_feasibility)
-        node.comment = table.getCell(row, 9) # "Comment 1"
-        node.reasoning = table.getCell(row, 7) # "Reasoning 1"
+                node = AttackTreeLeafNode(feasibility)
+                node.comment = comment
+                node.reasoning = reasoning
+                prev_node.add_child(node)
         
         tree =  AttackTree(attack_tree_id)
-        tree.root_node = node
+        tree.root_node = prev_node
 
         return tree
 
     def parse_elapsed_time(self, s: str) -> ElapsedTime:
-        s = s.strip()
         if s == "1w":
             return ElapsedTime.OneWeek
         elif s == "1m":
             return ElapsedTime.OneMonth
-        # elif s == "6m":
-        #     return ElapsedTime.SixMonths
-        # elif s == ">6m":
-        #     return ElapsedTime.MoreThanSixMonths
-        # else:
-        #     self.logger.log_error(f"Invalid elapsed time string found: 'f{s}'")
+        elif s == "6m":
+            return ElapsedTime.SixMonths
+        elif s == "3y":
+            return ElapsedTime.ThreeYears
+        elif s == ">3y":
+            return ElapsedTime.MoreThanThreeYears
+        else:
+            self.logger.log_error(f"Invalid elapsed time string found: 'f{s}'")
+
+    def parse_expertise(self, s: str) -> Expertise:
+        if s == "L":
+            return Expertise.Layman
+        elif s == "P":
+            return Expertise.Proficient
+        elif s == "E":
+            return Expertise.Expert
+        elif s == "ME":
+            return Expertise.MultipleExperts
+        else:
+            self.logger.log_error(f"Invalid expertise string found: 'f{s}'")
+
+    def parse_knowledge(self, s: str) -> Knowledge:
+        if s == "P":
+            return Knowledge.Public
+        elif s == "R":
+            return Knowledge.Restricted
+        elif s == "C":
+            return Knowledge.Confidential
+        elif s == "SC":
+            return Knowledge.StrictlyConfidential
+        else:
+            self.logger.log_error(f"Invalid knowledge string found: 'f{s}'")
+
+    def parse_window_of_opportunity(self, s: str) -> WindowOfOpportunity:
+        if s == "U":
+            return WindowOfOpportunity.Unlimited
+        elif s == "E":
+            return WindowOfOpportunity.Easy
+        elif s == "M":
+            return WindowOfOpportunity.Moderate
+        elif s == "D":
+            return WindowOfOpportunity.Difficult
+        else:
+            self.logger.log_error(f"Invalid window of opportunity string found: 'f{s}'")
+
+    def parse_equipment(self, s: str) -> Expertise:
+        if s == "ST":
+            return Equipment.Standard
+        elif s == "SP":
+            return Equipment.Specialized
+        elif s == "B":
+            return Equipment.Bespoke
+        elif s == "MB":
+            return Equipment.MultipleBespoke
+        else:
+            self.logger.log_error(f"Invalid equipment string found: 'f{s}'")
 
     def damage_scenarios_from_column(self, table: MarkdownTable, row: int, column: int) -> list[str]:
         """

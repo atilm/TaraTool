@@ -4,6 +4,7 @@ from domain.file_stubs import FileType
 from domain.impacts import ImpactCategory, Impact
 from domain.security_property import SecurityProperty
 from domain.feasibility import *
+from domain.attack_tree import *
 from utilities.file_reader import MockFileReader
 from utilities.error_logger import MemoryErrorLogger
 
@@ -46,9 +47,14 @@ class TestCase:
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
 * Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
 
-| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
-| ------------| ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-| Root Threat | LEAF | 1m  | L   | sC  | M   | St  | Reasoning 1 |         | Comment 1 |"""
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat    | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
+| -- Threat 1    | LEAF | 1w  | L   | P   | U   | ST  | Reasoning 1 |         | Comment 1 |
+| -- Threat 2    | LEAF | 1m  | P   | R   | E   | SP  | Reasoning 2 |         | Comment 2 |
+| -- Threat 3    |      | 6m  | E   | C   | M   | B   | Reasoning 3 |         | Comment 3 |
+| -- Threat 4    |      | 3y  | ME  | SC  | D   | MB  | Reasoning 4 |         | Comment 4 |
+| -- Threat 5    |      | >3y | L   | P   | U   | ST  | Reasoning 5 |         | Comment 5 |"""
 
         attack_tree_ids = [
             "AT_A-1_BLOCK",
@@ -129,16 +135,56 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(len(tara.attack_trees), 5)
         root_node_0 = tara.attack_trees[0].root_node
 
-        expected_feasibility = Feasibility()
-        expected_feasibility.time = ElapsedTime.OneMonth
-        expected_feasibility.expertise = Expertise.Layman
-        expected_feasibility.knowledge = Knowledge.StrictlyConfidential
-        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Moderate
-        expected_feasibility.equipment = Equipment.Standard
+        self.assertIsInstance(root_node_0, AttackTreeOrNode)
+        self.assertEqual(len(root_node_0.children), 5)
+        self.assert_feasibility(root_node_0.children[0],
+                        ElapsedTime.OneWeek,
+                        Expertise.Layman,
+                        Knowledge.Public,
+                        WindowOfOpportunity.Unlimited,
+                        Equipment.Standard)
+        self.assert_feasibility(root_node_0.children[1],
+                        ElapsedTime.OneMonth,
+                        Expertise.Proficient,
+                        Knowledge.Restricted,
+                        WindowOfOpportunity.Easy,
+                        Equipment.Specialized)
+        self.assert_feasibility(root_node_0.children[2],
+                        ElapsedTime.SixMonths,
+                        Expertise.Expert,
+                        Knowledge.Confidential,
+                        WindowOfOpportunity.Moderate,
+                        Equipment.Bespoke)
+        self.assert_feasibility(root_node_0.children[3],
+                        ElapsedTime.ThreeYears,
+                        Expertise.MultipleExperts,
+                        Knowledge.StrictlyConfidential,
+                        WindowOfOpportunity.Difficult,
+                        Equipment.MultipleBespoke)
+        self.assert_feasibility(root_node_0.children[4],
+                        ElapsedTime.MoreThanThreeYears,
+                        Expertise.Layman,
+                        Knowledge.Public,
+                        WindowOfOpportunity.Unlimited,
+                        Equipment.Standard)
 
-        self.assertEqual(root_node_0.get_feasibility(), expected_feasibility)
-        self.assertEqual(root_node_0.reasoning, "Reasoning 1")
-        self.assertEqual(root_node_0.comment, "Comment 1")
+
+        self.assertEqual(root_node_0.reasoning, "Reasoning 0")
+        self.assertEqual(root_node_0.comment, "Comment 0")
+        self.assertEqual(root_node_0.children[0].reasoning, "Reasoning 1")
+        self.assertEqual(root_node_0.children[0].comment, "Comment 1")
+
+
+    def assert_feasibility(self, node: AttackTreeNode, time, expertise, knowledge, woOpportunity, equipement):
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = time
+        expected_feasibility.expertise = expertise
+        expected_feasibility.knowledge = knowledge
+        expected_feasibility.window_of_opportunity = woOpportunity
+        expected_feasibility.equipment = equipement
+        
+        self.assertEqual(node.get_feasibility(), expected_feasibility)
+
 
     def test_error_missing_assumptions_table(self):
         # Arrange
