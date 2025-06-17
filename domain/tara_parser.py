@@ -275,11 +275,11 @@ class TaraParser:
                 node = AttackTreeAndNode()
             elif row_type == "LEAF" or row_type == "":
                 feasibility = Feasibility()
-                feasibility.time = self.parse_elapsed_time(table.getCell(row, 2))
-                feasibility.expertise = self.parse_expertise(table.getCell(row, 3))
-                feasibility.knowledge = self.parse_knowledge(table.getCell(row, 4))
-                feasibility.window_of_opportunity = self.parse_window_of_opportunity(table.getCell(row, 5))
-                feasibility.equipment = self.parse_equipment(table.getCell(row, 6))
+                feasibility.time = self.parse_elapsed_time(table.getCell(row, 2), attack_tree_id)
+                feasibility.expertise = self.parse_expertise(table.getCell(row, 3), attack_tree_id)
+                feasibility.knowledge = self.parse_knowledge(table.getCell(row, 4), attack_tree_id)
+                feasibility.window_of_opportunity = self.parse_window_of_opportunity(table.getCell(row, 5), attack_tree_id)
+                feasibility.equipment = self.parse_equipment(table.getCell(row, 6), attack_tree_id)
 
                 node = AttackTreeLeafNode(feasibility)
 
@@ -300,7 +300,7 @@ class TaraParser:
 
         return tree
 
-    def parse_elapsed_time(self, s: str) -> ElapsedTime:
+    def parse_elapsed_time(self, s: str, tree_id: str) -> ElapsedTime:
         if s == "1w":
             return ElapsedTime.OneWeek
         elif s == "1m":
@@ -312,9 +312,9 @@ class TaraParser:
         elif s == ">3y":
             return ElapsedTime.MoreThanThreeYears
         else:
-            self.logger.log_error(f"Invalid elapsed time string found: 'f{s}'")
+            self.logger.log_error(f"Invalid elapsed time string found in attack tree {tree_id}: '{s}'")
 
-    def parse_expertise(self, s: str) -> Expertise:
+    def parse_expertise(self, s: str, tree_id: str) -> Expertise:
         if s == "L":
             return Expertise.Layman
         elif s == "P":
@@ -324,9 +324,9 @@ class TaraParser:
         elif s == "ME":
             return Expertise.MultipleExperts
         else:
-            self.logger.log_error(f"Invalid expertise string found: 'f{s}'")
+            self.logger.log_error(f"Invalid expertise string found in attack tree {tree_id}: '{s}'")
 
-    def parse_knowledge(self, s: str) -> Knowledge:
+    def parse_knowledge(self, s: str, tree_id: str) -> Knowledge:
         if s == "P":
             return Knowledge.Public
         elif s == "R":
@@ -336,9 +336,9 @@ class TaraParser:
         elif s == "SC":
             return Knowledge.StrictlyConfidential
         else:
-            self.logger.log_error(f"Invalid knowledge string found: 'f{s}'")
+            self.logger.log_error(f"Invalid knowledge string found in attack tree {tree_id}: '{s}'")
 
-    def parse_window_of_opportunity(self, s: str) -> WindowOfOpportunity:
+    def parse_window_of_opportunity(self, s: str, tree_id: str) -> WindowOfOpportunity:
         if s == "U":
             return WindowOfOpportunity.Unlimited
         elif s == "E":
@@ -348,9 +348,9 @@ class TaraParser:
         elif s == "D":
             return WindowOfOpportunity.Difficult
         else:
-            self.logger.log_error(f"Invalid window of opportunity string found: 'f{s}'")
+            self.logger.log_error(f"Invalid window of opportunity string found in attack tree {tree_id}: '{s}'")
 
-    def parse_equipment(self, s: str) -> Expertise:
+    def parse_equipment(self, s: str, tree_id: str) -> Expertise:
         if s == "ST":
             return Equipment.Standard
         elif s == "SP":
@@ -360,4 +360,4 @@ class TaraParser:
         elif s == "MB":
             return Equipment.MultipleBespoke
         else:
-            self.logger.log_error(f"Invalid equipment string found: 'f{s}'")
+            self.logger.log_error(f"Invalid equipment string found in attack tree {tree_id}: '{s}'")

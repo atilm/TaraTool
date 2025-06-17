@@ -38,7 +38,7 @@
 ### Error Cases
 
 * [ ] AttackTrees
-  * [ ] None-existent feasibility rating
+  * [x] Non-existent feasibility rating
   * [ ] uneven number of indentations
   * [ ] Non-zero indentation for root-node
   * [ ] And or Or-Nodes without children
