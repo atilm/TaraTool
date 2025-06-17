@@ -224,12 +224,19 @@ class TaraParser:
         prev_node = None
 
         for row in range(table.getRowCount()):
+            name = table.getCell(row, 0)
+
+            while name.startswith("-"):
+                name = name[1:]
+            name = name.strip()
+
             comment = table.getCell(row, 9) # "Comment 1"
             reasoning = table.getCell(row, 7) # "Reasoning 1"
             
             row_type = table.getCell(row, 1)
             if row_type == "OR":
                 node = AttackTreeOrNode()
+                node.name = name
                 node.comment = comment
                 node.reasoning = reasoning
                 prev_node = node
@@ -242,6 +249,7 @@ class TaraParser:
                 feasibility.equipment = self.parse_equipment(table.getCell(row, 6))
 
                 node = AttackTreeLeafNode(feasibility)
+                node.name = name
                 node.comment = comment
                 node.reasoning = reasoning
                 prev_node.add_child(node)

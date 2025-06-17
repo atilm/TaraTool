@@ -169,8 +169,11 @@ class TaraParserTests(unittest.TestCase):
                         Equipment.Standard)
 
 
+        self.assertEqual(root_node_0.name, "Root Threat")
         self.assertEqual(root_node_0.reasoning, "Reasoning 0")
         self.assertEqual(root_node_0.comment, "Comment 0")
+
+        self.assertEqual(root_node_0.children[0].name, "Threat 1")
         self.assertEqual(root_node_0.children[0].reasoning, "Reasoning 1")
         self.assertEqual(root_node_0.children[0].comment, "Comment 1")
 
