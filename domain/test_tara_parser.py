@@ -188,6 +188,53 @@ class TaraParserTests(unittest.TestCase):
         
         self.assertEqual(node.get_feasibility(), expected_feasibility)
 
+    def test_parse_multi_level_attack_tree(self):
+        # Arrange: only one Threat Scenario
+        default_test_case = TestCase()
+        directory = default_test_case.directory
+        default_test_case.mock_reader.setup_file(os.path.join(directory, FileType.to_path(FileType.ASSETS)),
+"""# Assets
+
+| ID  | Name    | Availability | Integrity | Confidentiality | Reasoning   | Description   |
+| --- | ------- | ------------ | --------- | --------------- | ----------- | ------------- |
+| A-1 | Asset 1 | DS-1         |           |                 | Reasoning 1 | Description 1 |
+""")
+
+        attack_tree = """# AT_A-1_BLOCK
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, MB: multiple Bespoke)
+
+| Attack Tree       | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat       | OR   |     |     |     |     |     |             |         |           |
+| -- Threat1        | OR   |     |     |     |     |     |             |         |           |
+| ---- Sub Threat 1 |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| ---- Sub Threat 2 |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| -- Threat2        | AND  |     |     |     |     |     |             |         |           |
+| ---- Sub Threat 3 |      | 1w  | L   | P   | U   | ST  |             |         |           |"""
+
+        attack_tree_file_path = os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md")
+        default_test_case.mock_reader.setup_file(attack_tree_file_path, attack_tree)
+
+        # Act
+        tara = default_test_case.parser.parse(directory)
+
+        # Assert
+        self.assertEqual(len(tara.attack_trees), 1)
+        root = tara.attack_trees[0].root_node
+        self.assertIsInstance(root, AttackTreeOrNode)
+        self.assertEqual(len(root.children), 2)
+        self.assertIsInstance(root.children[0], AttackTreeOrNode)
+        self.assertEqual(len(root.children[0].children), 2)
+        self.assertIsInstance(root.children[1], AttackTreeAndNode)
+        self.assertEqual(len(root.children[1].children), 1)
+
+
 
     def test_error_missing_assumptions_table(self):
         # Arrange

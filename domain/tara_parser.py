@@ -212,6 +212,30 @@ class TaraParser:
 
         return assets
     
+    def damage_scenarios_from_column(self, table: MarkdownTable, row: int, column: int) -> list[str]:
+        """
+        A damage scenario table contains white-space separated damage scenario ids in each security property column.
+        This method extracts damage scenario ids from a specific column in the MarkdownTable.
+        
+        :param table: The MarkdownTable containing assets.
+        :param row: The row index to extract from.
+        :param column: The column index to extract from.
+        :return: A list of DamageScenario ids.
+        """
+        damage_scenarios = []
+        cell_content = table.getCell(row, column)
+
+        if len(cell_content) == 0:
+            return damage_scenarios
+
+        # Split by whitespace and strip whitespace
+        ids = [id.strip() for id in cell_content.split() if id.strip()]
+        
+        for id in ids:
+            damage_scenarios.append(id)
+        
+        return damage_scenarios
+
     def extract_attack_tree(self, table: MarkdownTable, attack_tree_id: str) -> AttackTree:
         """
         Parses an attack tree from a markdown table.
@@ -221,25 +245,34 @@ class TaraParser:
         :return: The parsed attack tree.
         """
 
-        prev_node = None
+        node: AttackTreeNode = None
+        prev_node: AttackTreeNode = None
+        node_stack: list[AttackTreeNode] = []
+        prev_indentation: int = 0
+        indentation: int = 0
 
         for row in range(table.getRowCount()):
+            # determine indentation and node name
             name = table.getCell(row, 0)
 
+            prev_indentation = indentation
+            indentation = 0
             while name.startswith("-"):
                 name = name[1:]
+                indentation += 1
             name = name.strip()
 
-            comment = table.getCell(row, 9) # "Comment 1"
-            reasoning = table.getCell(row, 7) # "Reasoning 1"
+            comment = table.getCell(row, 9)
+            reasoning = table.getCell(row, 7)
             
+            prev_node = node
+            node: AttackTreeNode = None
+
             row_type = table.getCell(row, 1)
             if row_type == "OR":
                 node = AttackTreeOrNode()
-                node.name = name
-                node.comment = comment
-                node.reasoning = reasoning
-                prev_node = node
+            elif row_type == "AND":
+                node = AttackTreeAndNode()
             elif row_type == "LEAF" or row_type == "":
                 feasibility = Feasibility()
                 feasibility.time = self.parse_elapsed_time(table.getCell(row, 2))
@@ -249,13 +282,21 @@ class TaraParser:
                 feasibility.equipment = self.parse_equipment(table.getCell(row, 6))
 
                 node = AttackTreeLeafNode(feasibility)
-                node.name = name
-                node.comment = comment
-                node.reasoning = reasoning
-                prev_node.add_child(node)
+
+            node.name = name
+            node.comment = comment
+            node.reasoning = reasoning
+
+            if indentation > prev_indentation:
+                node_stack.append(prev_node)
+            elif indentation < prev_indentation:
+                node_stack.pop()
+                
+            if len(node_stack) != 0:
+                node_stack[-1].add_child(node)    
         
         tree =  AttackTree(attack_tree_id)
-        tree.root_node = prev_node
+        tree.root_node = node_stack[0]
 
         return tree
 
@@ -320,27 +361,3 @@ class TaraParser:
             return Equipment.MultipleBespoke
         else:
             self.logger.log_error(f"Invalid equipment string found: 'f{s}'")
-
-    def damage_scenarios_from_column(self, table: MarkdownTable, row: int, column: int) -> list[str]:
-        """
-        A damage scenario table contains white-space separated damage scenario ids in each security property column.
-        This method extracts damage scenario ids from a specific column in the MarkdownTable.
-        
-        :param table: The MarkdownTable containing assets.
-        :param row: The row index to extract from.
-        :param column: The column index to extract from.
-        :return: A list of DamageScenario ids.
-        """
-        damage_scenarios = []
-        cell_content = table.getCell(row, column)
-
-        if len(cell_content) == 0:
-            return damage_scenarios
-
-        # Split by whitespace and strip whitespace
-        ids = [id.strip() for id in cell_content.split() if id.strip()]
-        
-        for id in ids:
-            damage_scenarios.append(id)
-        
-        return damage_scenarios
