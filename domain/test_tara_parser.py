@@ -238,13 +238,6 @@ class TaraParserTests(unittest.TestCase):
         # Arrange: only one Threat Scenario
         default_test_case = TestCase()
         directory = default_test_case.directory
-#         default_test_case.mock_reader.setup_file(os.path.join(directory, FileType.to_path(FileType.ASSETS)),
-# """# Assets
-
-# | ID  | Name    | Availability | Integrity | Confidentiality | Reasoning   | Description   |
-# | --- | ------- | ------------ | --------- | --------------- | ----------- | ------------- |
-# | A-1 | Asset 1 | DS-1         |           |                 | Reasoning 1 | Description 1 |
-# """)
 
         attack_tree = """# AT_A-1_BLOCK
 
@@ -262,7 +255,8 @@ class TaraParserTests(unittest.TestCase):
 | ---- Sub Threat 1 |      | 3w  | wL  | wP  | w   |     |             |         |           |
 | ---- Sub Threat 2 |      | 1w  | L   | P   | U   | ST  |             |         |           |
 | -- Threat2        | AND  |     |     |     |     |     |             |         |           |
-| ---- Sub Threat 3 |      | 1w  | L   | P   | U   | ST  |             |         |           |"""
+| ---- Sub Threat 3 |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| -- Threat3        | XOR  |     |     |     |     |     |             |         |           |"""
 
         attack_tree_file_path = os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md")
         default_test_case.mock_reader.setup_file(attack_tree_file_path, attack_tree)
@@ -276,6 +270,7 @@ class TaraParserTests(unittest.TestCase):
         self.assertIn("Invalid knowledge string found in attack tree AT_A-1_BLOCK: 'wP'", default_test_case.logger.get_errors())
         self.assertIn("Invalid window of opportunity string found in attack tree AT_A-1_BLOCK: 'w'", default_test_case.logger.get_errors())
         self.assertIn("Invalid equipment string found in attack tree AT_A-1_BLOCK: ''", default_test_case.logger.get_errors())
+        self.assertIn("Invalid node type found in attack tree AT_A-1_BLOCK: 'XOR'", default_test_case.logger.get_errors())
 
     def test_error_missing_assumptions_table(self):
         # Arrange

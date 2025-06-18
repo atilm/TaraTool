@@ -280,8 +280,11 @@ class TaraParser:
                 feasibility.knowledge = self.parse_knowledge(table.getCell(row, 4), attack_tree_id)
                 feasibility.window_of_opportunity = self.parse_window_of_opportunity(table.getCell(row, 5), attack_tree_id)
                 feasibility.equipment = self.parse_equipment(table.getCell(row, 6), attack_tree_id)
-
                 node = AttackTreeLeafNode(feasibility)
+            else:
+                self.logger.log_error(f"Invalid node type found in attack tree {attack_tree_id}: '{row_type}'")
+                continue
+
 
             node.name = name
             node.comment = comment

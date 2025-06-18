@@ -39,16 +39,16 @@
 
 * [ ] AttackTrees
   * [x] Non-existent feasibility rating
-  * [ ] uneven number of indentations
+  * [x] Unknown node type
+  * [ ] Missing Attack Tree Table -> File Name in error message
+  * [ ] Multiple level-0 nodes
   * [ ] Non-zero indentation for root-node
   * [ ] And or Or-Nodes without children
-  * [ ] Unknown node type
-  * [ ] Multiple level-0 nodes
-  * [ ] Mssing Attack Tree Table -> File Name in error message
+  * [ ] uneven number of indentations
   * [ ] Output warnings for unneeded attack tree files
 * [x] Missing Assumptions Table
 * [ ] Missing Files
   * [ ] Assumptions
   * [ ] ...
-* [ ] Misformatted tables
+* [ ] Mis-formatted tables
 * [x] Damage Scenarios: only accept defined impacts
