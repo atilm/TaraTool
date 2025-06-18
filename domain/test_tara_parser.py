@@ -261,10 +261,14 @@ class TaraParserTests(unittest.TestCase):
         attack_tree_file_path = os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md")
         default_test_case.mock_reader.setup_file(attack_tree_file_path, attack_tree)
 
+        missing_table_file_path = os.path.join(directory, "AttackTrees",  "AT_A-1_MAN.md")
+        default_test_case.mock_reader.setup_file(missing_table_file_path, "")
+
         # Act
         tara = default_test_case.parser.parse(directory)
 
         # Assert
+        self.assertIn("No attack tree table found in file AT_A-1_MAN.md. Is the table header correct?", default_test_case.logger.get_errors())
         self.assertIn("Invalid elapsed time string found in attack tree AT_A-1_BLOCK: '3w'", default_test_case.logger.get_errors())
         self.assertIn("Invalid expertise string found in attack tree AT_A-1_BLOCK: 'wL'", default_test_case.logger.get_errors())
         self.assertIn("Invalid knowledge string found in attack tree AT_A-1_BLOCK: 'wP'", default_test_case.logger.get_errors())

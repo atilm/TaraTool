@@ -47,7 +47,10 @@ class TaraParser:
         for att_id in attack_tree_ids:
             file_name = f"{att_id}.md"
             att_dir = os.path.join(directory, "AttackTrees")
-            attack_tree_table = self.read_table(FileType.ATTACK_TREE, att_dir, file_name) 
+            attack_tree_table = self.read_table(FileType.ATTACK_TREE, att_dir, file_name)
+            if attack_tree_table is None:
+                self.logger.log_error(f"No attack tree table found in file {file_name}. Is the table header correct?")
+                continue
             attack_tree = self.extract_attack_tree(attack_tree_table, att_id)       
             tara.attack_trees.append(attack_tree)
 
