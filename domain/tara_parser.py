@@ -11,6 +11,7 @@ from domain.feasibility import *
 from utilities.file_reader import IFileReader
 from utilities.error_logger import IErrorLogger
 from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
+import re
 
 class TaraParser:
     def __init__(self, file_reader: IFileReader, logger: IErrorLogger):
@@ -317,6 +318,16 @@ class TaraParser:
                     feasibility.window_of_opportunity = self.parse_window_of_opportunity(table.getCell(row, 5), attack_tree_id)
                     feasibility.equipment = self.parse_equipment(table.getCell(row, 6), attack_tree_id)
                     node = AttackTreeLeafNode(feasibility)
+                elif row_type == "REF":
+                    node = AttackTreeReferenceNode()
+                    match = re.match(r"\[(.*?)\]\((.*?)\)", name)
+                    if match:
+                        name = match.group(1)
+                        ref_path = match.group(2)
+                        node.referenced_node_id = os.path.splitext(os.path.basename(ref_path))[0]
+                    else:
+                        self.logger.log_error(f"Invalid reference node format in attack tree {attack_tree_id}: '{name}'")
+
                 else:
                     self.logger.log_error(f"Invalid node type found in attack tree {attack_tree_id}: '{row_type}'")
                     continue

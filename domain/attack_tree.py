@@ -56,8 +56,7 @@ class AttackTreeReferenceNode(AttackTreeNode):
     def __init__(self):
         super().__init__()
         self.type = "REFERENCE"
-        self.referenced_node = None
-
+        self.referenced_node_id: str = None
 
 class AttackTree:
     def __init__(self, id: str):

@@ -234,6 +234,43 @@ class TaraParserTests(unittest.TestCase):
         self.assertIsInstance(root.children[1], AttackTreeAndNode)
         self.assertEqual(len(root.children[1].children), 1)
 
+    def test_parse_reference_nodes_in_attack_trees(self):
+        # Arrange
+        default_test_case = TestCase()
+        directory = default_test_case.directory
+        default_test_case.mock_reader.setup_file(os.path.join(directory, FileType.to_path(FileType.ASSETS)),
+"""# Assets
+
+| ID  | Name    | Availability | Integrity | Confidentiality | Reasoning   | Description   |
+| --- | ------- | ------------ | --------- | --------------- | ----------- | ------------- |
+| A-1 | Asset 1 | DS-1         | DS-1      |                 | Reasoning 1 | Description 1 |
+""")
+        default_test_case.mock_reader.setup_file(os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md"),
+"""# AT_A-1_BLOCK
+
+| Attack Tree                                   | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| --------------------------------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Blocking of Asset 1                           | OR   |     |     |     |     |     |             |         |           |
+| -- Sub Threat 1                               |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| -- [Manipulation of Asset 1](./AT_A-1_MAN.md) | REF  |     |     |     |     |     |             |         |           |""")
+        
+        default_test_case.mock_reader.setup_file(os.path.join(directory, "AttackTrees", "AT_A-1_MAN.md"),
+"""# AT_A-1_MAN
+
+| Attack Tree             | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Manipulation of Asset 1 | OR   |     |     |     |     |     |             |         |           |
+| -- Sub Threat 1         |      | 1w  | L   | P   | U   | ST  |             |         |           |""")
+
+        # Act
+        tara = default_test_case.parser.parse(directory)
+
+        # Assert
+        reference_node = tara.attack_trees[0].root_node.children[1]
+        self.assertIsInstance(reference_node, AttackTreeReferenceNode)
+        self.assertEqual(reference_node.name, "Manipulation of Asset 1")
+        self.assertEqual(reference_node.referenced_node_id, "AT_A-1_MAN")
+
     def test_errors_in_attack_tree(self):
         # Arrange: only one Threat Scenario
         default_test_case = TestCase()
@@ -254,6 +291,7 @@ class TaraParserTests(unittest.TestCase):
 | -- Threat1        | OR   |     |     |     |     |     |             |         |           |
 | ---- Sub Threat 1 |      | 3w  | wL  | wP  | w   |     |             |         |           |
 | ---- Sub Threat 2 |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| ---- format error | REF  |     |     |     |     |     |             |         |           |
 | -- Threat2        | XOR  |     |     |     |     |     |             |         |           |
 | -- Threat3        | AND  |     |     |     |     |     |             |         |           |
 | -- Threat4        | OR   |     |     |     |     |     |             |         |           |"""
@@ -293,6 +331,7 @@ class TaraParserTests(unittest.TestCase):
         # Assert
         self.assertIn("No attack tree table found in file AT_A-1_MAN.md. Is the table header correct?", default_test_case.logger.get_errors())
 
+        self.assertIn("Invalid reference node format in attack tree AT_A-1_BLOCK: 'format error'", default_test_case.logger.get_errors())
         self.assertIn("Invalid elapsed time string found in attack tree AT_A-1_BLOCK: '3w'", default_test_case.logger.get_errors())
         self.assertIn("Invalid expertise string found in attack tree AT_A-1_BLOCK: 'wL'", default_test_case.logger.get_errors())
         self.assertIn("Invalid knowledge string found in attack tree AT_A-1_BLOCK: 'wP'", default_test_case.logger.get_errors())

@@ -19,7 +19,7 @@
 * [x] Parse Assets
 * [.] Generate & Update Attack Tree Stubs
   * [ ] Update Attack Tree stubs to example from parser test
-  * [ ] Move as much as possible of the attack tree file stub content to file_stubs.py 
+  * [ ] Move as much as possible of the attack tree file stub content to file_stubs.py
   * [x] Create AttackTrees directory
   * [x] Create correct content
   * [x] Do not overwrite existing files
@@ -27,7 +27,9 @@
   * [x] Only accept defined node types (empty = leaf)
   * [x] Parse Leaf Nodes
   * [x] Test for all existing feasibility ratings
-  * [ ] Parse Reference Nodes
+  * [x] Parse Reference Nodes
+    * [x] Reference has unexpected format
+    * [ ] Referenced trees do not exist
 * [ ] Feasibility-Calculation
   * [ ] Include Reference Nodes
 * [ ] Risk Calculation
