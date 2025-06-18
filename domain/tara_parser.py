@@ -62,6 +62,7 @@ class TaraParser:
 
         # check rules
         self.check_damage_scenario_references_in_assets(tara)
+        self.check_attack_tree_nodes_have_children(tara)
 
         return tara
 
@@ -97,6 +98,31 @@ class TaraParser:
                         if not isinstance(ds, DamageScenario):
                             self.logger.log_error(f"ID {ds_id} referenced by asset {asset.id} is not a damage scenario.")
 
+    def check_attack_tree_nodes_have_children(self, tara: Tara) -> None:
+        """
+        Checks if all attack tree nodes of type AND and OR have at least one child.
+        
+        :param tara: The Tara object containing attack trees.
+        """
+        def check_has_children(attack_tree_id: str, node: AttackTreeNode, logger: IErrorLogger) -> None:
+            """
+            Recursively checks if the node has children.
+            """
+            if not(isinstance(node, AttackTreeOrNode) or isinstance(node, AttackTreeAndNode)):
+                return
+            
+            if len(node.children) == 0:
+                logger.log_error(f"Node {node.name} in attack tree {attack_tree_id} has no children.")
+            for child in node.children:
+                check_has_children(attack_tree_id, child, logger)
+
+
+        for tree in tara.attack_trees:
+            if tree.root_node is None:
+                self.logger.log_error(f"Attack tree {tree.id} has no root node.")
+                continue
+            
+            check_has_children(tree.id, tree.root_node, self.logger)
 
     def read_table(self, file_type: FileType, directory: str, file_name: str = None) -> MarkdownTable:
         """
@@ -245,66 +271,76 @@ class TaraParser:
         
         :param table: The markdown table containing the tree.
         :param attack_tree_id: The trees id corresponding to the markdown file name.
-        :return: The parsed attack tree.
+        :return: The parsed attack tree. An attack tree with root_node None is returned if the table is empty or invalid.
         """
-
-        node: AttackTreeNode = None
-        prev_node: AttackTreeNode = None
-        node_stack: list[AttackTreeNode] = []
-        prev_indentation: int = 0
-        indentation: int = 0
-
-        for row in range(table.getRowCount()):
-            # determine indentation and node name
-            name = table.getCell(row, 0)
-
-            prev_indentation = indentation
-            indentation = 0
-            while name.startswith("-"):
-                name = name[1:]
-                indentation += 1
-            name = name.strip()
-
-            comment = table.getCell(row, 9)
-            reasoning = table.getCell(row, 7)
-            
-            prev_node = node
+        try:
             node: AttackTreeNode = None
+            prev_node: AttackTreeNode = None
+            node_stack: list[AttackTreeNode] = []
+            prev_indentation: int = 0
+            indentation: int = 0
+            root_node_count: int = 0
 
-            row_type = table.getCell(row, 1)
-            if row_type == "OR":
-                node = AttackTreeOrNode()
-            elif row_type == "AND":
-                node = AttackTreeAndNode()
-            elif row_type == "LEAF" or row_type == "":
-                feasibility = Feasibility()
-                feasibility.time = self.parse_elapsed_time(table.getCell(row, 2), attack_tree_id)
-                feasibility.expertise = self.parse_expertise(table.getCell(row, 3), attack_tree_id)
-                feasibility.knowledge = self.parse_knowledge(table.getCell(row, 4), attack_tree_id)
-                feasibility.window_of_opportunity = self.parse_window_of_opportunity(table.getCell(row, 5), attack_tree_id)
-                feasibility.equipment = self.parse_equipment(table.getCell(row, 6), attack_tree_id)
-                node = AttackTreeLeafNode(feasibility)
-            else:
-                self.logger.log_error(f"Invalid node type found in attack tree {attack_tree_id}: '{row_type}'")
-                continue
+            for row in range(table.getRowCount()):
+                # determine indentation and node name
+                name = table.getCell(row, 0)
 
+                prev_indentation = indentation
+                indentation = 0
+                while name.startswith("-"):
+                    name = name[1:]
+                    indentation += 1
+                name = name.strip()
 
-            node.name = name
-            node.comment = comment
-            node.reasoning = reasoning
+                if indentation == 0:
+                    root_node_count += 1
+                    if root_node_count > 1:
+                        self.logger.log_error(f"Multiple root nodes found in attack tree {attack_tree_id}. Only one root node is allowed.")
+                        return AttackTree(attack_tree_id)
 
-            if indentation > prev_indentation:
-                node_stack.append(prev_node)
-            elif indentation < prev_indentation:
-                node_stack.pop()
+                comment = table.getCell(row, 9)
+                reasoning = table.getCell(row, 7)
                 
-            if len(node_stack) != 0:
-                node_stack[-1].add_child(node)    
-        
-        tree =  AttackTree(attack_tree_id)
-        tree.root_node = node_stack[0]
+                prev_node = node
+                node: AttackTreeNode = None
 
-        return tree
+                row_type = table.getCell(row, 1)
+                if row_type == "OR":
+                    node = AttackTreeOrNode()
+                elif row_type == "AND":
+                    node = AttackTreeAndNode()
+                elif row_type == "LEAF" or row_type == "":
+                    feasibility = Feasibility()
+                    feasibility.time = self.parse_elapsed_time(table.getCell(row, 2), attack_tree_id)
+                    feasibility.expertise = self.parse_expertise(table.getCell(row, 3), attack_tree_id)
+                    feasibility.knowledge = self.parse_knowledge(table.getCell(row, 4), attack_tree_id)
+                    feasibility.window_of_opportunity = self.parse_window_of_opportunity(table.getCell(row, 5), attack_tree_id)
+                    feasibility.equipment = self.parse_equipment(table.getCell(row, 6), attack_tree_id)
+                    node = AttackTreeLeafNode(feasibility)
+                else:
+                    self.logger.log_error(f"Invalid node type found in attack tree {attack_tree_id}: '{row_type}'")
+                    continue
+
+
+                node.name = name
+                node.comment = comment
+                node.reasoning = reasoning
+
+                if indentation > prev_indentation:
+                    node_stack.append(prev_node)
+                elif indentation < prev_indentation:
+                    node_stack.pop()
+                    
+                if len(node_stack) != 0:
+                    node_stack[-1].add_child(node)    
+            
+            tree =  AttackTree(attack_tree_id)
+            tree.root_node = node_stack[0]
+
+            return tree
+        except Exception:
+            self.logger.log_error(f"Error parsing attack tree {attack_tree_id}")
+            return AttackTree(attack_tree_id)
 
     def parse_elapsed_time(self, s: str, tree_id: str) -> ElapsedTime:
         if s == "1w":

@@ -40,11 +40,12 @@
 * [ ] AttackTrees
   * [x] Non-existent feasibility rating
   * [x] Unknown node type
-  * [ ] Missing Attack Tree Table -> File Name in error message
-  * [ ] Multiple level-0 nodes
-  * [ ] Non-zero indentation for root-node
-  * [ ] And or Or-Nodes without children
-  * [ ] uneven number of indentations
+  * [x] Missing Attack Tree Table -> File Name in error message
+  * [x] Multiple level-0 nodes
+  * [x] Non-zero indentation for root-node
+  * [x] And or Or-Nodes without children
+  * [ ] Empty table -> probably caught by general error
+  * [ ] uneven number of indentations -> unnecessary restriction?
   * [ ] Output warnings for unneeded attack tree files
 * [x] Missing Assumptions Table
 * [ ] Missing Files

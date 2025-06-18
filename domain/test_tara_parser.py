@@ -254,27 +254,57 @@ class TaraParserTests(unittest.TestCase):
 | -- Threat1        | OR   |     |     |     |     |     |             |         |           |
 | ---- Sub Threat 1 |      | 3w  | wL  | wP  | w   |     |             |         |           |
 | ---- Sub Threat 2 |      | 1w  | L   | P   | U   | ST  |             |         |           |
-| -- Threat2        | AND  |     |     |     |     |     |             |         |           |
-| ---- Sub Threat 3 |      | 1w  | L   | P   | U   | ST  |             |         |           |
-| -- Threat3        | XOR  |     |     |     |     |     |             |         |           |"""
+| -- Threat2        | XOR  |     |     |     |     |     |             |         |           |
+| -- Threat3        | AND  |     |     |     |     |     |             |         |           |
+| -- Threat4        | OR   |     |     |     |     |     |             |         |           |"""
 
         attack_tree_file_path = os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md")
         default_test_case.mock_reader.setup_file(attack_tree_file_path, attack_tree)
 
+        # Missing table file
+        file_content = ""
         missing_table_file_path = os.path.join(directory, "AttackTrees",  "AT_A-1_MAN.md")
-        default_test_case.mock_reader.setup_file(missing_table_file_path, "")
+        default_test_case.mock_reader.setup_file(missing_table_file_path, file_content)
+
+        # Multiple roots
+        attack_tree_multiple_roots = """# AT_A-1_EXT
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat    | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
+| -- Threat 1    | LEAF | 1w  | L   | P   | U   | ST  | Reasoning 1 |         | Comment 1 |
+| Threat 2       | LEAF | 1m  | P   | R   | E   | SP  | Reasoning 2 |         | Comment 2 |"""
+        multiple_roots_file_path = os.path.join(directory, "AttackTrees",  "AT_A-1_EXT.md")
+        default_test_case.mock_reader.setup_file(multiple_roots_file_path, attack_tree_multiple_roots)
+
+        # General structural error "Error parsing attack tree"
+        attack_tree_empty_table = """# AT_A-2_MAN
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| -- Root Threat | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
+| ---- Threat 1  | LEAF | 1w  | L   | P   | U   | ST  | Reasoning 1 |         | Comment 1 |"""
+        empty_table_file_path = os.path.join(directory, "AttackTrees",  "AT_A-2_MAN.md")
+        default_test_case.mock_reader.setup_file(empty_table_file_path, attack_tree_empty_table)
 
         # Act
         tara = default_test_case.parser.parse(directory)
 
         # Assert
         self.assertIn("No attack tree table found in file AT_A-1_MAN.md. Is the table header correct?", default_test_case.logger.get_errors())
+
         self.assertIn("Invalid elapsed time string found in attack tree AT_A-1_BLOCK: '3w'", default_test_case.logger.get_errors())
         self.assertIn("Invalid expertise string found in attack tree AT_A-1_BLOCK: 'wL'", default_test_case.logger.get_errors())
         self.assertIn("Invalid knowledge string found in attack tree AT_A-1_BLOCK: 'wP'", default_test_case.logger.get_errors())
         self.assertIn("Invalid window of opportunity string found in attack tree AT_A-1_BLOCK: 'w'", default_test_case.logger.get_errors())
         self.assertIn("Invalid equipment string found in attack tree AT_A-1_BLOCK: ''", default_test_case.logger.get_errors())
         self.assertIn("Invalid node type found in attack tree AT_A-1_BLOCK: 'XOR'", default_test_case.logger.get_errors())
+        self.assertIn("Node Threat3 in attack tree AT_A-1_BLOCK has no children.", default_test_case.logger.get_errors())
+        self.assertIn("Node Threat4 in attack tree AT_A-1_BLOCK has no children.", default_test_case.logger.get_errors())
+
+        self.assertIn("Multiple root nodes found in attack tree AT_A-1_EXT. Only one root node is allowed.", default_test_case.logger.get_errors())
+
+        self.assertIn("Error parsing attack tree AT_A-2_MAN", default_test_case.logger.get_errors())
 
     def test_error_missing_assumptions_table(self):
         # Arrange
