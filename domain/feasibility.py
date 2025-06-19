@@ -62,6 +62,24 @@ class Feasibility:
                 self.knowledge.value + self.window_of_opportunity.value +
                 self.equipment.value)
 
+    def or_feasibility(self, other: 'Feasibility') -> 'Feasibility':
+        if not isinstance(other, Feasibility):
+            raise ValueError("Can only combine with another Feasibility instance")
+        
+        if self.calculate_feasibility_score() <= other.calculate_feasibility_score():
+            return self.get_deep_copy()
+        else:
+            return other.get_deep_copy()
+
+    def get_deep_copy(self) -> 'Feasibility':
+        new_feasibility = Feasibility()
+        new_feasibility.time = self.time
+        new_feasibility.expertise = self.expertise
+        new_feasibility.knowledge = self.knowledge
+        new_feasibility.window_of_opportunity = self.window_of_opportunity
+        new_feasibility.equipment = self.equipment
+        return new_feasibility
+
     def __eq__(self, other):
         if not isinstance(other, Feasibility):
             return False

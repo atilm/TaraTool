@@ -34,7 +34,7 @@
 * [ ] Feasibility-Calculation
   * [x] Feasibility level
   * [ ] Feasibility and
-  * [ ] Feasibility or
+  * [x] Feasibility or
   * [ ] Calculation in attack trees
     * [ ] Include Reference Nodes
 * [ ] Risk Calculation

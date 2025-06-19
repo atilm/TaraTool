@@ -33,3 +33,27 @@ class TestFeasibilityCalculation(unittest.TestCase):
                 # Assert
                 self.assertEqual(score, expected_score)
                 self.assertEqual(level, expected_level)
+
+    def test_applying_OR_to_feasibilities_returns_the_feasibility_with_the_lowest_score(self):
+        # Arrange
+        medium_feasibility = Feasibility()
+        medium_feasibility.time = ElapsedTime.SixMonths
+        medium_feasibility.expertise = Expertise.Proficient
+        medium_feasibility.knowledge = Knowledge.Restricted
+        medium_feasibility.window_of_opportunity = WindowOfOpportunity.Moderate
+        medium_feasibility.equipment = Equipment.Specialized
+        
+        easier_feasibility = Feasibility()
+        easier_feasibility.time = ElapsedTime.SixMonths
+        easier_feasibility.expertise = Expertise.Proficient
+        easier_feasibility.knowledge = Knowledge.Restricted
+        easier_feasibility.window_of_opportunity = WindowOfOpportunity.Easy
+        easier_feasibility.equipment = Equipment.Specialized
+        
+        # Act
+        combined_feasibility = medium_feasibility.or_feasibility(easier_feasibility)
+        other_combined_feasibility = easier_feasibility.or_feasibility(medium_feasibility)
+        
+        # Assert
+        self.assertEqual(combined_feasibility, easier_feasibility)
+        self.assertEqual(other_combined_feasibility, easier_feasibility)
