@@ -25,6 +25,9 @@
   * [x] Do not overwrite existing files
 * [ ] Parse Attack Trees
   * [ ] Only output warnings for empty attack trees and generate easiest feasibility, so that I can view results of an incomplete analysis
+  * [ ] Parse all files in the AttackTrees subdirectory
+    * [ ] TAT will be "Technical Attack Trees"
+    * [ ] CIRC_<ControlId> will be "Circumvent Trees"
   * [x] Only accept defined node types (empty = leaf)
   * [x] Parse Leaf Nodes
   * [x] Test for all existing feasibility ratings
@@ -33,7 +36,7 @@
     * [x] Referenced trees do not exist
 * [ ] Feasibility-Calculation
   * [x] Feasibility level
-  * [ ] Feasibility and
+  * [x] Feasibility and
   * [x] Feasibility or
   * [ ] Calculation in attack trees
     * [ ] Include Reference Nodes
