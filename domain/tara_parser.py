@@ -63,7 +63,10 @@ class TaraParser:
 
         # check rules
         self.check_damage_scenario_references_in_assets(tara)
-        self.check_attack_tree_nodes_have_children(tara)
+        self.check_attack_tree_rules(tara, [
+            self.check_and_or_nodes_have_children,
+            self.check_referenced_trees_exist
+        ])
 
         return tara
 
@@ -99,31 +102,48 @@ class TaraParser:
                         if not isinstance(ds, DamageScenario):
                             self.logger.log_error(f"ID {ds_id} referenced by asset {asset.id} is not a damage scenario.")
 
-    def check_attack_tree_nodes_have_children(self, tara: Tara) -> None:
+    def check_attack_tree_rules(self, tara: Tara, rules: list) -> None:
         """
         Checks if all attack tree nodes of type AND and OR have at least one child.
         
         :param tara: The Tara object containing attack trees.
+        :param rules: A list of lambda functions rule(node, attack_tree_id) implementing rules to check against.
         """
-        def check_has_children(attack_tree_id: str, node: AttackTreeNode, logger: IErrorLogger) -> None:
-            """
-            Recursively checks if the node has children.
-            """
-            if not(isinstance(node, AttackTreeOrNode) or isinstance(node, AttackTreeAndNode)):
-                return
-            
-            if len(node.children) == 0:
-                logger.log_error(f"Node {node.name} in attack tree {attack_tree_id} has no children.")
-            for child in node.children:
-                check_has_children(attack_tree_id, child, logger)
+        def check_recursively(attack_tree_id: str, node: AttackTreeNode, logger: IErrorLogger, rules: list) -> None:
+            for rule in rules:
+                rule(node, attack_tree_id)
 
+            for child in node.children:
+                check_recursively(attack_tree_id, child, logger, rules)
 
         for tree in tara.attack_trees:
             if tree.root_node is None:
                 self.logger.log_error(f"Attack tree {tree.id} has no root node.")
                 continue
             
-            check_has_children(tree.id, tree.root_node, self.logger)
+            check_recursively(tree.id, tree.root_node, self.logger, rules)
+
+    def check_and_or_nodes_have_children(self, node: AttackTreeNode, attack_tree_id: str) -> None:
+        """
+        Checks if the node is an AND or OR node and has at least one child.
+        
+        :param node: The AttackTreeNode to check.
+        :param attack_tree_id: The ID of the attack tree for logging purposes.
+        """
+        if isinstance(node, AttackTreeOrNode) or isinstance(node, AttackTreeAndNode):
+            if len(node.children) == 0:
+                self.logger.log_error(f"Node {node.name} in attack tree {attack_tree_id} has no children.")
+
+    def check_referenced_trees_exist(self, node: AttackTreeNode, attack_tree_id: str) -> None:
+        """
+        Checks if the node is a reference node and the referenced tree exists.
+        
+        :param node: The AttackTreeNode to check.
+        :param attack_tree_id: The ID of the attack tree for logging purposes.
+        """
+        if isinstance(node, AttackTreeReferenceNode):
+            if node.referenced_node_id not in self.id_to_object:
+                self.logger.log_error(f"Node {node.name} in attack tree {attack_tree_id} references non-existing tree {node.referenced_node_id}.")
 
     def read_table(self, file_type: FileType, directory: str, file_name: str = None) -> MarkdownTable:
         """

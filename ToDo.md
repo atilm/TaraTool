@@ -29,7 +29,7 @@
   * [x] Test for all existing feasibility ratings
   * [x] Parse Reference Nodes
     * [x] Reference has unexpected format
-    * [ ] Referenced trees do not exist
+    * [x] Referenced trees do not exist
 * [ ] Feasibility-Calculation
   * [ ] Include Reference Nodes
 * [ ] Risk Calculation

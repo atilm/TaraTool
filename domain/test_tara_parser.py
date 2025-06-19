@@ -248,11 +248,12 @@ class TaraParserTests(unittest.TestCase):
         default_test_case.mock_reader.setup_file(os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md"),
 """# AT_A-1_BLOCK
 
-| Attack Tree                                   | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
-| --------------------------------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-| Blocking of Asset 1                           | OR   |     |     |     |     |     |             |         |           |
-| -- Sub Threat 1                               |      | 1w  | L   | P   | U   | ST  |             |         |           |
-| -- [Manipulation of Asset 1](./AT_A-1_MAN.md) | REF  |     |     |     |     |     |             |         |           |""")
+| Attack Tree                                      | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------------------------------------ | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Blocking of Asset 1                              | OR   |     |     |     |     |     |             |         |           |
+| -- Sub Threat 1                                  |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| -- [Manipulation of Asset 1](./AT_A-1_MAN.md)    | REF  |     |     |     |     |     |             |         |           |
+| -- [Noref](./NonexistingAT.md)                   | REF  |     |     |     |     |     |             |         |           |""")
         
         default_test_case.mock_reader.setup_file(os.path.join(directory, "AttackTrees", "AT_A-1_MAN.md"),
 """# AT_A-1_MAN
@@ -270,6 +271,8 @@ class TaraParserTests(unittest.TestCase):
         self.assertIsInstance(reference_node, AttackTreeReferenceNode)
         self.assertEqual(reference_node.name, "Manipulation of Asset 1")
         self.assertEqual(reference_node.referenced_node_id, "AT_A-1_MAN")
+
+        self.assertIn("Node Noref in attack tree AT_A-1_BLOCK references non-existing tree NonexistingAT.", default_test_case.logger.get_errors())
 
     def test_errors_in_attack_tree(self):
         # Arrange: only one Threat Scenario
