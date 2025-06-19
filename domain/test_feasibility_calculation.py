@@ -5,7 +5,7 @@ from domain.feasibility import *
 class TestFeasibilityCalculation(unittest.TestCase):
     def test_feasibility_level_is_determined_correctly(self):
         # Arrange
-        test_cases = [
+        border_test_cases = [
             # (ElapsedTime, Expertise, Knowledge, WindowOfOpportunity, Equipment, ExpectedFeasibilityLevel, ExpectedFeasibilityScore)
             (ElapsedTime.OneWeek, Expertise.Layman, Knowledge.Public, WindowOfOpportunity.Unlimited, Equipment.Standard, FeasibilityLevel.High, 0),
             (ElapsedTime.ThreeYears, Expertise.Layman, Knowledge.Restricted, WindowOfOpportunity.Unlimited, Equipment.Standard, FeasibilityLevel.High, 13),
@@ -16,7 +16,7 @@ class TestFeasibilityCalculation(unittest.TestCase):
             (ElapsedTime.ThreeYears, Expertise.Layman, Knowledge.StrictlyConfidential, WindowOfOpportunity.Moderate, Equipment.Standard, FeasibilityLevel.VeryLow, 25),
         ]
 
-        for elapsed_time, expertise, knowledge, window_of_opportunity, equipment, expected_level, expected_score in test_cases:
+        for elapsed_time, expertise, knowledge, window_of_opportunity, equipment, expected_level, expected_score in border_test_cases:
             with self.subTest(elapsed_time=elapsed_time, expertise=expertise, knowledge=knowledge,
                               window_of_opportunity=window_of_opportunity, equipment=equipment):
                 feasibility = Feasibility()
@@ -57,3 +57,32 @@ class TestFeasibilityCalculation(unittest.TestCase):
         # Assert
         self.assertEqual(combined_feasibility, easier_feasibility)
         self.assertEqual(other_combined_feasibility, easier_feasibility)
+
+    def test_applying_AND_to_feasibilities_returns_a_feasibility_with_per_fiel_max(self):
+        # Arrange
+        feasibility_1 = Feasibility()
+        feasibility_1.time = ElapsedTime.SixMonths
+        feasibility_1.expertise = Expertise.Proficient
+        feasibility_1.knowledge = Knowledge.Restricted
+        feasibility_1.window_of_opportunity = WindowOfOpportunity.Moderate
+        feasibility_1.equipment = Equipment.Specialized
+        
+        feasibility_2 = Feasibility()
+        feasibility_2.time = ElapsedTime.ThreeYears
+        feasibility_2.expertise = Expertise.Layman
+        feasibility_2.knowledge = Knowledge.Confidential
+        feasibility_2.window_of_opportunity = WindowOfOpportunity.Difficult
+        feasibility_2.equipment = Equipment.Bespoke
+        
+        # Act
+        combined_feasibility = feasibility_1.and_feasibility(feasibility_2)
+        other_combined_feasibility = feasibility_2.and_feasibility(feasibility_1)
+        
+        # Assert
+        self.assertEqual(combined_feasibility.time, ElapsedTime.ThreeYears)
+        self.assertEqual(combined_feasibility.expertise, Expertise.Proficient)
+        self.assertEqual(combined_feasibility.knowledge, Knowledge.Confidential)
+        self.assertEqual(combined_feasibility.window_of_opportunity, WindowOfOpportunity.Difficult)
+        self.assertEqual(combined_feasibility.equipment, Equipment.Bespoke)
+
+        self.assertEqual(other_combined_feasibility, combined_feasibility)

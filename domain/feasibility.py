@@ -1,37 +1,55 @@
 from enum import Enum
 
-class ElapsedTime(Enum):
+class ComparableEnum(Enum):
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value < other.value
+        return NotImplemented
+    def __le__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value <= other.value
+        return NotImplemented
+    def __gt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value > other.value
+        return NotImplemented
+    def __ge__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value >= other.value
+        return NotImplemented
+
+class ElapsedTime(ComparableEnum):
     OneWeek = 0
     OneMonth = 1
     SixMonths = 4
     ThreeYears = 10
     MoreThanThreeYears = 19
 
-class Expertise(Enum):
+class Expertise(ComparableEnum):
     Layman = 0
     Proficient = 3
     Expert = 6
     MultipleExperts = 8
 
-class Knowledge(Enum):
+class Knowledge(ComparableEnum):
     Public = 0
     Restricted = 3
     Confidential = 7
     StrictlyConfidential = 11
 
-class WindowOfOpportunity(Enum):
+class WindowOfOpportunity(ComparableEnum):
     Unlimited = 0
     Easy = 1
     Moderate = 4
     Difficult = 10
 
-class Equipment(Enum):
+class Equipment(ComparableEnum):
     Standard = 0
     Specialized = 4
     Bespoke = 7
     MultipleBespoke = 9
 
-class FeasibilityLevel(Enum):
+class FeasibilityLevel(ComparableEnum):
     High = 13       # 0  to 13: high feasibility
     Medium = 19     # 14 to 19: medium feasibility
     Low = 24        # 20 to 24: low feasibility
@@ -70,6 +88,19 @@ class Feasibility:
             return self.get_deep_copy()
         else:
             return other.get_deep_copy()
+        
+    def and_feasibility(self, other: 'Feasibility') -> 'Feasibility':
+        if not isinstance(other, Feasibility):
+            raise ValueError("Can only combine with another Feasibility instance")
+        
+        new_feasibility = Feasibility()
+        new_feasibility.time = max(self.time, other.time)
+        new_feasibility.expertise = max(self.expertise, other.expertise)
+        new_feasibility.knowledge = max(self.knowledge, other.knowledge)
+        new_feasibility.window_of_opportunity = max(self.window_of_opportunity, other.window_of_opportunity)
+        new_feasibility.equipment = max(self.equipment, other.equipment)
+        
+        return new_feasibility
 
     def get_deep_copy(self) -> 'Feasibility':
         new_feasibility = Feasibility()
