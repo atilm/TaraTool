@@ -45,6 +45,23 @@ class Feasibility:
         self.window_of_opportunity: WindowOfOpportunity = WindowOfOpportunity.Unlimited
         self.equipment: Equipment = Equipment.Standard
         
+    def calculate_feasibility_level(self) -> FeasibilityLevel:
+        total_score = self.calculate_feasibility_score()
+        
+        if total_score <= 13:
+            return FeasibilityLevel.High
+        elif total_score <= 19:
+            return FeasibilityLevel.Medium
+        elif total_score <= 24:
+            return FeasibilityLevel.Low
+        else:
+            return FeasibilityLevel.VeryLow
+
+    def calculate_feasibility_score(self) -> int:
+        return (self.time.value + self.expertise.value +
+                self.knowledge.value + self.window_of_opportunity.value +
+                self.equipment.value)
+
     def __eq__(self, other):
         if not isinstance(other, Feasibility):
             return False

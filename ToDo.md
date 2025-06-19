@@ -24,6 +24,7 @@
   * [x] Create correct content
   * [x] Do not overwrite existing files
 * [ ] Parse Attack Trees
+  * [ ] Only output warnings for empty attack trees and generate easiest feasibility, so that I can view results of an incomplete analysis
   * [x] Only accept defined node types (empty = leaf)
   * [x] Parse Leaf Nodes
   * [x] Test for all existing feasibility ratings
@@ -31,7 +32,11 @@
     * [x] Reference has unexpected format
     * [x] Referenced trees do not exist
 * [ ] Feasibility-Calculation
-  * [ ] Include Reference Nodes
+  * [x] Feasibility level
+  * [ ] Feasibility and
+  * [ ] Feasibility or
+  * [ ] Calculation in attack trees
+    * [ ] Include Reference Nodes
 * [ ] Risk Calculation
 * [ ] Create report
 * [ ] Update IDs -> VSCode search / replace?
