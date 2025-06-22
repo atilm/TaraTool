@@ -1,6 +1,10 @@
 import unittest
 
 from domain.feasibility import *
+from domain.attack_tree_parser import AttackTreeParser
+from domain.attack_tree import *
+from utilities.error_logger import MemoryErrorLogger
+from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
 
 class TestFeasibilityCalculation(unittest.TestCase):
     def test_feasibility_level_is_determined_correctly(self):
@@ -86,3 +90,52 @@ class TestFeasibilityCalculation(unittest.TestCase):
         self.assertEqual(combined_feasibility.equipment, Equipment.Bespoke)
 
         self.assertEqual(other_combined_feasibility, combined_feasibility)
+
+class TestFeasibilityForAttackTrees(unittest.TestCase):
+    def test_feasibility_of_a_whole_tree_is_calculated_correctly(self):
+        attack_tree_description = """# ATT-1
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat    | AND  |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
+| -- Threat 1    |      | 1m  | P   | R   | U   | SP  | Reasoning 1 |         | Comment 1 |
+| -- Threat 2    | OR   |     |     |     |     |     | Reasoning 1 |         | Comment 1 |
+| ---- Threat 4  |      | 1w  | L   | C   | E   | B   | Reasoning 1 |         | Comment 1 |
+| ---- Threat 5  |      | 1w  | L   | C   | D   | B   | Reasoning 1 |         | Comment 1 |
+"""
+
+        parser = MarkdownParser()
+        document: MarkdownDocument = parser.parse(attack_tree_description)
+
+        table = document.getContent()[1]
+        self.assertIsInstance(table, MarkdownTable)
+
+        logger: MemoryErrorLogger = MemoryErrorLogger()
+        att_parser = AttackTreeParser(logger)
+        tree = att_parser.parse_attack_tree(table, "ATT-1")
+
+        self.assertEqual(logger.get_errors(), [])
+        
+        # Act
+        feasibility = tree.get_feasibility()
+
+        # Assert
+        # Threat 4 wins against Threat 5 in the OR-comparison,
+        # so the result contains the max values of the ratings of Threat 1 and Threat 4:
+        self.assertEqual(logger.get_errors(), [])
+
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = ElapsedTime.OneMonth
+        expected_feasibility.expertise = Expertise.Proficient
+        expected_feasibility.knowledge = Knowledge.Confidential
+        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Easy
+        expected_feasibility.equipment = Equipment.Bespoke
+
+        self.assertEqual(feasibility, expected_feasibility)

@@ -127,3 +127,7 @@ class Feasibility:
             return False
         
         return True
+
+    def __repr__(self):
+        return (f"Feasibility(time={self.time}, expertise={self.expertise}, knowledge={self.knowledge}, "
+                f"window_of_opportunity={self.window_of_opportunity}, equipment={self.equipment})")

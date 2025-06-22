@@ -36,11 +36,42 @@ class AttackTreeAndNode(AttackTreeNode):
         self.name = ""
         self.type = "AND"
 
+    def get_feasibility(self) -> Feasibility:
+        """
+        Returns the feasibility of the AND node.
+        The feasibility is calculated as the maximum feasibility of all child nodes.
+        """
+        if not self.children:
+            raise ValueError("AND node has no children.")
+        
+        # Assuming that a created feasibility has minimum values for all fields
+        feasibility = Feasibility()
+
+        for child in self.children:
+            feasibility = feasibility.and_feasibility(child.get_feasibility())
+        
+        return feasibility
+
 class AttackTreeOrNode(AttackTreeNode):
     def __init__(self):
         super().__init__()
         self.name = ""
         self.type = "OR"
+
+    def get_feasibility(self) -> Feasibility:
+        """
+        Returns the feasibility of the OR node.
+        The feasibility is calculated as the minimum feasibility of all child nodes.
+        """
+        if not self.children:
+            raise ValueError("OR node has no children.")
+        
+        feasibility = self.children[0].get_feasibility()
+
+        for child in self.children[1:]:
+            feasibility = feasibility.or_feasibility(child.get_feasibility())
+        
+        return feasibility
 
 class AttackTreeLeafNode(AttackTreeNode):
     def __init__(self, feasibility: Feasibility):
@@ -63,3 +94,13 @@ class AttackTree:
         self.id = id
         self.description = ""
         self.root_node: AttackTreeNode = None
+
+    def get_feasibility(self) -> Feasibility:
+        """
+        Returns the feasibility of the attack tree.
+        This method should be overridden in subclasses to provide specific feasibility logic.
+        """
+        if self.root_node is None:
+            raise ValueError("Attack tree has no root node.")
+        
+        return self.root_node.get_feasibility()
