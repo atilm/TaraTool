@@ -4,10 +4,12 @@ from domain.attack_tree import AttackTree, AttackTreeNode, AttackTreeOrNode, Att
 from domain.feasibility import Feasibility, ElapsedTime, Expertise, Knowledge, WindowOfOpportunity, Equipment
 from utilities.error_logger import IErrorLogger
 from MarkdownLib.markdown_parser import MarkdownTable
+from domain.object_store import ObjectStore
 
 class AttackTreeParser:
-    def __init__(self, logger: IErrorLogger):
+    def __init__(self, logger: IErrorLogger, object_store: ObjectStore):
         self.logger = logger
+        self.object_store = object_store
 
     def parse_attack_tree(self, table: MarkdownTable, attack_tree_id: str) -> AttackTree:
         try:
@@ -55,7 +57,7 @@ class AttackTreeParser:
                     feasibility.equipment = AttackTreeParser.parse_equipment_static(table.getCell(row, 6), attack_tree_id, self.logger)
                     node = AttackTreeLeafNode(feasibility)
                 elif row_type == "REF":
-                    node = AttackTreeReferenceNode()
+                    node = AttackTreeReferenceNode(self.object_store)
                     match = re.match(r"\[(.*?)\]\((.*?)\)", name)
                     if match:
                         name = match.group(1)

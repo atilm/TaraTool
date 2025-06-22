@@ -118,7 +118,8 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         self.assertIsInstance(table, MarkdownTable)
 
         logger: MemoryErrorLogger = MemoryErrorLogger()
-        att_parser = AttackTreeParser(logger)
+        object_store = ObjectStore(logger)
+        att_parser = AttackTreeParser(logger, object_store)
         tree = att_parser.parse_attack_tree(table, "ATT-1")
 
         self.assertEqual(logger.get_errors(), [])
@@ -139,3 +140,29 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.equipment = Equipment.Bespoke
 
         self.assertEqual(feasibility, expected_feasibility)
+
+    def test_reference_nodes_are_resolved_in_feasibility_calculation(self):
+        referencing_tree = """# ATT-1
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| Attack Tree                     | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat                     | AND  |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
+| -- Threat 1                     |      | 1m  | P   | R   | U   | SP  | Reasoning 1 |         | Comment 1 |
+| -- [Technical Tree](./TAT-1.md) |      |     |     |     |     |     | Reasoning 1 |         | Comment 1 |
+"""
+
+        referenced_tree = """# TAT-1
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 2       | OR   |     |     |     |     |     | Reasoning 1 |         | Comment 1 |
+| -- Threat 4    |      | 1w  | L   | C   | E   | B   | Reasoning 1 |         | Comment 1 |
+| -- Threat 5    |      | 1w  | L   | C   | D   | B   | Reasoning 1 |         | Comment 1 |
+"""

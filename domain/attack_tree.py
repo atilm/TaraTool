@@ -1,6 +1,7 @@
 from domain.feasibility import Feasibility
 from domain.asset import Asset
 from domain.security_property import SecurityProperty
+from domain.object_store import ObjectStore
 
 def attack_tree_id(asset: Asset, security_property: SecurityProperty) -> str:
     """
@@ -84,10 +85,11 @@ class AttackTreeLeafNode(AttackTreeNode):
         return self._feasibility
 
 class AttackTreeReferenceNode(AttackTreeNode):
-    def __init__(self):
+    def __init__(self, object_store: ObjectStore):
         super().__init__()
         self.type = "REFERENCE"
         self.referenced_node_id: str = None
+        self.object_store = object_store
 
 class AttackTree:
     def __init__(self, id: str):

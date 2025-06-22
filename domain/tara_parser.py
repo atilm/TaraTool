@@ -45,7 +45,7 @@ class TaraParser:
                 attack_tree_ids.append(attack_tree_id(asset, sp))
 
         # parse all attack trees
-        attack_tree_parser = AttackTreeParser(self.logger)
+        attack_tree_parser = AttackTreeParser(self.logger, self.object_store)
         for att_id in attack_tree_ids:
             file_name = f"{att_id}.md"
             att_dir = os.path.join(directory, "AttackTrees")
