@@ -12,13 +12,13 @@ from utilities.file_reader import IFileReader
 from utilities.error_logger import IErrorLogger
 from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
 from domain.attack_tree import AttackTree, AttackTreeNode, AttackTreeOrNode, AttackTreeAndNode, AttackTreeReferenceNode, attack_tree_id
+from domain.object_store import ObjectStore
 
 class TaraParser:
     def __init__(self, file_reader: IFileReader, logger: IErrorLogger):
         self.file_reader = file_reader
         self.logger = logger
-        # map of all objects which are identified by an ID
-        self.id_to_object: dict[str, object] = {}
+        self.object_store = ObjectStore(self.logger)
 
     def parse(self, directory: str) -> Tara:
         """
@@ -78,14 +78,10 @@ class TaraParser:
         :param objects: A list of objects to register by their ID.
         """
         for obj in objects:
-            if hasattr(obj, 'id') and obj.id:
-                if obj.id in self.id_to_object:
-                    self.logger.log_error(f"Duplicate ID found: {obj.id}")
-                else:
-                    self.id_to_object[obj.id] = obj
-            else:
-                raise ValueError("Object does not have a valid ID.") from None
-
+            try:
+                self.object_store.add(obj)
+            except ValueError as e:
+                self.logger.log_error(str(e))
 
     def check_damage_scenario_references_in_assets(self, tara: Tara) -> None:
         """
@@ -96,10 +92,10 @@ class TaraParser:
         for asset in tara.assets:
             for _security_property, damage_scenario_ids in asset.damage_scenarios.items():
                 for ds_id in damage_scenario_ids:
-                    if ds_id not in self.id_to_object:
+                    if not self.object_store.has(ds_id):
                         self.logger.log_error(f"Damage scenario {ds_id} referenced by asset {asset.id} does not exist.")
                     else:
-                        ds = self.id_to_object[ds_id]
+                        ds = self.object_store.get(ds_id)
                         if not isinstance(ds, DamageScenario):
                             self.logger.log_error(f"ID {ds_id} referenced by asset {asset.id} is not a damage scenario.")
 
@@ -143,7 +139,7 @@ class TaraParser:
         :param attack_tree_id: The ID of the attack tree for logging purposes.
         """
         if isinstance(node, AttackTreeReferenceNode):
-            if node.referenced_node_id not in self.id_to_object:
+            if not self.object_store.has(node.referenced_node_id):
                 self.logger.log_error(f"Node {node.name} in attack tree {attack_tree_id} references non-existing tree {node.referenced_node_id}.")
 
     def read_table(self, file_type: FileType, directory: str, file_name: str = None) -> MarkdownTable:
