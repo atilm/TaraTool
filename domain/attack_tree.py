@@ -91,6 +91,20 @@ class AttackTreeReferenceNode(AttackTreeNode):
         self.referenced_node_id: str = None
         self.object_store = object_store
 
+    def get_feasibility(self) -> Feasibility:
+        """
+        Returns the feasibility of the referenced node.
+        If the referenced node is not found, raises an error.
+        """
+        if self.referenced_node_id is None:
+            raise ValueError("Referenced node ID is not set.")
+        
+        referenced_node = self.object_store.get(self.referenced_node_id)
+        if referenced_node is None:
+            raise ValueError(f"Referenced node with ID {self.referenced_node_id} not found.")
+        
+        return referenced_node.get_feasibility()
+
 class AttackTree:
     def __init__(self, id: str):
         self.id = id

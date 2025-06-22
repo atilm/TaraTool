@@ -91,6 +91,25 @@ class TestFeasibilityCalculation(unittest.TestCase):
 
         self.assertEqual(other_combined_feasibility, combined_feasibility)
 
+class AttackTreeTestCase:
+    def __init__(self):
+        self.logger = MemoryErrorLogger()
+        self.object_store = ObjectStore(MemoryErrorLogger())
+
+    def parse_attack_tree(self, attack_tree_description: str, attack_tree_id: str) -> AttackTree:
+        parser = MarkdownParser()
+        document: MarkdownDocument = parser.parse(attack_tree_description)
+
+        table = document.getContent()[1]
+
+        att_parser = AttackTreeParser(self.logger, self.object_store)
+        tree = att_parser.parse_attack_tree(table, attack_tree_id)
+
+        self.object_store.add(tree)
+
+        return tree
+        
+
 class TestFeasibilityForAttackTrees(unittest.TestCase):
     def test_feasibility_of_a_whole_tree_is_calculated_correctly(self):
         attack_tree_description = """# ATT-1
@@ -111,18 +130,10 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
 | ---- Threat 5  |      | 1w  | L   | C   | D   | B   | Reasoning 1 |         | Comment 1 |
 """
 
-        parser = MarkdownParser()
-        document: MarkdownDocument = parser.parse(attack_tree_description)
+        t = AttackTreeTestCase()
+        tree = t.parse_attack_tree(attack_tree_description, "ATT-1")
 
-        table = document.getContent()[1]
-        self.assertIsInstance(table, MarkdownTable)
-
-        logger: MemoryErrorLogger = MemoryErrorLogger()
-        object_store = ObjectStore(logger)
-        att_parser = AttackTreeParser(logger, object_store)
-        tree = att_parser.parse_attack_tree(table, "ATT-1")
-
-        self.assertEqual(logger.get_errors(), [])
+        self.assertEqual(t.logger.get_errors(), [])
         
         # Act
         feasibility = tree.get_feasibility()
@@ -130,7 +141,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         # Assert
         # Threat 4 wins against Threat 5 in the OR-comparison,
         # so the result contains the max values of the ratings of Threat 1 and Threat 4:
-        self.assertEqual(logger.get_errors(), [])
+        self.assertEqual(t.logger.get_errors(), [])
 
         expected_feasibility = Feasibility()
         expected_feasibility.time = ElapsedTime.OneMonth
@@ -144,18 +155,11 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
     def test_reference_nodes_are_resolved_in_feasibility_calculation(self):
         referencing_tree = """# ATT-1
 
-* Node: (OR, AND, LEAF, REF)
-* ET: Elapsed Time (1w, 1m, 6m, >6m)
-* Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
-* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
-* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
-* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, mB: multiple Bespoke)
-
 | Attack Tree                     | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ------------------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
 | Root Threat                     | AND  |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
 | -- Threat 1                     |      | 1m  | P   | R   | U   | SP  | Reasoning 1 |         | Comment 1 |
-| -- [Technical Tree](./TAT-1.md) |      |     |     |     |     |     | Reasoning 1 |         | Comment 1 |
+| -- [Technical Tree](./TAT-1.md) | REF  |     |     |     |     |     | Reasoning 1 |         | Comment 1 |
 """
 
         referenced_tree = """# TAT-1
@@ -166,3 +170,23 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
 | -- Threat 4    |      | 1w  | L   | C   | E   | B   | Reasoning 1 |         | Comment 1 |
 | -- Threat 5    |      | 1w  | L   | C   | D   | B   | Reasoning 1 |         | Comment 1 |
 """
+        t = AttackTreeTestCase()
+        tree = t.parse_attack_tree(referencing_tree, "ATT-1")
+        _referenced_tree_obj = t.parse_attack_tree(referenced_tree, "TAT-1")
+
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Act
+        feasibility = tree.get_feasibility()
+
+        # Assert
+        self.assertEqual(t.logger.get_errors(), [])
+
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = ElapsedTime.OneMonth
+        expected_feasibility.expertise = Expertise.Proficient
+        expected_feasibility.knowledge = Knowledge.Confidential
+        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Easy
+        expected_feasibility.equipment = Equipment.Bespoke
+
+        self.assertEqual(feasibility, expected_feasibility)

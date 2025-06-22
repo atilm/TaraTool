@@ -10,8 +10,8 @@
   * [x] Damage Scenarios
   * [x] Assets
   * [x] Attack Trees (is already implemented by using file names, but do it anyway)
-  * [ ] Security Goals
   * [ ] Security Controls
+  * [ ] Security Goals
 * [.] Check for references to non-existing IDs
   * [x] Assets to Damage Scenarios
   * [ ] Mentions in Reasonings and Comments
@@ -27,7 +27,7 @@
   * [ ] Only output warnings for empty attack trees and generate easiest feasibility, so that I can view results of an incomplete analysis
   * [ ] Parse all files in the AttackTrees subdirectory
     * [ ] TAT will be "Technical Attack Trees"
-    * [ ] CIRC_<ControlId> will be "Circumvent Trees"
+    * [ ] CIRC_<ControlId> will be "Circumvent Trees" (both could be user conventions)
   * [x] Only accept defined node types (empty = leaf)
   * [x] Parse Leaf Nodes
   * [x] Test for all existing feasibility ratings
@@ -39,7 +39,7 @@
   * [x] Feasibility and
   * [x] Feasibility or
   * [x] Calculation in attack trees
-    * [ ] Include Reference Nodes
+    * [x] Include Reference Nodes
 * [ ] Risk Calculation
 * [ ] Create report
 * [ ] Update IDs -> VSCode search / replace?
