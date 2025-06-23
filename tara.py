@@ -2,9 +2,11 @@ import sys, os
 from domain.file_stubs import file_stubs
 from domain.tara_parser import TaraParser
 from domain.attack_tree_stub_generator import AttackTreeStubGenerator
+from domain.tara_document_generator import TaraDocumentGenerator
 from utilities.file_reader import FileReader
 from utilities.file_writer import FileWriter
 from utilities.error_logger import ErrorLogger
+from MarkdownLib.markdown_writer import MarkdownWriter
 
 usage_help = "Usage: python tara.py [init|check|gentrees|generate]"
 
@@ -27,8 +29,8 @@ def check():
     parser.parse(".")
 
 def generate_attack_trees():
-    error_logger = ErrorLogger()
     print("Parsing input files...")
+    error_logger = ErrorLogger()
     parser = TaraParser(FileReader(), error_logger)
     directory = "."
     tara = parser.parse(directory)
@@ -42,7 +44,23 @@ def generate_attack_trees():
 
 def generate():
     print("Generating...")
+    error_logger = ErrorLogger()
+    parser = TaraParser(FileReader(), error_logger)
+    directory = "."
+    tara = parser.parse(directory)
+    if error_logger.has_errors():
+        print("Errors found during parsing. Please fix them before generating the document.")
+        sys.exit(1)
+    
+    generator = TaraDocumentGenerator(error_logger)
+    document = generator.generate(tara)
+    if error_logger.has_errors():
+        print("Errors found tara generation.")
+        sys.exit(1)
 
+    with open("tara_report.md", 'w') as f:
+        writer = MarkdownWriter()
+        f.write(writer.write(document))
 
 def main():
     if len(sys.argv) < 2:
