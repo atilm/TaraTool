@@ -6,8 +6,9 @@ class ImpactCategory(Enum):
     Financial = 3
     Privacy = 4
 
+
 class Impact(Enum):
-    Severe = 1
-    Major = 2
-    Moderate = 3
-    Negligible = 4
+    Negligible = 1
+    Moderate = 2
+    Major = 3
+    Severe = 4

@@ -10,3 +10,9 @@ class DamageScenario:
                               ImpactCategory.Operational: Impact.Negligible,
                               ImpactCategory.Financial: Impact.Negligible,
                               ImpactCategory.Privacy: Impact.Negligible }
+
+    def get_impact(self) -> Impact:
+        """
+        Returns the highest impact from all categories.
+        """
+        return max(self.impacts.values(), key=lambda x: x.value)

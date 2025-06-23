@@ -9,42 +9,42 @@ class RiskLevel(Enum):
     High = 4
     Critical = 5
 
-    risk_map: dict[Impact, dict[FeasibilityLevel, 'RiskLevel']] = {
-            Impact.Severe: {
-                FeasibilityLevel.High: Critical,
-                FeasibilityLevel.Medium: High,
-                FeasibilityLevel.Low: Medium,
-                FeasibilityLevel.VeryLow: Low
-            },
-            Impact.Major: {
-                FeasibilityLevel.High: High,
-                FeasibilityLevel.Medium: Medium,
-                FeasibilityLevel.Low: Low,
-                FeasibilityLevel.VeryLow: VeryLow
-            },
-            Impact.Moderate: {
-                FeasibilityLevel.High: Medium,
-                FeasibilityLevel.Medium: Low,
-                FeasibilityLevel.Low: Low,
-                FeasibilityLevel.VeryLow: VeryLow
-            },
-            Impact.Negligible: {
-                FeasibilityLevel.High: VeryLow,
-                FeasibilityLevel.Medium: VeryLow,
-                FeasibilityLevel.Low: VeryLow,
-                FeasibilityLevel.VeryLow: VeryLow
-            }
-        }
-
-    @classmethod
-    def look_up(cls, impact: Impact, feasibility: FeasibilityLevel) -> 'RiskLevel':
+    @staticmethod
+    def look_up(impact: Impact, feasibility: FeasibilityLevel) -> 'RiskLevel':
         """
         Look up the risk level based on feasibility and impact.
         """
-        if impact not in cls.risk_map:
+        risk_map: dict[Impact, dict[FeasibilityLevel, RiskLevel]] = {
+            Impact.Severe: {
+                FeasibilityLevel.High: RiskLevel.Critical,
+                FeasibilityLevel.Medium: RiskLevel.High,
+                FeasibilityLevel.Low: RiskLevel.Medium,
+                FeasibilityLevel.VeryLow: RiskLevel.Low
+            },
+            Impact.Major: {
+                FeasibilityLevel.High: RiskLevel.High,
+                FeasibilityLevel.Medium: RiskLevel.Medium,
+                FeasibilityLevel.Low: RiskLevel.Low,
+                FeasibilityLevel.VeryLow: RiskLevel.VeryLow
+            },
+            Impact.Moderate: {
+                FeasibilityLevel.High: RiskLevel.Medium,
+                FeasibilityLevel.Medium: RiskLevel.Low,
+                FeasibilityLevel.Low: RiskLevel.Low,
+                FeasibilityLevel.VeryLow: RiskLevel.VeryLow
+            },
+            Impact.Negligible: {
+                FeasibilityLevel.High: RiskLevel.VeryLow,
+                FeasibilityLevel.Medium: RiskLevel.VeryLow,
+                FeasibilityLevel.Low: RiskLevel.VeryLow,
+                FeasibilityLevel.VeryLow: RiskLevel.VeryLow
+            }
+        }
+
+        if impact not in risk_map:
             raise ValueError(f"Invalid impact: {impact}")
         
-        if feasibility not in cls.risk_map[impact]:
+        if feasibility not in risk_map[impact]:
             raise ValueError(f"Invalid feasibility level: {feasibility}")  
         
-        return cls.risk_map[impact][feasibility]
+        return risk_map[impact][feasibility]

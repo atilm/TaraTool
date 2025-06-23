@@ -4,6 +4,17 @@
 
 * [ ] Remove duplication of header contents
 
+## Next
+
+
+* [ ] Install TaraTool into docker container
+* [ ] Refactor Report builder and improve error handling
+* [ ] Parse all files in AttackTrees directory
+* [ ] Parse Controls and assign to Attack Tree nodes
+* [ ] Assign Circumvent-Trees for Assigned Controls
+* [ ] Complete the generated report
+* [ ] Find a possibility to persistently document the handling of remaining risks
+
 ## Features
 
 * [.] Check for duplicate IDs
@@ -34,14 +45,14 @@
   * [x] Parse Reference Nodes
     * [x] Reference has unexpected format
     * [x] Referenced trees do not exist
-* [ ] Feasibility-Calculation
+* [x] Feasibility-Calculation
   * [x] Feasibility level
   * [x] Feasibility and
   * [x] Feasibility or
   * [x] Calculation in attack trees
     * [x] Include Reference Nodes
-* [ ] Risk Calculation
-* [ ] Create report
+* [x] Risk Calculation
+* [.] Create report
 * [ ] Update IDs -> VSCode search / replace?
 * [ ] Simple but non-trivial example document
 

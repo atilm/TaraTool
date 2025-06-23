@@ -1,15 +1,17 @@
 from utilities.error_logger import ErrorLogger
 from MarkdownLib.markdown_document import *
 from MarkdownLib.markdown_document_builder import *
+from domain.tara import Tara
+from domain.damage_scenario import DamageScenario
+from domain.attack_tree import attack_tree_id, AttackTree
+from domain.feasibility import Feasibility
+from domain.risk import RiskLevel
 
 class TaraDocumentGenerator:
     def __init__(self, error_logger: ErrorLogger):
         self.error_logger = error_logger
 
     def generate(self, tara) -> MarkdownDocument:
-        # Placeholder: implement document generation logic here
-        # For now, just print a message and simulate writing a file
-
         title_level = 0
         h1 = 1
 
@@ -19,8 +21,38 @@ class TaraDocumentGenerator:
             .withTable(self._build_threat_scenario_table(tara)) \
             .build()
 
-    def _build_threat_scenario_table(self, tara) -> MarkdownTable:
-        return MarkdownTableBuilder() \
-                .withHeader(["Threat Scenario", "Description", "Risk Level", "Mitigation Strategy"]) \
-                .withRow(["Example Threat Scenario", "This is a description of the threat scenario.", "High", "Implement security measures."]) \
-                .build()
+    def _build_threat_scenario_table(self, tara: Tara) -> MarkdownTable:
+        builder = MarkdownTableBuilder() \
+            .withHeader("ID", "Threat Scenario", "Impact", "Feasibility", "Risk")
+
+        i = 1
+        for asset in tara.assets:
+            for security_property, damage_scenario_ids in asset.damage_scenarios.items():
+                for ds_id in damage_scenario_ids:
+                    damage_scenario: DamageScenario = self._find_by_id(tara.damage_scenarios, ds_id)
+                    damage_scenario_name = damage_scenario.name if damage_scenario else "Unknown"
+                    impact = damage_scenario.get_impact() if damage_scenario else None
+                    impact_name = impact.name if impact else "Unknown"
+
+                    at_id = attack_tree_id(asset, security_property)
+                    attack_tree: AttackTree = self._find_by_id(tara.attack_trees, at_id)
+                    feasibility = attack_tree.get_feasibility() if attack_tree else Feasibility()
+                    feasibility_level = feasibility.calculate_feasibility_level()
+
+                    risk = RiskLevel.look_up(impact, feasibility_level)
+
+                    attack_description: str = security_property.to_attack_description().lower()
+
+                    threat_scenario = f"{damage_scenario_name} caused by {attack_description} of {asset.name}"
+
+                    builder.withRow(f"TS-{i}", threat_scenario, impact_name, feasibility_level.name, risk.name)
+                    i += 1
+
+        return builder.build()
+    
+    def _find_by_id(self, items, item_id) -> object:
+        for item in items:
+            if item.id == item_id:
+                return item
+        self.error_logger.log_error(f"Item with ID {item_id} not found.")
+        return None

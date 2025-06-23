@@ -69,7 +69,6 @@ class TestCase:
 | -- Threat 1           | LEAF | 6m  | P   | R   | M   | ST  | Reasoning 1 |         | Comment 1 |
 """
 
-
         attack_trees = {
             "AT_A-1_BLOCK": at_a_1_block,
             "AT_A-1_MAN": at_a_1_man,
@@ -102,6 +101,8 @@ class TestTaraReportGenerator(unittest.TestCase):
 
         content = document.getContent()
 
+        self.assertEqual(t.logger.errors, [])
+
         title: MarkdownSection = content[0]
         threat_scenarios_section: MarkdownSection = content[1]
         threat_scenarios: MarkdownTable = content[2]
@@ -115,3 +116,18 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(threat_scenarios_section.title, "Threat Scenarios")
 
         self.assertIsInstance(threat_scenarios, MarkdownTable)
+        self.assertTrue(threat_scenarios.hasHeader(["ID", "Threat Scenario", "Impact", "Feasibility", "Risk"]))
+        self.assertEqual(threat_scenarios.getRowCount(), 4)
+
+        self.assertEqual(threat_scenarios.getRow(0), ["TS-1", 
+                                                      "Electrocuted person caused by blocking of Asset 1", 
+                                                      "Severe", "Medium", "High"])
+        self.assertEqual(threat_scenarios.getRow(1), ["TS-2", 
+                                                      "Litigation caused by manipulation of Asset 1", 
+                                                      "Major", "Medium", "Medium"])
+        self.assertEqual(threat_scenarios.getRow(2), ["TS-3", 
+                                                      "Litigation caused by manipulation of Asset 2", 
+                                                      "Major", "Medium", "Medium"])
+        self.assertEqual(threat_scenarios.getRow(3), ["TS-4", 
+                                                      "Litigation caused by extraction of Asset 2", 
+                                                      "Major", "Medium", "Medium"])
