@@ -12,7 +12,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'taratool=tara:main',
+            'taratool=tara.__main__:main',
         ],
     },
     python_requires='>=3.8',
