@@ -1,6 +1,6 @@
-# Todos
+# To Do
 
-## Refactorings
+## Refactoring
 
 * [ ] Remove duplication of header contents
 
