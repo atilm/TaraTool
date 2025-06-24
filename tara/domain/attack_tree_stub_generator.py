@@ -54,7 +54,7 @@ f"""# {attack_tree_id(asset, security_property)}
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
 * Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, MB: multiple Bespoke)
 
-| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Comment | Control |
+| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Control | Comment |
 | ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
 | {security_property.to_attack_description()} of {asset.name} |      |     |     |     |     |     |           |         |         |
 """

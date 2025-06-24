@@ -30,7 +30,7 @@
 * [x] Parse Assets
 * [.] Generate & Update Attack Tree Stubs
   * [ ] Update Attack Tree stubs to example from parser test
-  * [ ] Move as much as possible of the attack tree file stub content to file_stubs.py
+  * [ ] Move as much as possible of the attack tree file stub content to file_stubs.py -> here was a wrong test!
   * [x] Create AttackTrees directory
   * [x] Create correct content
   * [x] Do not overwrite existing files

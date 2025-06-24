@@ -14,7 +14,7 @@ class IErrorLogger:
 
 class ErrorLogger(IErrorLogger):
     def __init__(self):
-        self.has_errors = False
+        self._has_errors = False
 
     def log_error(self, error: Exception) -> None:
         """Logs an error message to the console."""
@@ -26,7 +26,7 @@ class ErrorLogger(IErrorLogger):
 
     def has_errors(self) -> bool:
         """Returns True if there are any logged errors."""
-        return self.has_errors
+        return self._has_errors
 
 
 class MemoryErrorLogger(IErrorLogger):
