@@ -1,10 +1,10 @@
 import os
 import re
-from domain.attack_tree import AttackTree, AttackTreeNode, AttackTreeOrNode, AttackTreeAndNode, AttackTreeLeafNode, AttackTreeReferenceNode
-from domain.feasibility import Feasibility, ElapsedTime, Expertise, Knowledge, WindowOfOpportunity, Equipment
-from utilities.error_logger import IErrorLogger
-from MarkdownLib.markdown_parser import MarkdownTable
-from domain.object_store import ObjectStore
+from tara.domain.attack_tree import AttackTree, AttackTreeNode, AttackTreeOrNode, AttackTreeAndNode, AttackTreeLeafNode, AttackTreeReferenceNode
+from tara.domain.feasibility import Feasibility, ElapsedTime, Expertise, Knowledge, WindowOfOpportunity, Equipment
+from tara.utilities.error_logger import IErrorLogger
+from tara.MarkdownLib.markdown_parser import MarkdownTable
+from tara.domain.object_store import ObjectStore
 
 class AttackTreeParser:
     def __init__(self, logger: IErrorLogger, object_store: ObjectStore):

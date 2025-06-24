@@ -1,7 +1,7 @@
-from domain.asset import Asset
-from domain.assumption import Assumption
-from domain.damage_scenario import DamageScenario
-from domain.attack_tree import AttackTree
+from tara.domain.asset import Asset
+from tara.domain.assumption import Assumption
+from tara.domain.damage_scenario import DamageScenario
+from tara.domain.attack_tree import AttackTree
 
 class Tara:
     def __init__(self):

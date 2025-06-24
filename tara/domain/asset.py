@@ -1,5 +1,5 @@
-from domain.security_property import SecurityProperty
-from domain.damage_scenario import DamageScenario
+from tara.domain.security_property import SecurityProperty
+from tara.domain.damage_scenario import DamageScenario
 
 class Asset:
     def __init__(self):

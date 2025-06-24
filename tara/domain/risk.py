@@ -1,6 +1,6 @@
 from enum import Enum
-from domain.feasibility import FeasibilityLevel
-from domain.impacts import Impact
+from tara.domain.feasibility import FeasibilityLevel
+from tara.domain.impacts import Impact
 
 class RiskLevel(Enum):
     VeryLow = 1

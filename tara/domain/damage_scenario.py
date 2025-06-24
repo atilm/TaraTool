@@ -1,4 +1,4 @@
-from domain.impacts import *
+from tara.domain.impacts import *
 
 class DamageScenario:
     def __init__(self):

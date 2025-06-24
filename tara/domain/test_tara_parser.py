@@ -1,12 +1,12 @@
 import unittest, os
-from domain.tara_parser import TaraParser
-from domain.file_stubs import FileType
-from domain.impacts import ImpactCategory, Impact
-from domain.security_property import SecurityProperty
-from domain.feasibility import *
-from domain.attack_tree import *
-from utilities.file_reader import MockFileReader
-from utilities.error_logger import MemoryErrorLogger
+from tara.domain.tara_parser import TaraParser
+from tara.domain.file_stubs import FileType
+from tara.domain.impacts import ImpactCategory, Impact
+from tara.domain.security_property import SecurityProperty
+from tara.domain.feasibility import *
+from tara.domain.attack_tree import *
+from tara.utilities.file_reader import MockFileReader
+from tara.utilities.error_logger import MemoryErrorLogger
 
 class TestCase:
     def __init__(self):

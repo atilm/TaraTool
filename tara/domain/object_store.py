@@ -1,4 +1,4 @@
-from utilities.error_logger import IErrorLogger
+from tara.utilities.error_logger import IErrorLogger
 
 class ObjectStore:
     def __init__(self, logger: IErrorLogger):

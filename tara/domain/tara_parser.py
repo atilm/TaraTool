@@ -1,18 +1,18 @@
 import os
-from domain.tara import Tara
-from domain.file_stubs import FileType
-from domain.assumption import Assumption
-from domain.damage_scenario import DamageScenario
-from domain.impacts import ImpactCategory, Impact
-from domain.asset import Asset
-from domain.security_property import SecurityProperty
-from domain.attack_tree_parser import AttackTreeParser
-from domain.feasibility import *
-from utilities.file_reader import IFileReader
-from utilities.error_logger import IErrorLogger
-from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
-from domain.attack_tree import AttackTree, AttackTreeNode, AttackTreeOrNode, AttackTreeAndNode, AttackTreeReferenceNode, attack_tree_id
-from domain.object_store import ObjectStore
+from tara.domain.tara import Tara
+from tara.domain.file_stubs import FileType
+from tara.domain.assumption import Assumption
+from tara.domain.damage_scenario import DamageScenario
+from tara.domain.impacts import ImpactCategory, Impact
+from tara.domain.asset import Asset
+from tara.domain.security_property import SecurityProperty
+from tara.domain.attack_tree_parser import AttackTreeParser
+from tara.domain.feasibility import *
+from tara.utilities.file_reader import IFileReader
+from tara.utilities.error_logger import IErrorLogger
+from tara.MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
+from tara.domain.attack_tree import AttackTree, AttackTreeNode, AttackTreeOrNode, AttackTreeAndNode, AttackTreeReferenceNode, attack_tree_id
+from tara.domain.object_store import ObjectStore
 
 class TaraParser:
     def __init__(self, file_reader: IFileReader, logger: IErrorLogger):

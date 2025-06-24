@@ -1,9 +1,9 @@
-from domain.tara import Tara
-from domain.asset import Asset
-from domain.security_property import SecurityProperty
-from domain.attack_tree import attack_tree_id
-from utilities.file_writer import FileWriter
-from utilities.error_logger import IErrorLogger
+from tara.domain.tara import Tara
+from tara.domain.asset import Asset
+from tara.domain.security_property import SecurityProperty
+from tara.domain.attack_tree import attack_tree_id
+from tara.utilities.file_writer import FileWriter
+from tara.utilities.error_logger import IErrorLogger
 
 class AttackTreeStubGenerator:
     """

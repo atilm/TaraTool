@@ -1,11 +1,11 @@
 import os
 import unittest
-from utilities.file_reader import MockFileReader
-from utilities.error_logger import MemoryErrorLogger
-from domain.file_stubs import FileType
-from domain.tara_parser import TaraParser
-from domain.tara_document_generator import TaraDocumentGenerator
-from MarkdownLib.markdown_document import *
+from tara.utilities.file_reader import MockFileReader
+from tara.utilities.error_logger import MemoryErrorLogger
+from tara.domain.file_stubs import FileType
+from tara.domain.tara_parser import TaraParser
+from tara.domain.tara_document_generator import TaraDocumentGenerator
+from tara.MarkdownLib.markdown_document import *
 
 class TestCase:
     def __init__(self):

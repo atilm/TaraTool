@@ -1,11 +1,11 @@
 import unittest
-from utilities.error_logger import MemoryErrorLogger
-from utilities.file_writer import MockFileWriter
-from domain.tara import Tara
-from domain.damage_scenario import DamageScenario
-from domain.asset import Asset
-from domain.security_property import SecurityProperty
-from domain.attack_tree_stub_generator import AttackTreeStubGenerator
+from tara.utilities.error_logger import MemoryErrorLogger
+from tara.utilities.file_writer import MockFileWriter
+from tara.domain.tara import Tara
+from tara.domain.damage_scenario import DamageScenario
+from tara.domain.asset import Asset
+from tara.domain.security_property import SecurityProperty
+from tara.domain.attack_tree_stub_generator import AttackTreeStubGenerator
 
 class TestCase:
     def __init__(self):

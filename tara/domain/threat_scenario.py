@@ -1,7 +1,7 @@
-from domain.asset import Asset
-from domain.security_property import SecurityProperty
-from domain.damage_scenario import DamageScenario
-from domain.feasibility import Feasibility
+from tara.domain.asset import Asset
+from tara.domain.security_property import SecurityProperty
+from tara.domain.damage_scenario import DamageScenario
+from tara.domain.feasibility import Feasibility
 
 class ThreatScenario:
     def __init__(self, asset: Asset, security_property: SecurityProperty, damage_scenario: DamageScenario, feasibility: Feasibility):

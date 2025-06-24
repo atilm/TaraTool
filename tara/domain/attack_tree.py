@@ -1,7 +1,7 @@
-from domain.feasibility import Feasibility
-from domain.asset import Asset
-from domain.security_property import SecurityProperty
-from domain.object_store import ObjectStore
+from tara.domain.feasibility import Feasibility
+from tara.domain.asset import Asset
+from tara.domain.security_property import SecurityProperty
+from tara.domain.object_store import ObjectStore
 
 def attack_tree_id(asset: Asset, security_property: SecurityProperty) -> str:
     """

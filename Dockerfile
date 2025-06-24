@@ -6,11 +6,10 @@ WORKDIR /app
 # Copy all project files
 COPY . /app
 
-# Install build tools and pip if needed
-RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
-
 # Install the taratool package using setup.py
 RUN pip install .
+
+WORKDIR /workspace
 
 # Default command (can be overridden)
 # CMD ["taratool", "check"]

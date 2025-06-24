@@ -1,11 +1,11 @@
-from utilities.error_logger import ErrorLogger
-from MarkdownLib.markdown_document import *
-from MarkdownLib.markdown_document_builder import *
-from domain.tara import Tara
-from domain.damage_scenario import DamageScenario
-from domain.attack_tree import attack_tree_id, AttackTree
-from domain.feasibility import Feasibility
-from domain.risk import RiskLevel
+from tara.utilities.error_logger import ErrorLogger
+from tara.MarkdownLib.markdown_document import *
+from tara.MarkdownLib.markdown_document_builder import *
+from tara.domain.tara import Tara
+from tara.domain.damage_scenario import DamageScenario
+from tara.domain.attack_tree import attack_tree_id, AttackTree
+from tara.domain.feasibility import Feasibility
+from tara.domain.risk import RiskLevel
 
 class TaraDocumentGenerator:
     def __init__(self, error_logger: ErrorLogger):

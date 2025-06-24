@@ -1,10 +1,10 @@
 import unittest
 
-from domain.feasibility import *
-from domain.attack_tree_parser import AttackTreeParser
-from domain.attack_tree import *
-from utilities.error_logger import MemoryErrorLogger
-from MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
+from tara.domain.feasibility import *
+from tara.domain.attack_tree_parser import AttackTreeParser
+from tara.domain.attack_tree import *
+from tara.utilities.error_logger import MemoryErrorLogger
+from tara.MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
 
 class TestFeasibilityCalculation(unittest.TestCase):
     def test_feasibility_level_is_determined_correctly(self):
