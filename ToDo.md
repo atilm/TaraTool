@@ -7,7 +7,8 @@
 ## Next
 
 
-* [ ] Install TaraTool into docker container
+* [x] Install TaraTool into docker container
+* [x] Missing feasibility ratings: interpret as easiest feasibility and issue warning
 * [ ] Refactor Report builder and improve error handling
 * [ ] Parse all files in AttackTrees directory
 * [ ] Parse Controls and assign to Attack Tree nodes

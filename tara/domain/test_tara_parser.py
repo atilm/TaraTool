@@ -168,7 +168,6 @@ class TaraParserTests(unittest.TestCase):
                         WindowOfOpportunity.Unlimited,
                         Equipment.Standard)
 
-
         self.assertEqual(root_node_0.name, "Root Threat")
         self.assertEqual(root_node_0.reasoning, "Reasoning 0")
         self.assertEqual(root_node_0.comment, "Comment 0")
@@ -187,6 +186,45 @@ class TaraParserTests(unittest.TestCase):
         expected_feasibility.equipment = equipement
         
         self.assertEqual(node.get_feasibility(), expected_feasibility)
+
+    def test_parse_attack_tree_stub(self):
+        default_test_case = TestCase()
+        directory = default_test_case.directory
+        default_test_case.mock_reader.setup_file(os.path.join(directory, FileType.to_path(FileType.ASSETS)),
+"""# Assets
+
+| ID  | Name    | Availability | Integrity | Confidentiality | Reasoning   | Description   |
+| --- | ------- | ------------ | --------- | --------------- | ----------- | ------------- |
+| A-1 | Asset 1 | DS-1         |           |                 | Reasoning 1 | Description 1 |
+""")
+
+        attack_tree = """# AT_A-1_BLOCK
+
+| Attack Tree       | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat       |      |     |     |     |     |     |             |         |           |
+"""
+
+        attack_tree_file_path = os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md")
+        default_test_case.mock_reader.setup_file(attack_tree_file_path, attack_tree)
+
+        # Act
+        tara = default_test_case.parser.parse(directory)
+
+        # Assert
+        self.assertEqual(default_test_case.logger.get_errors(), [])
+        self.assertIn("Empty elapsed time string found in attack tree AT_A-1_BLOCK. Defaulting to easiest rating.", default_test_case.logger.get_warnings())
+        self.assertIn("Empty expertise string found in attack tree AT_A-1_BLOCK. Defaulting to easiest rating.", default_test_case.logger.get_warnings())
+        self.assertIn("Empty knowledge string found in attack tree AT_A-1_BLOCK. Defaulting to easiest rating.", default_test_case.logger.get_warnings())
+        self.assertIn("Empty window of opportunity string found in attack tree AT_A-1_BLOCK. Defaulting to easiest rating.", default_test_case.logger.get_warnings())
+        self.assertIn("Empty equipment string found in attack tree AT_A-1_BLOCK. Defaulting to easiest rating.", default_test_case.logger.get_warnings())
+        root_node_0 = tara.attack_trees[0].root_node
+        self.assert_feasibility(root_node_0,
+                        ElapsedTime.OneWeek,
+                        Expertise.Layman,
+                        Knowledge.Public,
+                        WindowOfOpportunity.Unlimited,
+                        Equipment.Standard)
 
     def test_parse_multi_level_attack_tree(self):
         # Arrange: only one Threat Scenario
@@ -292,7 +330,7 @@ class TaraParserTests(unittest.TestCase):
 | ----------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
 | Root Threat       | OR   |     |     |     |     |     |             |         |           |
 | -- Threat1        | OR   |     |     |     |     |     |             |         |           |
-| ---- Sub Threat 1 |      | 3w  | wL  | wP  | w   |     |             |         |           |
+| ---- Sub Threat 1 |      | 3w  | wL  | wP  | w   | me  |             |         |           |
 | ---- Sub Threat 2 |      | 1w  | L   | P   | U   | ST  |             |         |           |
 | ---- format error | REF  |     |     |     |     |     |             |         |           |
 | -- Threat2        | XOR  |     |     |     |     |     |             |         |           |
@@ -339,7 +377,7 @@ class TaraParserTests(unittest.TestCase):
         self.assertIn("Invalid expertise string found in attack tree AT_A-1_BLOCK: 'wL'", default_test_case.logger.get_errors())
         self.assertIn("Invalid knowledge string found in attack tree AT_A-1_BLOCK: 'wP'", default_test_case.logger.get_errors())
         self.assertIn("Invalid window of opportunity string found in attack tree AT_A-1_BLOCK: 'w'", default_test_case.logger.get_errors())
-        self.assertIn("Invalid equipment string found in attack tree AT_A-1_BLOCK: ''", default_test_case.logger.get_errors())
+        self.assertIn("Invalid equipment string found in attack tree AT_A-1_BLOCK: 'me'", default_test_case.logger.get_errors())
         self.assertIn("Invalid node type found in attack tree AT_A-1_BLOCK: 'XOR'", default_test_case.logger.get_errors())
         self.assertIn("Node Threat3 in attack tree AT_A-1_BLOCK has no children.", default_test_case.logger.get_errors())
         self.assertIn("Node Threat4 in attack tree AT_A-1_BLOCK has no children.", default_test_case.logger.get_errors())

@@ -82,9 +82,9 @@ class AttackTreeParser:
                 if len(node_stack) != 0:
                     node_stack[-1].add_child(node)    
             tree =  AttackTree(attack_tree_id)
-            tree.root_node = node_stack[0]
+            tree.root_node = node_stack[0] if len(node_stack) > 0 else node
             return tree
-        except Exception:
+        except Exception as e:
             self.logger.log_error(f"Error parsing attack tree {attack_tree_id}")
             return AttackTree(attack_tree_id)
 
@@ -100,6 +100,9 @@ class AttackTreeParser:
             return ElapsedTime.ThreeYears
         elif s == ">3y":
             return ElapsedTime.MoreThanThreeYears
+        elif s == "":
+            logger.log_warning(f"Empty elapsed time string found in attack tree {tree_id}. Defaulting to easiest rating.")
+            return ElapsedTime.OneWeek
         else:
             logger.log_error(f"Invalid elapsed time string found in attack tree {tree_id}: '{s}'")
 
@@ -113,6 +116,9 @@ class AttackTreeParser:
             return Expertise.Expert
         elif s == "ME":
             return Expertise.MultipleExperts
+        elif s == "":
+            logger.log_warning(f"Empty expertise string found in attack tree {tree_id}. Defaulting to easiest rating.")
+            return Expertise.Layman
         else:
             logger.log_error(f"Invalid expertise string found in attack tree {tree_id}: '{s}'")
 
@@ -126,6 +132,9 @@ class AttackTreeParser:
             return Knowledge.Confidential
         elif s == "SC":
             return Knowledge.StrictlyConfidential
+        elif s == "":
+            logger.log_warning(f"Empty knowledge string found in attack tree {tree_id}. Defaulting to easiest rating.")
+            return Knowledge.Public
         else:
             logger.log_error(f"Invalid knowledge string found in attack tree {tree_id}: '{s}'")
 
@@ -139,6 +148,9 @@ class AttackTreeParser:
             return WindowOfOpportunity.Moderate
         elif s == "D":
             return WindowOfOpportunity.Difficult
+        elif s == "":
+            logger.log_warning(f"Empty window of opportunity string found in attack tree {tree_id}. Defaulting to easiest rating.")
+            return WindowOfOpportunity.Unlimited
         else:
             logger.log_error(f"Invalid window of opportunity string found in attack tree {tree_id}: '{s}'")
 
@@ -152,5 +164,8 @@ class AttackTreeParser:
             return Equipment.Bespoke
         elif s == "MB":
             return Equipment.MultipleBespoke
+        elif s == "":
+            logger.log_warning(f"Empty equipment string found in attack tree {tree_id}. Defaulting to easiest rating.")
+            return Equipment.Standard
         else:
             logger.log_error(f"Invalid equipment string found in attack tree {tree_id}: '{s}'")
