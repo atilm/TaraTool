@@ -37,9 +37,18 @@ class TestCase:
 | A-1 | Asset 1 | DS-1         | DS-2      | DS-1 DS-2       | Reasoning 1 | Description 1 |
 | A-2 | Asset 2 |              | DS-2 DS-1 | DS-2            | Reasoning 2 | Description 2 |
 """)
-        
-        default_attack_tree = """# {0}
+        self.mock_reader.setup_file(os.path.join(self.directory, FileType.to_path(FileType.CONTROLS)),
+"""# Controls
 
+| ID  | Name      | Security Goal | Active |
+| --- | --------- | ------------- | ------ |
+| C-1 | Control 1 |               | x      |
+| C-2 | Control 2 |               |        |
+""")
+        
+
+        default_attack_tree = """# {0}
+        
 * Node: (OR, AND, LEAF, REF)
 * ET: Elapsed Time (1w, 1m, 6m, >6m)
 * Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)

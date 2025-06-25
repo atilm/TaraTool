@@ -12,6 +12,7 @@ class FileType(Enum):
     DAMAGE_SCENARIOS = "damage_scenarios"
     ATTACK_TREE = "attack_tree"
     METHOD_DESCRIPTION = "method_description"
+    CONTROLS = "controls"
         
     @classmethod
     def to_path(cls, file_type: 'FileType') -> str:
@@ -23,6 +24,8 @@ class FileType(Enum):
             return "02_Assets.md"
         elif file_type == cls.DAMAGE_SCENARIOS:
             return "03_DamageScenarios.md"
+        elif file_type == cls.CONTROLS:
+            return "04_Controls.md"
         elif file_type == cls.METHOD_DESCRIPTION:
             return "MethodDescription.md"
         elif file_type == cls.ATTACK_TREE:
@@ -40,6 +43,8 @@ class FileType(Enum):
             return ["ID", "Name", "Availability", "Integrity", "Confidentiality", "Reasoning", "Description"]
         elif file_type == cls.DAMAGE_SCENARIOS:
             return ["ID", "Name", "Safety", "Operational", "Financial", "Privacy", "Reasoning", "Comment"]
+        elif file_type == cls.CONTROLS:
+            return ["ID", "Name", "Security Goal", "Active"]
         elif file_type == cls.ATTACK_TREE:
             return ["Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Reasoning", "Control", "Comment"]
         elif file_type == cls.METHOD_DESCRIPTION:
@@ -76,6 +81,13 @@ Use drawio.png files or mermaid diagrams to illustrate the system architecture.
 | ID  | Name | Safety | Operational | Financial | Privacy | Reasoning | Comment |
 | --- | ---- | ------ | ----------- | --------- | ------- | --------- | ------- |
 |     |      |        |             |           |         |           |         |
+"""),
+    FileType.CONTROLS: FileStub(FileType.to_path(FileType.CONTROLS),
+"""# Controls
+
+| ID  | Name | Security Goal | Active |
+| --- | ---- | ------------- | ------ |
+|     |      |               |        |
 """),
     FileType.METHOD_DESCRIPTION: FileStub(FileType.to_path(FileType.METHOD_DESCRIPTION),
 """# Method Description
