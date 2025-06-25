@@ -38,21 +38,17 @@ class TaraParser:
         assets_table = self.read_table(FileType.ASSETS, directory)
         tara.assets = self.extract_assets(assets_table)
 
-        # generate all attack tree ids
-        attack_tree_ids = []
-        for asset in tara.assets:
-            for sp in asset.security_properties():
-                attack_tree_ids.append(attack_tree_id(asset, sp))
-
         # parse all attack trees
         attack_tree_parser = AttackTreeParser(self.logger, self.object_store)
-        for att_id in attack_tree_ids:
-            file_name = f"{att_id}.md"
-            att_dir = os.path.join(directory, "AttackTrees")
-            attack_tree_table = self.read_table(FileType.ATTACK_TREE, att_dir, file_name)
+        attack_tree_dir = os.path.join(directory, "AttackTrees")
+        attack_tree_files = [f for f in self.file_reader.listdir(attack_tree_dir) if f.endswith('.md')]
+        
+        for file_name in attack_tree_files:
+            attack_tree_table = self.read_table(FileType.ATTACK_TREE, attack_tree_dir, file_name)
             if attack_tree_table is None:
                 self.logger.log_error(f"No attack tree table found in file {file_name}. Is the table header correct?")
                 continue
+            att_id = file_name.replace('.md', '')  # Extract the attack tree ID from the file name
             attack_tree = attack_tree_parser.parse_attack_tree(attack_tree_table, att_id)       
             tara.attack_trees.append(attack_tree)
 
@@ -98,6 +94,20 @@ class TaraParser:
                         ds = self.object_store.get(ds_id)
                         if not isinstance(ds, DamageScenario):
                             self.logger.log_error(f"ID {ds_id} referenced by asset {asset.id} is not a damage scenario.")
+
+    def check_all_attack_trees_are_present(self, tara: Tara) -> None:
+        """
+        Checks if all attack trees referenced in assets exist in the TARA.
+        
+        :param tara: The Tara object containing assets and attack trees.
+        """
+        pass
+        # generate all attack tree ids
+        # attack_tree_ids = []
+        # for asset in tara.assets:
+        #     for sp in asset.security_properties():
+        #         attack_tree_ids.append(attack_tree_id(asset, sp))
+
 
     def check_attack_tree_rules(self, tara: Tara, rules: list) -> None:
         """

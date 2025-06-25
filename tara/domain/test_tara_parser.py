@@ -256,7 +256,9 @@ class TaraParserTests(unittest.TestCase):
 | -- Threat2        | AND  |     |     |     |     |     |             |         |           |
 | ---- Sub Threat 3 |      | 1w  | L   | P   | U   | ST  |             |         |           |"""
 
-        attack_tree_file_path = os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md")
+        attack_tree_directory = os.path.join(directory, "AttackTrees")
+        attack_tree_file_path = os.path.join(attack_tree_directory, "AT_A-1_BLOCK.md")
+        default_test_case.mock_reader.unset_files_in_directory(attack_tree_directory)
         default_test_case.mock_reader.setup_file(attack_tree_file_path, attack_tree)
 
         # Act
@@ -491,11 +493,8 @@ class TaraParserTests(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(tara.assets), 2)
-        self.assertEqual(len(default_test_case.logger.get_errors()), 3)
+        self.assertEqual(len(default_test_case.logger.get_errors()), 1)
         self.assertIn("Duplicate ID found: A-1", default_test_case.logger.get_errors()[0])
-        # Duplicated attack tree IDs follow from the duplicated asset ID
-        self.assertIn("Duplicate ID found: AT_A-1_MAN", default_test_case.logger.get_errors()[1])
-        self.assertIn("Duplicate ID found: AT_A-1_EXT", default_test_case.logger.get_errors()[2])
 
     def test_assets_only_link_to_existing_damage_scenarios(self):
         # Arrange
