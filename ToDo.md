@@ -10,7 +10,7 @@
 * [x] Install TaraTool into docker container
 * [x] Missing feasibility ratings: interpret as easiest feasibility and issue warning
 * [ ] Refactor Report builder and improve error handling
-* [ ] Parse all files in AttackTrees directory
+* [x] Parse all files in AttackTrees directory
 * [ ] Parse Controls and assign to Attack Tree nodes
 * [ ] Assign Circumvent-Trees for Assigned Controls
 * [ ] Complete the generated report
@@ -36,8 +36,8 @@
   * [x] Create correct content
   * [x] Do not overwrite existing files
 * [ ] Parse Attack Trees
-  * [ ] Only output warnings for empty attack trees and generate easiest feasibility, so that I can view results of an incomplete analysis
-  * [ ] Parse all files in the AttackTrees subdirectory
+  * [x] Only output warnings for empty attack trees and generate easiest feasibility, so that I can view results of an incomplete analysis
+  * [x] Parse all files in the AttackTrees subdirectory
     * [ ] TAT will be "Technical Attack Trees"
     * [ ] CIRC_<ControlId> will be "Circumvent Trees" (both could be user conventions)
   * [x] Only accept defined node types (empty = leaf)

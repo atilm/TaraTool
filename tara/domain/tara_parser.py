@@ -60,6 +60,7 @@ class TaraParser:
 
         # check rules
         self.check_damage_scenario_references_in_assets(tara)
+        self.check_all_attack_trees_are_present(tara)
         self.check_attack_tree_rules(tara, [
             self.check_and_or_nodes_have_children,
             self.check_referenced_trees_exist
@@ -101,12 +102,16 @@ class TaraParser:
         
         :param tara: The Tara object containing assets and attack trees.
         """
-        pass
-        # generate all attack tree ids
-        # attack_tree_ids = []
-        # for asset in tara.assets:
-        #     for sp in asset.security_properties():
-        #         attack_tree_ids.append(attack_tree_id(asset, sp))
+        from tara.domain.attack_tree import attack_tree_id
+
+        expected_attack_tree_ids = []
+        for asset in tara.assets:
+            for sp in asset.security_properties():
+                expected_attack_tree_ids.append(attack_tree_id(asset, sp))
+
+        for attack_tree_id in expected_attack_tree_ids:
+            if not self.object_store.has(attack_tree_id):
+                self.logger.log_error(f"No attack tree found for ID {attack_tree_id}.")
 
 
     def check_attack_tree_rules(self, tara: Tara, rules: list) -> None:

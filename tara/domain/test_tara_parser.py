@@ -388,6 +388,18 @@ class TaraParserTests(unittest.TestCase):
 
         self.assertIn("Error parsing attack tree AT_A-2_MAN", default_test_case.logger.get_errors())
 
+    def test_error_missing_attack_tree(self):
+        # Arrange
+        t = TestCase()
+        directory = t.directory
+        t.mock_reader.unset_file(os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md"))
+
+        # Act
+        tara = t.parser.parse(directory)
+
+        # Assert
+        self.assertIn("No attack tree found for ID AT_A-1_BLOCK.", t.logger.get_errors())
+
     def test_error_missing_assumptions_table(self):
         # Arrange
         default_test_case = TestCase()

@@ -31,10 +31,14 @@ class MockFileReader(IFileReader):
     def setup_file(self, file_path: str, file_content: str):
         self.contents[file_path] = file_content
 
+    def unset_file(self, file_path: str):
+        if file_path in self.contents:
+            del self.contents[file_path]
+
     def unset_files_in_directory(self, directory_path: str):
-        keys_to_remove = [key for key in self.contents if key.startswith(directory_path)]
-        for key in keys_to_remove:
-            del self.contents[key]
+        files_to_remove = [key for key in self.contents if key.startswith(directory_path)]
+        for file_path in files_to_remove:
+            self.unset_file(file_path)
 
     def read_file(self, file_path: str) -> str:
         return self.contents.get(file_path, f"No mock has been set up for file path '{file_path}'")
