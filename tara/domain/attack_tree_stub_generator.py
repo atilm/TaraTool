@@ -21,6 +21,14 @@ class AttackTreeStubGenerator:
         self.error_logger = error_logger
 
     def update_stubs(self, tara: Tara, directory: str) -> None:
+        class TreeDefinition:
+            def __init__(self, id: str, root_node_name: str):
+                self.id = id
+                self.root_node_name = root_node_name
+
+        tree_definitions = []
+
+        # Define attack trees for all assets and security properties
         for asset in tara.assets:
             for security_property, damage_scenarios in asset.damage_scenarios.items():
                 # One assigned damage scenario is enough to generate a stub
@@ -28,15 +36,26 @@ class AttackTreeStubGenerator:
                     continue
 
                 tree_id = attack_tree_id(asset, security_property)
-                file_path = f"{directory}/AttackTrees/{tree_id}.md"
+                root_node_name = f"{security_property.to_attack_description()} of {asset.name}"
 
-                if self.file_writer.exists(file_path):
-                    continue
+                tree_definitions.append(TreeDefinition(tree_id, root_node_name))
 
-                content = self._generate_stub_content(asset, security_property)
-                self.file_writer.write(file_path, content)
+        # Define circumvent tree stubs for all security controls
+        for control in tara.security_controls:
+            tree_id = f"CIRC_{control.id}"
+            root_node_name = f"Circumvent {control.name}"
+            tree_definitions.append(TreeDefinition(tree_id, root_node_name))
 
-    def _generate_stub_content(self, asset: Asset, security_property: SecurityProperty) -> str:
+        # Write the stub files
+        for tree_definition in tree_definitions:
+            file_path = f"{directory}/AttackTrees/{tree_definition.id}.md"
+            if self.file_writer.exists(file_path):
+                continue
+
+            content = self._generate_stub_content(tree_definition.id, tree_definition.root_node_name)
+            self.file_writer.write(file_path, content)
+
+    def _generate_stub_content(self, att_id: str, root_node_name: str) -> str:
         """
         Generates the content for the attack tree stub file.
         
@@ -45,7 +64,7 @@ class AttackTreeStubGenerator:
         :return: A string containing the content for the attack tree stub file.
         """
         return (
-f"""# {attack_tree_id(asset, security_property)}
+f"""# {att_id}
 
 * Node: (OR, AND, LEAF, REF)
 * ET: Elapsed Time (1w, 1m, 6m, 3y, >3y)
@@ -56,6 +75,6 @@ f"""# {attack_tree_id(asset, security_property)}
 
 | Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning | Control | Comment |
 | ------------------------------------ | ---- | --- | --- | --- | --- | --- | --------- | ------- | ------- |
-| {security_property.to_attack_description()} of {asset.name} |      |     |     |     |     |     |           |         |         |
+| {root_node_name} |      |     |     |     |     |     |           |         |         |
 """
         )

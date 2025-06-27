@@ -13,8 +13,8 @@
 * [X] Parse Controls and
 * [x] Assign controls to Attack Tree nodes
 * [x] Check that referenced controls exist
-* [ ] Create Circumvent-Tree Stubs for Existing Controls
-* [ ] Assign Circumvent-Trees for Assigned Controls
+* [x] Create Circumvent-Tree Stubs for Existing Controls
+* [ ] Assign Circumvent-Trees for Assigned Controls (Prepare Circ-Files in Test Cases!)
 * [ ] Complete the generated report
 * [ ] Find a possibility to persistently document the handling of remaining risks
 
