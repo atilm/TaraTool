@@ -25,12 +25,23 @@ class AttackTreeNode:
     def add_child(self, child_node):
         self.children.append(child_node)
 
-    def get_feasibility(self) -> Feasibility:
-        """
-        Returns the feasibility of the node.
-        This method should be overridden in subclasses to provide specific feasibility logic.
-        """
-        raise NotImplementedError("This method should be overridden in subclasses.")
+    def get_feasibility(self):
+        if self.security_control_ids:
+            circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in self.security_control_ids]
+            if not all(circumvent_tree for circumvent_tree in circumvent_trees):
+                raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
+            and_node = AttackTreeAndNode()
+            and_node.add_child(self.without_controls())
+            for circumvent_tree in circumvent_trees:
+                and_node.add_child(circumvent_tree.root_node)
+            return and_node.get_feasibility()
+
+        return self.get_feasibility_without_controls()
+
+    def without_controls(self) -> 'AttackTreeLeafNode':
+        deep_copy = copy.deepcopy(self)
+        deep_copy.security_control_ids = []
+        return deep_copy
 
     def get_feasibility_without_controls(self) -> Feasibility:
         """
@@ -45,9 +56,6 @@ class AttackTreeAndNode(AttackTreeNode):
         self.name = ""
         self.type = "AND"
 
-    def get_feasibility(self):
-        return self.get_feasibility_without_controls()
-
     def get_feasibility_without_controls(self) -> Feasibility:
         """
         Returns the feasibility of the AND node.
@@ -56,10 +64,9 @@ class AttackTreeAndNode(AttackTreeNode):
         if not self.children:
             raise ValueError("AND node has no children.")
         
-        # Assuming that a created feasibility has minimum values for all fields
-        feasibility = Feasibility()
+        feasibility = self.children[0].get_feasibility()
 
-        for child in self.children:
+        for child in self.children[1:]:
             feasibility = feasibility.and_feasibility(child.get_feasibility())
         
         return feasibility
@@ -69,9 +76,6 @@ class AttackTreeOrNode(AttackTreeNode):
         super().__init__()
         self.name = ""
         self.type = "OR"
-
-    def get_feasibility(self):
-        return self.get_feasibility_without_controls()
 
     def get_feasibility_without_controls(self) -> Feasibility:
         """
@@ -96,24 +100,6 @@ class AttackTreeLeafNode(AttackTreeNode):
         self._feasibility = feasibility
         self.object_store = object_store
 
-    def without_controls(self) -> 'AttackTreeLeafNode':
-        deep_copy = copy.deepcopy(self)
-        deep_copy.security_control_ids = []
-        return deep_copy
-
-    def get_feasibility(self):
-        if self.security_control_ids:
-            circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in self.security_control_ids]
-            if not all(circumvent_tree for circumvent_tree in circumvent_trees):
-                raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
-            and_node = AttackTreeAndNode()
-            and_node.add_child(self.without_controls())
-            for circumvent_tree in circumvent_trees:
-                and_node.add_child(circumvent_tree.root_node)
-            return and_node.get_feasibility_without_controls()
-
-        return self._feasibility
-
     def get_feasibility_without_controls(self) -> Feasibility:
         """
         Returns the feasibility of the node without considering any controls.
@@ -127,9 +113,6 @@ class AttackTreeReferenceNode(AttackTreeNode):
         self.type = "REFERENCE"
         self.referenced_node_id: str = None
         self.object_store = object_store
-
-    def get_feasibility(self):
-        return self.get_feasibility_without_controls()
 
     def get_feasibility_without_controls(self) -> Feasibility:
         """
