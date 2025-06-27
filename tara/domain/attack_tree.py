@@ -28,12 +28,12 @@ class AttackTreeNode:
 
     def get_feasibility(self):
         if self.security_control_ids:
-            circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in self.security_control_ids]
-            if not all(circumvent_tree for circumvent_tree in circumvent_trees):
+            active_circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in self.security_control_ids if self.object_store.get(control_id).is_active]
+            if not all(circumvent_tree for circumvent_tree in active_circumvent_trees):
                 raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
             and_node = AttackTreeAndNode(self.object_store)
             and_node.add_child(self.without_controls())
-            for circumvent_tree in circumvent_trees:
+            for circumvent_tree in active_circumvent_trees:
                 and_node.add_child(circumvent_tree.root_node)
             return and_node.get_feasibility()
 

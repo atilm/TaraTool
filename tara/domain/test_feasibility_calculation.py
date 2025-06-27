@@ -371,3 +371,44 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.equipment = Equipment.MultipleBespoke
 
         self.assertEqual(feasibility, expected_feasibility)
+
+    def test_inactive_controls_are_not_applied(self):
+        t = AttackTreeTestCase()
+        
+        # Register an inactive control
+        t.register_control("C-1", False)
+
+        tree = """# ATT-1
+
+| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 1    |      | 1m  | P   | R   | E   | SP  |             | C-1     |           |
+"""
+
+        circ_c1 = """# CIRC_C-1
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 1 |      | 1w  | E   | P   | D   | ST  |             |         |           |
+"""
+
+        tree_obj = t.parse_attack_tree(tree, "ATT-1")
+        t.parse_attack_tree(circ_c1, "CIRC_C-1")
+
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Act
+        feasibility = tree_obj.get_feasibility()
+
+        # Assert
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # The attack feasibility should be the same as if no control was applied
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = ElapsedTime.OneMonth
+        expected_feasibility.expertise = Expertise.Proficient
+        expected_feasibility.knowledge = Knowledge.Restricted
+        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Easy
+        expected_feasibility.equipment = Equipment.Specialized
+
+        self.assertEqual(feasibility, expected_feasibility)

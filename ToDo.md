@@ -17,7 +17,7 @@
 * [x] Apply Circumvent-Trees for single assigned control
 * [x] Apply Circumvent-Trees for multiple assigned controls
 * [x] Controls on non-leaf nodes
-* [ ] Possibility to deactivate controls
+* [x] Possibility to deactivate controls
 * [ ] Recursive Circumvent-Trees
 * [ ] Complete the generated report
 * [ ] Find a possibility to persistently document the handling of remaining risks
