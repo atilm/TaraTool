@@ -97,6 +97,17 @@ class AttackTreeTestCase:
         self.logger = MemoryErrorLogger()
         self.object_store = ObjectStore(MemoryErrorLogger())
 
+    def register_control(self, control_id: str, is_active: bool):
+        """
+        Registers a security control in the object store.
+        """
+        control = SecurityControl()
+        control.id = control_id
+        control.name = f"Control {control_id}"
+        control.security_goal = "Goal"
+        control.is_active = is_active
+        self.object_store.add(control)
+
     def parse_attack_tree(self, attack_tree_description: str, attack_tree_id: str) -> AttackTree:
         parser = MarkdownParser()
         document: MarkdownDocument = parser.parse(attack_tree_description)
@@ -194,13 +205,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
     def test_for_active_controls_circumvent_trees_are_applied(self):
         t = AttackTreeTestCase()
         
-        # Add an active security control to the object store
-        c1 = SecurityControl()
-        c1.id = "C-1"
-        c1.name = "Control 1"
-        c1.security_goal = "Goal-1"
-        c1.is_active = True
-        t.object_store.add(c1)
+        t.register_control("C-1", True)
 
         tree = """# ATT-1
 
@@ -241,5 +246,128 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.knowledge = Knowledge.Restricted
         expected_feasibility.window_of_opportunity = WindowOfOpportunity.Difficult
         expected_feasibility.equipment = Equipment.Specialized
+
+        self.assertEqual(feasibility, expected_feasibility)
+
+    def test_multiple_controls_can_be_combinded(self):
+        t = AttackTreeTestCase()
+        
+        t.register_control("C-1", True)
+        t.register_control("C-2", True)
+
+        tree = """# ATT-1
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 1    |      | 1w  | L   | P   | U   | ST  |             | C-1 C-2 |           |
+"""
+
+        circ_c1 = """# CIRC_C-1
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 1 |      | 6m  |     |     |     |     |             |         |           |
+"""
+
+        circ_c2 = """# CIRC_C-2
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 2 |      |     |     |     |     | MB  |             |         |           |
+"""
+        tree_obj = t.parse_attack_tree(tree, "ATT-1")
+        circ_c1_obj = t.parse_attack_tree(circ_c1, "CIRC_C-1")
+        circ_c2_obj = t.parse_attack_tree(circ_c2, "CIRC_C-2")
+
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Act
+        feasibility = tree_obj.get_feasibility()
+
+        # Assert
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Feasibility(Threat 1 with control) should be = Feasibility(Threat 1 without control) AND Feasibility(Circumvent Control 1) AND Feasibility(Circumvent Control 2)
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = ElapsedTime.SixMonths
+        expected_feasibility.expertise = Expertise.Layman
+        expected_feasibility.knowledge = Knowledge.Public
+        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Unlimited
+        expected_feasibility.equipment = Equipment.MultipleBespoke
+
+        self.assertEqual(feasibility, expected_feasibility)
+
+    def test_controls_can_be_applied_to_non_leaf_nodes(self):
+        t = AttackTreeTestCase()
+        
+        t.register_control("C-1", True)
+        t.register_control("C-2", True)
+        t.register_control("C-3", True)
+
+        tree = """# ATT-1
+
+| Attack Tree                       | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| --------------------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 1                          | AND  |     |     |     |     |     |             | C-1     |           |
+| -- Threat 1                       | OR   |     |     |     |     |     |             | C-2     |           |
+| ---- [Technical Tree](./TAT-1.md) | REF  |     |     |     |     |     |             | C-3     |           |
+"""
+
+        technical_tree = """# TAT-1
+
+| Attack Tree   | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 1      |      | 1m  | P   | R   | E   | SP  |             |         |           |
+"""
+
+        circ_c1 = """# CIRC_C-1
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 1 |      | 6m  |     |     |     |     |             |         |           |
+"""
+
+        circ_c2 = """# CIRC_C-2
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 2 |      |     |     |     |     | MB  |             |         |           |
+"""
+
+        circ_c3 = """# CIRC_C-3
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 3 |      |     |     | C   |     |     |             |         |           |
+"""
+
+        tree_obj = t.parse_attack_tree(tree, "ATT-1")
+        t.parse_attack_tree(technical_tree, "TAT-1")
+        t.parse_attack_tree(circ_c1, "CIRC_C-1")
+        t.parse_attack_tree(circ_c2, "CIRC_C-2")
+        t.parse_attack_tree(circ_c3, "CIRC_C-3")
+
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Act
+        feasibility = tree_obj.get_feasibility()
+
+        # Assert
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Feasibility(Threat 1 with control) should be = Feasibility(Threat 1 without control) AND Feasibility(Circumvent Control 1)
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = ElapsedTime.SixMonths
+        expected_feasibility.expertise = Expertise.Proficient
+        expected_feasibility.knowledge = Knowledge.Confidential
+        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Easy
+        expected_feasibility.equipment = Equipment.MultipleBespoke
 
         self.assertEqual(feasibility, expected_feasibility)

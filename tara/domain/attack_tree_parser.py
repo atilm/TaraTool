@@ -46,9 +46,9 @@ class AttackTreeParser:
 
                 row_type = table.getCell(row, 1)
                 if row_type == "OR":
-                    node = AttackTreeOrNode()
+                    node = AttackTreeOrNode(self.object_store)
                 elif row_type == "AND":
-                    node = AttackTreeAndNode()
+                    node = AttackTreeAndNode(self.object_store)
                 elif row_type == "LEAF" or row_type == "":
                     feasibility = Feasibility()
                     feasibility.time = AttackTreeParser.parse_elapsed_time_static(table.getCell(row, 2), attack_tree_id, self.logger)

@@ -15,12 +15,13 @@ def attack_tree_id(asset: Asset, security_property: SecurityProperty) -> str:
     return f"AT_{asset.id}_{security_property.to_attack_id()}"
 
 class AttackTreeNode:
-    def __init__(self):
+    def __init__(self, object_store: ObjectStore):
         self.name: str = ""
         self.reasoning: str = ""
         self.comment: str = ""
         self.children = []
         self.security_control_ids: list[str] = []
+        self.object_store: ObjectStore = object_store
 
     def add_child(self, child_node):
         self.children.append(child_node)
@@ -30,7 +31,7 @@ class AttackTreeNode:
             circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in self.security_control_ids]
             if not all(circumvent_tree for circumvent_tree in circumvent_trees):
                 raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
-            and_node = AttackTreeAndNode()
+            and_node = AttackTreeAndNode(self.object_store)
             and_node.add_child(self.without_controls())
             for circumvent_tree in circumvent_trees:
                 and_node.add_child(circumvent_tree.root_node)
@@ -51,8 +52,8 @@ class AttackTreeNode:
         raise NotImplementedError("This method should be overridden in subclasses.")
 
 class AttackTreeAndNode(AttackTreeNode):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, object_store: ObjectStore):
+        super().__init__(object_store)
         self.name = ""
         self.type = "AND"
 
@@ -72,8 +73,8 @@ class AttackTreeAndNode(AttackTreeNode):
         return feasibility
 
 class AttackTreeOrNode(AttackTreeNode):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, object_store: ObjectStore):
+        super().__init__(object_store)
         self.name = ""
         self.type = "OR"
 
@@ -94,11 +95,10 @@ class AttackTreeOrNode(AttackTreeNode):
 
 class AttackTreeLeafNode(AttackTreeNode):
     def __init__(self, feasibility: Feasibility, object_store: ObjectStore):
-        super().__init__()
+        super().__init__(object_store)
         self.name = ""
         self.type = "LEAF"
         self._feasibility = feasibility
-        self.object_store = object_store
 
     def get_feasibility_without_controls(self) -> Feasibility:
         """
@@ -109,10 +109,9 @@ class AttackTreeLeafNode(AttackTreeNode):
 
 class AttackTreeReferenceNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
-        super().__init__()
+        super().__init__(object_store)
         self.type = "REFERENCE"
         self.referenced_node_id: str = None
-        self.object_store = object_store
 
     def get_feasibility_without_controls(self) -> Feasibility:
         """
