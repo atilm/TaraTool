@@ -3,6 +3,7 @@ import unittest
 from tara.domain.feasibility import *
 from tara.domain.attack_tree_parser import AttackTreeParser
 from tara.domain.attack_tree import *
+from tara.domain.security_control import SecurityControl
 from tara.utilities.error_logger import MemoryErrorLogger
 from tara.MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
 
@@ -62,7 +63,7 @@ class TestFeasibilityCalculation(unittest.TestCase):
         self.assertEqual(combined_feasibility, easier_feasibility)
         self.assertEqual(other_combined_feasibility, easier_feasibility)
 
-    def test_applying_AND_to_feasibilities_returns_a_feasibility_with_per_fiel_max(self):
+    def test_applying_AND_to_feasibilities_returns_a_feasibility_with_per_field_max(self):
         # Arrange
         feasibility_1 = Feasibility()
         feasibility_1.time = ElapsedTime.SixMonths
@@ -107,8 +108,7 @@ class AttackTreeTestCase:
 
         self.object_store.add(tree)
 
-        return tree
-        
+        return tree        
 
 class TestFeasibilityForAttackTrees(unittest.TestCase):
     def test_feasibility_of_a_whole_tree_is_calculated_correctly(self):
@@ -188,5 +188,58 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.knowledge = Knowledge.Confidential
         expected_feasibility.window_of_opportunity = WindowOfOpportunity.Easy
         expected_feasibility.equipment = Equipment.Bespoke
+
+        self.assertEqual(feasibility, expected_feasibility)
+
+    def test_for_active_controls_circumvent_trees_are_applied(self):
+        t = AttackTreeTestCase()
+        
+        # Add an active security control to the object store
+        c1 = SecurityControl()
+        c1.id = "C-1"
+        c1.name = "Control 1"
+        c1.security_goal = "Goal-1"
+        c1.is_active = True
+        t.object_store.add(c1)
+
+        tree = """# ATT-1
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 1    |      | 1m  | P   | R   | E   | SP  |             | C-1     |           |
+"""
+
+        circ_c1 = """# CIRC_C-1
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 1 |      | 1w  | E   | P   | D   | ST  |             |         |           |
+"""
+
+        tree_obj = t.parse_attack_tree(tree, "ATT-1")
+        circ_c1_obj = t.parse_attack_tree(circ_c1, "CIRC_C-1")
+
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Act
+        feasibility = tree_obj.get_feasibility()
+
+        # Assert
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Feasibility(Threat 1 with control) should be = Feasibility(Threat 1 without control) AND Feasibility(Circumvent Control 1)
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = ElapsedTime.OneMonth
+        expected_feasibility.expertise = Expertise.Expert
+        expected_feasibility.knowledge = Knowledge.Restricted
+        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Difficult
+        expected_feasibility.equipment = Equipment.Specialized
 
         self.assertEqual(feasibility, expected_feasibility)

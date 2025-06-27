@@ -2,6 +2,7 @@ from tara.domain.feasibility import Feasibility
 from tara.domain.asset import Asset
 from tara.domain.security_property import SecurityProperty
 from tara.domain.object_store import ObjectStore
+import copy
 
 def attack_tree_id(asset: Asset, security_property: SecurityProperty) -> str:
     """
@@ -31,6 +32,12 @@ class AttackTreeNode:
         """
         raise NotImplementedError("This method should be overridden in subclasses.")
 
+    def get_feasibility_without_controls(self) -> Feasibility:
+        """
+        Returns the feasibility of the node without considering any controls.
+        This is useful for calculating the base feasibility of the node.
+        """
+        raise NotImplementedError("This method should be overridden in subclasses.")
 
 class AttackTreeAndNode(AttackTreeNode):
     def __init__(self):
@@ -38,7 +45,10 @@ class AttackTreeAndNode(AttackTreeNode):
         self.name = ""
         self.type = "AND"
 
-    def get_feasibility(self) -> Feasibility:
+    def get_feasibility(self):
+        return self.get_feasibility_without_controls()
+
+    def get_feasibility_without_controls(self) -> Feasibility:
         """
         Returns the feasibility of the AND node.
         The feasibility is calculated as the maximum feasibility of all child nodes.
@@ -60,7 +70,10 @@ class AttackTreeOrNode(AttackTreeNode):
         self.name = ""
         self.type = "OR"
 
-    def get_feasibility(self) -> Feasibility:
+    def get_feasibility(self):
+        return self.get_feasibility_without_controls()
+
+    def get_feasibility_without_controls(self) -> Feasibility:
         """
         Returns the feasibility of the OR node.
         The feasibility is calculated as the minimum feasibility of all child nodes.
@@ -76,13 +89,36 @@ class AttackTreeOrNode(AttackTreeNode):
         return feasibility
 
 class AttackTreeLeafNode(AttackTreeNode):
-    def __init__(self, feasibility: Feasibility):
+    def __init__(self, feasibility: Feasibility, object_store: ObjectStore):
         super().__init__()
         self.name = ""
         self.type = "LEAF"
         self._feasibility = feasibility
+        self.object_store = object_store
+
+    def without_controls(self) -> 'AttackTreeLeafNode':
+        deep_copy = copy.deepcopy(self)
+        deep_copy.security_control_ids = []
+        return deep_copy
 
     def get_feasibility(self):
+        if self.security_control_ids:
+            circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in self.security_control_ids]
+            if not all(circumvent_tree for circumvent_tree in circumvent_trees):
+                raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
+            and_node = AttackTreeAndNode()
+            and_node.add_child(self.without_controls())
+            for circumvent_tree in circumvent_trees:
+                and_node.add_child(circumvent_tree.root_node)
+            return and_node.get_feasibility_without_controls()
+
+        return self._feasibility
+
+    def get_feasibility_without_controls(self) -> Feasibility:
+        """
+        Returns the feasibility of the node without considering any controls.
+        This is useful for calculating the base feasibility of the node.
+        """
         return self._feasibility
 
 class AttackTreeReferenceNode(AttackTreeNode):
@@ -92,7 +128,10 @@ class AttackTreeReferenceNode(AttackTreeNode):
         self.referenced_node_id: str = None
         self.object_store = object_store
 
-    def get_feasibility(self) -> Feasibility:
+    def get_feasibility(self):
+        return self.get_feasibility_without_controls()
+
+    def get_feasibility_without_controls(self) -> Feasibility:
         """
         Returns the feasibility of the referenced node.
         If the referenced node is not found, raises an error.

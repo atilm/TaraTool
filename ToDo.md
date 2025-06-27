@@ -14,7 +14,11 @@
 * [x] Assign controls to Attack Tree nodes
 * [x] Check that referenced controls exist
 * [x] Create Circumvent-Tree Stubs for Existing Controls
-* [ ] Assign Circumvent-Trees for Assigned Controls (Prepare Circ-Files in Test Cases!)
+* [ x Apply Circumvent-Trees for single assigned control
+* [ ] Apply Circumvent-Trees for multiple assigned controls
+* [ ] Possibility to deactivate controls
+* [ ] Recursive Circumvent-Trees
+* [ ] Controls on non-leaf nodes
 * [ ] Complete the generated report
 * [ ] Find a possibility to persistently document the handling of remaining risks
 

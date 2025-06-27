@@ -78,6 +78,34 @@ class TestCase:
             attack_tree_file_content = default_attack_tree.format(attack_tree_id)
             self.mock_reader.setup_file(attack_tree_file_path, attack_tree_file_content)
 
+        self.mock_reader.setup_file(os.path.join(self.directory, "AttackTrees", "CIRC_C-1.md"),
+"""# CIRC_C-1
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| Attack Tree            | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ---------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Control 1   |      |     |     |     |     |     |             |         |           |""")
+
+        self.mock_reader.setup_file(os.path.join(self.directory, "AttackTrees", "CIRC_C-2.md"),
+"""# CIRC_C-2
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| Attack Tree            | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ---------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Control 2   |      |     |     |     |     |     |             |         |           |""")
+
         self.parser = TaraParser(self.mock_reader, self.logger)
         
 

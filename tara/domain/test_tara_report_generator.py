@@ -45,6 +45,33 @@ class TestCase:
 | C-2 | Control 2 | Goal-1        |        |
 """)
         
+        # self.mock_reader.setup_file(os.path.join(self.directory, "AttackTrees", "k.md"),
+        circ_c1 = """# CIRC_C-1
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| Attack Tree            | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ---------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Control 1   |      |     |     |     |     |     |             |         |           |"""
+
+        circ_c2 = """# CIRC_C-2
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| Attack Tree            | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ---------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Control 2   |      |     |     |     |     |     |             |         |           |"""
+        
         at_a_1_block = """# {0}
 
 | Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
@@ -78,6 +105,8 @@ class TestCase:
 """
 
         attack_trees = {
+            "CIRC_C-1": circ_c1,
+            "CIRC_C-2": circ_c2,
             "AT_A-1_BLOCK": at_a_1_block,
             "AT_A-1_MAN": at_a_1_man,
             "AT_A-2_MAN": at_a_2_man,

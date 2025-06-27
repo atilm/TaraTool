@@ -56,7 +56,7 @@ class AttackTreeParser:
                     feasibility.knowledge = AttackTreeParser.parse_knowledge_static(table.getCell(row, 4), attack_tree_id, self.logger)
                     feasibility.window_of_opportunity = AttackTreeParser.parse_window_of_opportunity_static(table.getCell(row, 5), attack_tree_id, self.logger)
                     feasibility.equipment = AttackTreeParser.parse_equipment_static(table.getCell(row, 6), attack_tree_id, self.logger)
-                    node = AttackTreeLeafNode(feasibility)
+                    node = AttackTreeLeafNode(feasibility, self.object_store)
                 elif row_type == "REF":
                     node = AttackTreeReferenceNode(self.object_store)
                     match = re.match(r"\[(.*?)\]\((.*?)\)", name)
