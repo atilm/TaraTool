@@ -42,8 +42,8 @@ class TestCase:
 
 | ID  | Name      | Security Goal | Active |
 | --- | --------- | ------------- | ------ |
-| C-1 | Control 1 |               | x      |
-| C-2 | Control 2 |               |        |
+| C-1 | Control 1 | Goal-1        | x      |
+| C-2 | Control 2 | Goal-1        |        |
 """)
         
 
@@ -184,6 +184,16 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(root_node_0.children[0].name, "Threat 1")
         self.assertEqual(root_node_0.children[0].reasoning, "Reasoning 1")
         self.assertEqual(root_node_0.children[0].comment, "Comment 1")
+
+        self.assertEqual(len(tara.security_controls), 2)
+        self.assertEqual(tara.security_controls[0].id, "C-1")
+        self.assertEqual(tara.security_controls[0].name, "Control 1")
+        self.assertEqual(tara.security_controls[0].security_goal, "Goal-1")
+        self.assertTrue(tara.security_controls[0].is_active)
+        self.assertEqual(tara.security_controls[1].id, "C-2")
+        self.assertEqual(tara.security_controls[1].name, "Control 2")
+        self.assertEqual(tara.security_controls[1].security_goal, "Goal-1")
+        self.assertFalse(tara.security_controls[1].is_active)
 
 
     def assert_feasibility(self, node: AttackTreeNode, time, expertise, knowledge, woOpportunity, equipement):
@@ -516,6 +526,26 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(len(tara.assets), 2)
         self.assertEqual(len(default_test_case.logger.get_errors()), 1)
         self.assertIn("Duplicate ID found: A-1", default_test_case.logger.get_errors()[0])
+
+    def test_security_control_ids_are_checked_for_duplication(self):
+        # Arrange
+        default_test_case = TestCase()
+        default_test_case.mock_reader.setup_file(os.path.join(default_test_case.directory, FileType.to_path(FileType.CONTROLS)),
+"""# Controls
+
+| ID  | Name      | Security Goal | Active |
+| --- | --------- | ------------- | ------ |
+| C-1 | Control 1 | Goal-1        | x      |
+| C-1 | Control 2 | Goal-1        |        |
+""")
+        # Act
+        tara = default_test_case.parser.parse(default_test_case.directory)
+
+        # Assert
+        self.assertEqual(len(tara.security_controls), 2)
+        self.assertEqual(len(default_test_case.logger.get_errors()), 1)
+        self.assertIn("Duplicate ID found: C-1", default_test_case.logger.get_errors()[0])
+        
 
     def test_assets_only_link_to_existing_damage_scenarios(self):
         # Arrange

@@ -11,7 +11,9 @@
 * [x] Missing feasibility ratings: interpret as easiest feasibility and issue warning
 * [ ] Refactor Report builder and improve error handling
 * [x] Parse all files in AttackTrees directory
-* [ ] Parse Controls and assign to Attack Tree nodes
+* [X] Parse Controls and
+* [ ] Assign controls to Attack Tree nodes
+* [ ] Create Circumvent-Tree Stubs for Existing Controls
 * [ ] Assign Circumvent-Trees for Assigned Controls
 * [ ] Complete the generated report
 * [ ] Find a possibility to persistently document the handling of remaining risks
@@ -22,7 +24,7 @@
   * [x] Damage Scenarios
   * [x] Assets
   * [x] Attack Trees (is already implemented by using file names, but do it anyway)
-  * [ ] Security Controls
+  * [x] Security Controls
   * [ ] Security Goals
 * [.] Check for references to non-existing IDs
   * [x] Assets to Damage Scenarios
@@ -40,6 +42,7 @@
   * [x] Parse all files in the AttackTrees subdirectory
     * [ ] TAT will be "Technical Attack Trees"
     * [ ] CIRC_<ControlId> will be "Circumvent Trees" (both could be user conventions)
+    * [ ] Circumvent Trees should be able to reference controls, too.
   * [x] Only accept defined node types (empty = leaf)
   * [x] Parse Leaf Nodes
   * [x] Test for all existing feasibility ratings

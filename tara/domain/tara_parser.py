@@ -38,6 +38,10 @@ class TaraParser:
         assets_table = self.read_table(FileType.ASSETS, directory)
         tara.assets = self.extract_assets(assets_table)
 
+        # Parse security controls (security goals)
+        controls_table = self.read_table(FileType.CONTROLS, directory)
+        tara.security_controls = self.extract_security_controls(controls_table)
+
         # parse all attack trees
         attack_tree_parser = AttackTreeParser(self.logger, self.object_store)
         attack_tree_dir = os.path.join(directory, "AttackTrees")
@@ -57,6 +61,7 @@ class TaraParser:
         self.add_ids(tara.damage_scenarios)
         self.add_ids(tara.assets)
         self.add_ids(tara.attack_trees)
+        self.add_ids(tara.security_controls)
 
         # check rules
         self.check_damage_scenario_references_in_assets(tara)
@@ -67,6 +72,27 @@ class TaraParser:
         ])
 
         return tara
+    def extract_security_controls(self, table: MarkdownTable) -> list:
+        """
+        Extracts security controls from a MarkdownTable.
+        :param table: The MarkdownTable containing security controls.
+        :return: A list of SecurityControl objects.
+        """
+        from tara.domain.security_control import SecurityControl
+        controls = []
+        if table is None:
+            return controls
+
+        for row in range(table.getRowCount()):
+            control = SecurityControl()
+            control.id = table.getCell(row, 0)
+            control.name = table.getCell(row, 1)
+            control.security_goal = table.getCell(row, 2)
+            # Consider 'x' or 'X' as active, else inactive
+            active_value = table.getCell(row, 3).strip().lower()
+            control.is_active = active_value == 'x'
+            controls.append(control)
+        return controls
 
     def add_ids(self, objects: list[object]) -> None:
         """
@@ -298,9 +324,3 @@ class TaraParser:
         
         return damage_scenarios
 
-    def extract_attack_tree(self, table: MarkdownTable, attack_tree_id: str) -> AttackTree:
-        """
-        Deprecated: Use AttackTreeParser instead.
-        """
-        self.logger.log_error("extract_attack_tree is deprecated. Use AttackTreeParser instead.")
-        return AttackTree(attack_tree_id)

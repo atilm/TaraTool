@@ -36,6 +36,14 @@ class TestCase:
 | A-1 | Asset 1 | DS-1         | DS-2      |                 | Reasoning 1 | Description 1 |
 | A-2 | Asset 2 |              | DS-2      | DS-2            | Reasoning 2 | Description 2 |
 """)
+        self.mock_reader.setup_file(os.path.join(self.directory, FileType.to_path(FileType.CONTROLS)),
+"""# Controls
+
+| ID  | Name      | Security Goal | Active |
+| --- | --------- | ------------- | ------ |
+| C-1 | Control 1 | Goal-1        | x      |
+| C-2 | Control 2 | Goal-1        |        |
+""")
         
         at_a_1_block = """# {0}
 
