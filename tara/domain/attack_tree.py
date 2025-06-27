@@ -19,6 +19,7 @@ class AttackTreeNode:
         self.reasoning: str = ""
         self.comment: str = ""
         self.children = []
+        self.security_control_ids: list[str] = []
 
     def add_child(self, child_node):
         self.children.append(child_node)

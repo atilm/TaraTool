@@ -39,6 +39,7 @@ class AttackTreeParser:
 
                 comment = table.getCell(row, 9)
                 reasoning = table.getCell(row, 7)
+                security_control_ids = table.getCell(row, 8).strip().split() if table.getCell(row, 8) else []
                 
                 prev_node = node
                 node: AttackTreeNode = None
@@ -73,6 +74,7 @@ class AttackTreeParser:
                 node.name = name
                 node.comment = comment
                 node.reasoning = reasoning
+                node.security_control_ids = security_control_ids
 
                 if indentation > prev_indentation:
                     node_stack.append(prev_node)

@@ -12,7 +12,8 @@
 * [ ] Refactor Report builder and improve error handling
 * [x] Parse all files in AttackTrees directory
 * [X] Parse Controls and
-* [ ] Assign controls to Attack Tree nodes
+* [x] Assign controls to Attack Tree nodes
+* [ ] Check that referenced controls exist
 * [ ] Create Circumvent-Tree Stubs for Existing Controls
 * [ ] Assign Circumvent-Trees for Assigned Controls
 * [ ] Complete the generated report

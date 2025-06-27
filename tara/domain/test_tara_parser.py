@@ -59,8 +59,8 @@ class TestCase:
 | Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
 | Root Threat    | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
-| -- Threat 1    | LEAF | 1w  | L   | P   | U   | ST  | Reasoning 1 |         | Comment 1 |
-| -- Threat 2    | LEAF | 1m  | P   | R   | E   | SP  | Reasoning 2 |         | Comment 2 |
+| -- Threat 1    | LEAF | 1w  | L   | P   | U   | ST  | Reasoning 1 | C-1     | Comment 1 |
+| -- Threat 2    | LEAF | 1m  | P   | R   | E   | SP  | Reasoning 2 | C-1 C-2 | Comment 2 |
 | -- Threat 3    |      | 6m  | E   | C   | M   | B   | Reasoning 3 |         | Comment 3 |
 | -- Threat 4    |      | 3y  | ME  | SC  | D   | MB  | Reasoning 4 |         | Comment 4 |
 | -- Threat 5    |      | >3y | L   | P   | U   | ST  | Reasoning 5 |         | Comment 5 |"""
@@ -146,6 +146,7 @@ class TaraParserTests(unittest.TestCase):
 
         self.assertIsInstance(root_node_0, AttackTreeOrNode)
         self.assertEqual(len(root_node_0.children), 5)
+        # assert feasibilities
         self.assert_feasibility(root_node_0.children[0],
                         ElapsedTime.OneWeek,
                         Expertise.Layman,
@@ -176,6 +177,14 @@ class TaraParserTests(unittest.TestCase):
                         Knowledge.Public,
                         WindowOfOpportunity.Unlimited,
                         Equipment.Standard)
+
+        # assert controls are parsed
+        self.assertEqual(len(root_node_0.children[0].security_control_ids), 1)
+        self.assertEqual(root_node_0.children[0].security_control_ids[0], "C-1")
+        self.assertEqual(len(root_node_0.children[1].security_control_ids), 2)
+        self.assertEqual(root_node_0.children[1].security_control_ids[0], "C-1")
+        self.assertEqual(root_node_0.children[1].security_control_ids[1], "C-2")
+
 
         self.assertEqual(root_node_0.name, "Root Threat")
         self.assertEqual(root_node_0.reasoning, "Reasoning 0")
