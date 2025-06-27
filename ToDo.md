@@ -6,14 +6,13 @@
 
 ## Next
 
-
 * [x] Install TaraTool into docker container
 * [x] Missing feasibility ratings: interpret as easiest feasibility and issue warning
 * [ ] Refactor Report builder and improve error handling
 * [x] Parse all files in AttackTrees directory
 * [X] Parse Controls and
 * [x] Assign controls to Attack Tree nodes
-* [ ] Check that referenced controls exist
+* [x] Check that referenced controls exist
 * [ ] Create Circumvent-Tree Stubs for Existing Controls
 * [ ] Assign Circumvent-Trees for Assigned Controls
 * [ ] Complete the generated report
@@ -43,7 +42,7 @@
   * [x] Parse all files in the AttackTrees subdirectory
     * [ ] TAT will be "Technical Attack Trees"
     * [ ] CIRC_<ControlId> will be "Circumvent Trees" (both could be user conventions)
-    * [ ] Circumvent Trees should be able to reference controls, too.
+    * [.] Circumvent Trees should be able to reference controls, too.
   * [x] Only accept defined node types (empty = leaf)
   * [x] Parse Leaf Nodes
   * [x] Test for all existing feasibility ratings

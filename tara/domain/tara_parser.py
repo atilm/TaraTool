@@ -69,6 +69,7 @@ class TaraParser:
         self.check_attack_tree_rules(tara, [
             self.check_and_or_nodes_have_children,
             self.check_referenced_trees_exist
+            self.check_referenced_controls_exist
         ])
 
         return tara
@@ -182,6 +183,17 @@ class TaraParser:
         if isinstance(node, AttackTreeReferenceNode):
             if not self.object_store.has(node.referenced_node_id):
                 self.logger.log_error(f"Node {node.name} in attack tree {attack_tree_id} references non-existing tree {node.referenced_node_id}.")
+
+    def check_referenced_controls_exist(self, node: AttackTreeNode, attack_tree_id: str) -> None:
+        """
+        Checks if the node references controls that exist in the TARA.
+        
+        :param node: The AttackTreeNode to check.
+        :param attack_tree_id: The ID of the attack tree for logging purposes.
+        """
+        for control_id in node.security_control_ids:
+            if not self.object_store.has(control_id):
+                self.logger.log_error(f"Node {node.name} in attack tree {attack_tree_id} references non-existing control '{control_id}'.")
 
     def read_table(self, file_type: FileType, directory: str, file_name: str = None) -> MarkdownTable:
         """

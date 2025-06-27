@@ -576,3 +576,30 @@ class TaraParserTests(unittest.TestCase):
         self.assertIn("Damage scenario DS-3 referenced by asset A-1 does not exist.", default_test_case.logger.get_errors()[0])
         self.assertIn("Damage scenario DS-4 referenced by asset A-2 does not exist.", default_test_case.logger.get_errors()[1])
         self.assertIn("ID Ast-1 referenced by asset A-2 is not a damage scenario.", default_test_case.logger.get_errors()[2])
+
+    def test_attack_tree_nodes_only_link_to_existing_controls(self):
+         # Arrange: only one Threat Scenario
+        default_test_case = TestCase()
+        directory = default_test_case.directory
+
+        attack_tree = """# AT_A-1_BLOCK
+
+| Attack Tree       | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat       | OR   |     |     |     |     |     |             | C-1     |           |
+| -- Threat1        | OR   |     |     |     |     |     |             | C-2     |           |
+| ---- Sub Threat 1 |      | 3w  | wL  | wP  | w   | me  |             | C-1 C-3 |           |
+| ---- Sub Threat 2 |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| ---- format error | REF  |     |     |     |     |     |             |         |           |
+| -- Threat2        | XOR  |     |     |     |     |     |             |         |           |
+| -- Threat3        | AND  |     |     |     |     |     |             |         |           |
+| -- Threat4        | OR   |     |     |     |     |     |             |         |           |"""
+
+        attack_tree_file_path = os.path.join(directory, "AttackTrees", "AT_A-1_BLOCK.md")
+        default_test_case.mock_reader.setup_file(attack_tree_file_path, attack_tree)
+
+        # Act
+        tara = default_test_case.parser.parse(directory)
+
+        # Assert
+        self.assertIn("Node Sub Threat 1 in attack tree AT_A-1_BLOCK references non-existing control 'C-1'.", default_test_case.logger.get_errors())
