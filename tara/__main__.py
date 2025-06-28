@@ -14,14 +14,13 @@ def init():
     """The init command initializes the directory tara with stubs for the necessary files."""
 
     print("Initializing...")
-    if os.path.exists("tara"):
-        print("Directory 'tara' already exists. Please remove it before initializing.")
-        sys.exit(1)
-    os.makedirs("tara")
+    os.makedirs("tara", exist_ok=True)
 
     for file_stub in file_stubs.values():
-        with open(os.path.join("tara", file_stub.path), 'w') as f:
-            f.write(file_stub.content)
+        file_path = os.path.join("tara", file_stub.path)
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as f:
+                f.write(file_stub.content)
 
 def check():
     print("Checking...")
