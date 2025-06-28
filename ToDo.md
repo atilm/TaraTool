@@ -18,7 +18,8 @@
 * [x] Apply Circumvent-Trees for multiple assigned controls
 * [x] Controls on non-leaf nodes
 * [x] Possibility to deactivate controls
-* [ ] Recursive Circumvent-Trees
+* [x] Recursive Circumvent-Trees
+* [ ] When creating stubs create missing files in existing directory
 * [ ] Complete the generated report
 * [ ] Find a possibility to persistently document the handling of remaining risks
 
@@ -44,9 +45,9 @@
 * [ ] Parse Attack Trees
   * [x] Only output warnings for empty attack trees and generate easiest feasibility, so that I can view results of an incomplete analysis
   * [x] Parse all files in the AttackTrees subdirectory
-    * [ ] TAT will be "Technical Attack Trees"
-    * [ ] CIRC_<ControlId> will be "Circumvent Trees" (both could be user conventions)
-    * [.] Circumvent Trees should be able to reference controls, too.
+    * [x] TAT will be "Technical Attack Trees"
+    * [x] CIRC_<ControlId> will be "Circumvent Trees" (both could be user conventions)
+    * [x] Circumvent Trees should be able to reference controls, too.
   * [x] Only accept defined node types (empty = leaf)
   * [x] Parse Leaf Nodes
   * [x] Test for all existing feasibility ratings

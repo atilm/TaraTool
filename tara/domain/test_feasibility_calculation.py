@@ -283,8 +283,57 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
 | Circumvent Threat 2 |      |     |     |     |     | MB  |             |         |           |
 """
         tree_obj = t.parse_attack_tree(tree, "ATT-1")
-        circ_c1_obj = t.parse_attack_tree(circ_c1, "CIRC_C-1")
-        circ_c2_obj = t.parse_attack_tree(circ_c2, "CIRC_C-2")
+        t.parse_attack_tree(circ_c1, "CIRC_C-1")
+        t.parse_attack_tree(circ_c2, "CIRC_C-2")
+
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Act
+        feasibility = tree_obj.get_feasibility()
+
+        # Assert
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Feasibility(Threat 1 with control) should be = Feasibility(Threat 1 without control) AND Feasibility(Circumvent Control 1) AND Feasibility(Circumvent Control 2)
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = ElapsedTime.SixMonths
+        expected_feasibility.expertise = Expertise.Layman
+        expected_feasibility.knowledge = Knowledge.Public
+        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Unlimited
+        expected_feasibility.equipment = Equipment.MultipleBespoke
+
+        self.assertEqual(feasibility, expected_feasibility)
+
+    def test_circumvent_trees_can_be_recursively_applied(self):
+        t = AttackTreeTestCase()
+        
+        t.register_control("C-1", True)
+        t.register_control("C-2", True)
+
+        tree = """# ATT-1
+
+| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 1    |      | 1w  | L   | P   | U   | ST  |             | C-1     |           |
+"""
+
+        circ_c1 = """# CIRC_C-1
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 1 |      | 6m  |     |     |     |     |             | C-2     |           |
+"""
+
+        circ_c2 = """# CIRC_C-2
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 2 |      |     |     |     |     | MB  |             |         |           |
+"""
+
+        tree_obj = t.parse_attack_tree(tree, "ATT-1")
+        t.parse_attack_tree(circ_c1, "CIRC_C-1")
+        t.parse_attack_tree(circ_c2, "CIRC_C-2")
 
         self.assertEqual(t.logger.get_errors(), [])
 
