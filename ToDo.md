@@ -19,7 +19,7 @@
 * [x] Controls on non-leaf nodes
 * [x] Possibility to deactivate controls
 * [x] Recursive Circumvent-Trees
-* [ ] When creating stubs create missing files in existing directory
+* [x] When creating stubs create missing files in existing directory
 * [ ] Complete the generated report
 * [ ] Find a possibility to persistently document the handling of remaining risks
 
@@ -62,6 +62,13 @@
     * [x] Include Reference Nodes
 * [x] Risk Calculation
 * [.] Create report
+  * [ ] Add existing damage scenarios
+  * [ ] Add existing controls
+  * [ ] Link from threat scenarios to damage scenarios
+  * [ ] Link from threat scenario feasibilities to existing attack trees
+  * [ ] Add extended attack trees (feasibilities, circumvent trees)
+  * [ ] Link from threat scenario feasibilities to extended attack trees
+  * [ ] Create table of contents
 * [ ] Update IDs -> VSCode search / replace?
 * [ ] Simple but non-trivial example document
 

@@ -68,7 +68,7 @@ class TaraParser:
         self.check_all_attack_trees_are_present(tara)
         self.check_attack_tree_rules(tara, [
             self.check_and_or_nodes_have_children,
-            self.check_referenced_trees_exist
+            self.check_referenced_trees_exist,
             self.check_referenced_controls_exist
         ])
 

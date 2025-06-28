@@ -169,7 +169,7 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Integrity][1], "DS-1")
         self.assertEqual(tara.assets[1].damage_scenarios[SecurityProperty.Confidentiality][0], "DS-2")
         
-        self.assertEqual(len(tara.attack_trees), 5)
+        self.assertEqual(len(tara.attack_trees), 7)
         root_node_0 = tara.attack_trees[0].root_node
 
         self.assertIsInstance(root_node_0, AttackTreeOrNode)
@@ -574,12 +574,13 @@ class TaraParserTests(unittest.TestCase):
 | --- | --------- | ------------- | ------ |
 | C-1 | Control 1 | Goal-1        | x      |
 | C-1 | Control 2 | Goal-1        |        |
+| C-2 | Control 2 | Goal-1        |        |
 """)
         # Act
         tara = default_test_case.parser.parse(default_test_case.directory)
 
         # Assert
-        self.assertEqual(len(tara.security_controls), 2)
+        self.assertEqual(len(tara.security_controls), 3)
         self.assertEqual(len(default_test_case.logger.get_errors()), 1)
         self.assertIn("Duplicate ID found: C-1", default_test_case.logger.get_errors()[0])
         
@@ -612,11 +613,18 @@ class TaraParserTests(unittest.TestCase):
 
         attack_tree = """# AT_A-1_BLOCK
 
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, MB: multiple Bespoke)
+
 | Attack Tree       | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ----------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
 | Root Threat       | OR   |     |     |     |     |     |             | C-1     |           |
 | -- Threat1        | OR   |     |     |     |     |     |             | C-2     |           |
-| ---- Sub Threat 1 |      | 3w  | wL  | wP  | w   | me  |             | C-1 C-3 |           |
+| ---- Sub Threat 1 |      | 1w  | P   | R   | M   | MB  |             | C-1 C-3 |           |
 | ---- Sub Threat 2 |      | 1w  | L   | P   | U   | ST  |             |         |           |
 | ---- format error | REF  |     |     |     |     |     |             |         |           |
 | -- Threat2        | XOR  |     |     |     |     |     |             |         |           |
@@ -630,4 +638,4 @@ class TaraParserTests(unittest.TestCase):
         tara = default_test_case.parser.parse(directory)
 
         # Assert
-        self.assertIn("Node Sub Threat 1 in attack tree AT_A-1_BLOCK references non-existing control 'C-1'.", default_test_case.logger.get_errors())
+        self.assertIn("Node Sub Threat 1 in attack tree AT_A-1_BLOCK references non-existing control 'C-3'.", default_test_case.logger.get_errors())
