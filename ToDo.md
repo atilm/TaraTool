@@ -6,24 +6,15 @@
 
 ## Next
 
-* [x] Install TaraTool into docker container
-* [x] Missing feasibility ratings: interpret as easiest feasibility and issue warning
 * [ ] Refactor Report builder and improve error handling
-* [x] Parse all files in AttackTrees directory
-* [X] Parse Controls and
-* [x] Assign controls to Attack Tree nodes
-* [x] Check that referenced controls exist
-* [x] Create Circumvent-Tree Stubs for Existing Controls
-* [x] Apply Circumvent-Trees for single assigned control
-* [x] Apply Circumvent-Trees for multiple assigned controls
-* [x] Controls on non-leaf nodes
-* [x] Possibility to deactivate controls
-* [x] Recursive Circumvent-Trees
-* [x] When creating stubs create missing files in existing directory
+* [ ] Output more information about object on exception in ObjectStore
+* [ ] Empty assets and controls tables should not lead to errors -> ignore completely empty rows
 * [ ] Complete the generated report
+  * [ ] Insert complete attack trees (with calculated feasibilities and updated reference links)
 * [ ] Find a possibility to persistently document the handling of remaining risks
+* [ ] Detect circular references in attack trees
 
-## Features
+## Features List
 
 * [.] Check for duplicate IDs
   * [x] Damage Scenarios

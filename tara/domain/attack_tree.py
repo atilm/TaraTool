@@ -110,7 +110,7 @@ class AttackTreeLeafNode(AttackTreeNode):
 class AttackTreeReferenceNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
         super().__init__(object_store)
-        self.type = "REFERENCE"
+        self.type = "REF"
         self.referenced_node_id: str = None
 
     def get_feasibility_without_controls(self) -> Feasibility:
@@ -127,6 +127,24 @@ class AttackTreeReferenceNode(AttackTreeNode):
         
         return referenced_node.get_feasibility()
 
+class AttackTreeResolvedNode:
+    def __init__(self):
+        self.name: str = ""
+        self.type: str = "" # AND, OR, LEAF, REF, CIRC
+        self.feasibility: Feasibility = None
+        self.reasoning: str = ""
+        self.comment: str = ""
+        self.children = []
+        self.security_control_ids: list[str] = []
+
+class ResolvedAttackTree:
+    """
+    Represents a resolved attack tree where each node has a resolved feasibility.
+    """
+    def __init__(self, id: str):
+        self.id = id
+        self.root_node: AttackTreeResolvedNode = None
+
 class AttackTree:
     def __init__(self, id: str):
         self.id = id
@@ -142,3 +160,22 @@ class AttackTree:
             raise ValueError("Attack tree has no root node.")
         
         return self.root_node.get_feasibility()
+    
+    def get_resolved_tree(self) -> ResolvedAttackTree:
+        """
+        Returns a new attack tree where each node has a resolved feasibility.
+        Evaluated circumvent trees are added.
+        References are updated to work within a single report document.
+        """
+
+        resolved_tree = AttackTree(self.id)
+
+        resolved_node = AttackTreeResolvedNode()
+        resolved_node.name = self.root_node.name
+        resolved_node.type = self.root_node.type
+        resolved_node.reasoning = self.root_node.reasoning
+        resolved_node.comment = self.root_node.comment
+        resolved_node.feasibility = self.get_feasibility()
+
+        resolved_tree.root_node = resolved_node
+        return resolved_tree
