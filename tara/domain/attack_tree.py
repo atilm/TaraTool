@@ -26,9 +26,16 @@ class AttackTreeNode:
     def add_child(self, child_node):
         self.children.append(child_node)
 
+    def get_active_control_ids(self) -> list[str]:
+        """
+        Returns a list of active circumvent tree IDs associated with this node.
+        This is useful for determining which circumvent trees are relevant for feasibility calculations.
+        """
+        return [control_id for control_id in self.security_control_ids if self.object_store.get(control_id).is_active]
+
     def get_feasibility(self):
         if self.security_control_ids:
-            active_circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in self.security_control_ids if self.object_store.get(control_id).is_active]
+            active_circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in self.get_active_control_ids()]
             if not all(circumvent_tree for circumvent_tree in active_circumvent_trees):
                 raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
             and_node = AttackTreeAndNode(self.object_store)
@@ -56,14 +63,55 @@ class AttackTreeNode:
         Returns a resolved node representation of the attack tree node.
         This is useful for creating a resolved attack tree.
         """
+
+        control_ids = self.get_active_control_ids()
+        circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in control_ids]
+
+        has_controls = len(control_ids) > 0
+
         resolved_node = AttackTreeResolvedNode()
         resolved_node.name = self.name
         resolved_node.type = self.type
         resolved_node.reasoning = self.reasoning
         resolved_node.comment = self.comment
-        resolved_node.feasibility = self.get_feasibility()
+        # if the original node has controls, they are split into an uncontrolled noded and the circumvent trees
+        # threrefore the uncontrooled feasibility is shown when there are controls
+        resolved_node.feasibility = self.get_feasibility_without_controls() if has_controls else self.get_feasibility()
         resolved_node.children = [child.get_resolved_node() for child in self.children]
-        # resolved_node.security_control_ids = self.security_control_ids
+        resolved_node.security_control_ids = control_ids
+
+        if not has_controls:
+            return resolved_node
+        else:
+            # insert an AND node which combines the unmitigated original node and its circumvent trees
+            and_node = AttackTreeResolvedNode()
+            and_node.name = f"Controlled {self.name}"
+            and_node.type = "AND"
+            and_node.feasibility = self.get_feasibility()
+            and_node.security_control_ids = control_ids
+
+            resolved_node.security_control_ids = []
+            and_node.children.append(resolved_node)
+
+            for circumvent_tree in circumvent_trees:
+                if circumvent_tree is None:
+                    raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
+                and_node.children.append(self.circumvent_tree_to_resolved_node(circumvent_tree))
+
+            return and_node
+        
+    def circumvent_tree_to_resolved_node(self, circumvent_tree: 'AttackTree') -> 'AttackTreeResolvedNode':
+        """
+        Converts a circumvent tree to a resolved node representation.
+        This is useful for adding circumvent trees to the resolved attack tree.
+        """
+        resolved_node = AttackTreeResolvedNode()
+        resolved_node.name = circumvent_tree.root_node.name # f"[{circumvent_tree.root_node.name}]({circumvent_tree.id})"
+        resolved_node.type = "CIRC"
+        resolved_node.feasibility = circumvent_tree.get_feasibility()
+        resolved_node.reasoning = circumvent_tree.root_node.reasoning
+        resolved_node.comment = circumvent_tree.root_node.comment
+        resolved_node.children = []
         return resolved_node
 
 class AttackTreeAndNode(AttackTreeNode):

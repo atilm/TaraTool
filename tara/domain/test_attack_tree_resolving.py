@@ -50,3 +50,86 @@ class TestCase(unittest.TestCase):
         self.assertEqual(resolved_tree.root_node.children[1].children[0].reasoning, "Reasoning 3")
         self.assertEqual(resolved_tree.root_node.children[1].children[0].comment, "Comment 3")
                          
+    def test_only_active_controls_are_copied_into_resolved_tree(self):
+        attack_tree_description = """# ATT-1
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat    |      | 1w  | L   | P   | U   | ST  | Reasoning 0 | C-1 C-2 | Comment 0 |
+"""
+
+        c1_description = """# CIRC_C-1
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circ. Threat   |      | 1m  | E   | R   | E   | ST  | Reasoning 0 |         | Comment 0 |
+"""
+        c2_description = """# CIRC_C-2
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circ. Threat   |      | 1m  | E   | R   | E   | ST  | Reasoning 0 |         | Comment 0 |
+"""
+
+        t = AttackTreeTestCase()
+        t.register_control("C-1", False)
+        t.register_control("C-2", True)
+        tree = t.parse_attack_tree(attack_tree_description, "ATT-1")
+        t.parse_attack_tree(c1_description, "CIRC_C-1")
+        t.parse_attack_tree(c2_description, "CIRC_C-2")
+
+        self.assertEqual(t.logger.errors, [])
+
+        # Act
+        resolved_tree = tree.get_resolved_tree()
+
+        # Assert
+        self.assertEqual(resolved_tree.root_node.security_control_ids, ["C-2"])
+
+    def test_for_active_controls_the_circumvent_tree_is_used(self):
+        attack_tree_description = """# ATT-1
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat    |      | 1w  | L   | P   | U   | ST  | Reasoning 0 | C-1 C-2 | Comment 0 |
+"""
+
+        c1_description = """# CIRC_C-1
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circ. Threat 1 |      | 1m  | E   | R   | E   | ST  | Reasoning 0 |         | Comment 0 |
+"""
+        c2_description = """# CIRC_C-2
+
+| Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circ. Threat 2 |      | 1m  | E   | R   | E   | ST  | Reasoning 0 |         | Comment 0 |
+"""
+
+        t = AttackTreeTestCase()
+        t.register_control("C-1", True)
+        t.register_control("C-2", True)
+        tree = t.parse_attack_tree(attack_tree_description, "ATT-1")
+        c1_tree = t.parse_attack_tree(c1_description, "CIRC_C-1")
+        c2_tree = t.parse_attack_tree(c2_description, "CIRC_C-2")
+
+        # Act
+        resolved_tree = tree.get_resolved_tree()
+
+        # Assert
+
+        # There is an AND node inserted into the tree
+        self.assertEqual(resolved_tree.root_node.type, "AND")
+        self.assertEqual(resolved_tree.root_node.name, "Controlled Root Threat")
+        self.assertEqual(resolved_tree.root_node.feasibility, tree.get_feasibility())
+        self.assertEqual(len(resolved_tree.root_node.children), 3)
+        self.assertEqual(resolved_tree.root_node.children[0].name, "Root Threat")
+        self.assertEqual(resolved_tree.root_node.children[0].type, "LEAF")
+        self.assertEqual(resolved_tree.root_node.children[0].feasibility, tree.root_node.get_feasibility_without_controls())
+        self.assertEqual(resolved_tree.root_node.children[1].name, "Circ. Threat 1")
+        self.assertEqual(resolved_tree.root_node.children[1].type, "CIRC")
+        self.assertEqual(resolved_tree.root_node.children[1].feasibility, c1_tree.root_node.get_feasibility())
+        self.assertEqual(resolved_tree.root_node.children[2].name, "Circ. Threat 2")
+        self.assertEqual(resolved_tree.root_node.children[2].type, "CIRC")
+        self.assertEqual(resolved_tree.root_node.children[2].feasibility, c2_tree.root_node.get_feasibility())
