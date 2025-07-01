@@ -5,7 +5,6 @@ from tara.domain.util_attack_tree_test_case import AttackTreeTestCase
 
 class TestCase(unittest.TestCase):
     def test_the_feasibilities_of_parent_nodes_are_resolved(self):
-        # self.fail("This test is not implemented yet.")
 
         attack_tree_description = """# ATT-1
 
@@ -13,8 +12,8 @@ class TestCase(unittest.TestCase):
 | -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
 | Root Threat    | AND  |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
 | -- Threat 1    |      | 1m  | P   | R   | U   | SP  | Reasoning 1 |         | Comment 1 |
-| -- Threat 2    | OR   |     |     |     |     |     | Reasoning 1 |         | Comment 1 |
-| ---- Threat 3  |      | 1w  | L   | C   | E   | B   | Reasoning 1 |         | Comment 1 |
+| -- Threat 2    | OR   |     |     |     |     |     | Reasoning 2 |         | Comment 2 |
+| ---- Threat 3  |      | 1w  | L   | C   | E   | B   | Reasoning 3 |         | Comment 3 |
 """
 
         t = AttackTreeTestCase()
@@ -33,4 +32,21 @@ class TestCase(unittest.TestCase):
 
         self.assertEqual(resolved_tree.root_node.feasibility, tree.get_feasibility())
 
-        self.fail("to be continued...")
+        self.assertEqual(len(resolved_tree.root_node.children), 2)
+        self.assertEqual(resolved_tree.root_node.children[0].name, "Threat 1")
+        self.assertEqual(resolved_tree.root_node.children[0].type, "LEAF")
+        self.assertEqual(resolved_tree.root_node.children[0].feasibility, tree.root_node.children[0].get_feasibility())
+        self.assertEqual(resolved_tree.root_node.children[0].reasoning, "Reasoning 1")
+        self.assertEqual(resolved_tree.root_node.children[0].comment, "Comment 1")
+        self.assertEqual(resolved_tree.root_node.children[1].name, "Threat 2")
+        self.assertEqual(resolved_tree.root_node.children[1].type, "OR")
+        self.assertEqual(resolved_tree.root_node.children[1].feasibility, tree.root_node.children[1].get_feasibility())
+        self.assertEqual(resolved_tree.root_node.children[1].reasoning, "Reasoning 2")
+        self.assertEqual(resolved_tree.root_node.children[1].comment, "Comment 2")
+        self.assertEqual(len(resolved_tree.root_node.children[1].children), 1)
+        self.assertEqual(resolved_tree.root_node.children[1].children[0].name, "Threat 3")
+        self.assertEqual(resolved_tree.root_node.children[1].children[0].type, "LEAF")
+        self.assertEqual(resolved_tree.root_node.children[1].children[0].feasibility, tree.root_node.children[1].children[0].get_feasibility())
+        self.assertEqual(resolved_tree.root_node.children[1].children[0].reasoning, "Reasoning 3")
+        self.assertEqual(resolved_tree.root_node.children[1].children[0].comment, "Comment 3")
+                         

@@ -10,7 +10,7 @@
 * [ ] Output more information about object on exception in ObjectStore
 * [ ] Empty assets and controls tables should not lead to errors -> ignore completely empty rows
 * [ ] Complete the generated report
-  * [ ] Insert complete attack trees (with calculated feasibilities and updated reference links)
+  * [.] Insert complete attack trees (with calculated feasibilities and updated reference links)
 * [ ] Find a possibility to persistently document the handling of remaining risks
 * [ ] Detect circular references in attack trees
 

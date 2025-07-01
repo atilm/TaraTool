@@ -50,6 +50,21 @@ class AttackTreeNode:
         This is useful for calculating the base feasibility of the node.
         """
         raise NotImplementedError("This method should be overridden in subclasses.")
+    
+    def get_resolved_node(self) -> 'AttackTreeResolvedNode':
+        """
+        Returns a resolved node representation of the attack tree node.
+        This is useful for creating a resolved attack tree.
+        """
+        resolved_node = AttackTreeResolvedNode()
+        resolved_node.name = self.name
+        resolved_node.type = self.type
+        resolved_node.reasoning = self.reasoning
+        resolved_node.comment = self.comment
+        resolved_node.feasibility = self.get_feasibility()
+        resolved_node.children = [child.get_resolved_node() for child in self.children]
+        # resolved_node.security_control_ids = self.security_control_ids
+        return resolved_node
 
 class AttackTreeAndNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
@@ -168,14 +183,7 @@ class AttackTree:
         References are updated to work within a single report document.
         """
 
-        resolved_tree = AttackTree(self.id)
+        resolved_tree = ResolvedAttackTree(self.id)
 
-        resolved_node = AttackTreeResolvedNode()
-        resolved_node.name = self.root_node.name
-        resolved_node.type = self.root_node.type
-        resolved_node.reasoning = self.root_node.reasoning
-        resolved_node.comment = self.root_node.comment
-        resolved_node.feasibility = self.get_feasibility()
-
-        resolved_tree.root_node = resolved_node
+        resolved_tree.root_node = self.root_node.get_resolved_node()
         return resolved_tree
