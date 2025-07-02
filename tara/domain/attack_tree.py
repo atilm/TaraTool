@@ -80,10 +80,9 @@ class AttackTreeNode:
         resolved_node.children = [child.get_resolved_node() for child in self.children]
         resolved_node.security_control_ids = control_ids
 
-        # if self.type == "REF":
-        #     resolved_node.referenced_node_id = self.referenced_node_id
-
         if not has_controls:
+            # "REF" nodes have the attribute referenced_node_id set to the ID of the referenced node
+            resolved_node.referenced_node_id = self.referenced_node_id if hasattr(self, 'referenced_node_id') else None
             return resolved_node
         else:
             # insert an AND node which combines the unmitigated original node and its circumvent trees

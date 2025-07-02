@@ -196,3 +196,12 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(resolved_tree_a1_block.getRow(1), ["-- Controlled Threat 1", "AND", "6m", "E", "R", "M", "SP", "", "C-1", ""])
         self.assertEqual(resolved_tree_a1_block.getRow(2), ["---- Threat 1", "LEAF", "6m", "P", "R", "M", "ST", "Reasoning 1", "", "Comment 1"])
         self.assertEqual(resolved_tree_a1_block.getRow(3), ["---- [Circumvent Control 1](#circ_c-1)", "CIRC", "1m", "E", "R", "E", "SP", "", "", ""])
+
+        attack_trees_section: MarkdownSection = content[10]
+        self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "AT_A-1_MAN")
+
+        resolved_tree_a1_man: MarkdownTable = content[11]
+        self.assertIsInstance(resolved_tree_a1_man, MarkdownTable)
+        self.assertEqual(resolved_tree_a1_man.getRow(0), ["Manipulation of Asset 1", "OR", "6m", "P", "R", "M", "ST", "Reasoning 0", "", "Comment 0"])
+        self.assertEqual(resolved_tree_a1_man.getRow(1), ["-- [Threat 1](#tat_tree)", "REF", "6m", "P", "R", "M", "ST", "Reasoning 1", "", "Comment 1"])
