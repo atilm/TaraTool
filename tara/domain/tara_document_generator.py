@@ -46,7 +46,7 @@ class TaraDocumentGenerator:
         """
         indent_str = f"{recursion_level * '--'} " if recursion_level > 0 else ""
         security_controls_str = " ".join(node.security_control_ids) if node.security_control_ids else ""
-        
+
         builder.withRow(
             indent_str + node.name,
             node.type,
@@ -80,6 +80,7 @@ class TaraDocumentGenerator:
                     attack_tree: AttackTree = self._find_by_id(tara.attack_trees, at_id)
                     feasibility = attack_tree.get_feasibility() if attack_tree else Feasibility()
                     feasibility_level = feasibility.calculate_feasibility_level()
+                    linked_feasibility = f"[{feasibility_level.name}](#{at_id.lower()})"
 
                     risk = RiskLevel.look_up(impact, feasibility_level)
 
@@ -87,7 +88,7 @@ class TaraDocumentGenerator:
 
                     threat_scenario = f"{damage_scenario_name} caused by {attack_description} of {asset.name}"
 
-                    builder.withRow(f"TS-{i}", threat_scenario, impact_name, feasibility_level.name, risk.name)
+                    builder.withRow(f"TS-{i}", threat_scenario, impact_name, linked_feasibility, risk.name)
                     i += 1
 
         return builder.build()

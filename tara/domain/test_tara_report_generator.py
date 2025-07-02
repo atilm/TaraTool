@@ -158,16 +158,16 @@ class TestTaraReportGenerator(unittest.TestCase):
 
         self.assertEqual(threat_scenarios.getRow(0), ["TS-1", 
                                                       "Electrocuted person caused by blocking of Asset 1", 
-                                                      "Severe", "Low", "Medium"])
+                                                      "Severe", "[Low](#at_a-1_block)", "Medium"])
         self.assertEqual(threat_scenarios.getRow(1), ["TS-2", 
                                                       "Litigation caused by manipulation of Asset 1", 
-                                                      "Major", "Medium", "Medium"])
+                                                      "Major", "[Medium](#at_a-1_man)", "Medium"])
         self.assertEqual(threat_scenarios.getRow(2), ["TS-3", 
                                                       "Litigation caused by manipulation of Asset 2", 
-                                                      "Major", "Medium", "Medium"])
+                                                      "Major", "[Medium](#at_a-2_man)", "Medium"])
         self.assertEqual(threat_scenarios.getRow(3), ["TS-4", 
                                                       "Litigation caused by extraction of Asset 2", 
-                                                      "Major", "Medium", "Medium"])
+                                                      "Major", "[Medium](#at_a-2_ext)", "Medium"])
         
         # Resolved attack trees section
         
