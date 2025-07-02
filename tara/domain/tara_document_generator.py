@@ -34,7 +34,7 @@ class TaraDocumentGenerator:
         resolved_tree = attack_tree.get_resolved_tree()
 
         builder = MarkdownTableBuilder() \
-            .withHeader("Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Reasoning", "Control", "Comment")
+            .withHeader("Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Feasibility", "Reasoning", "Control", "Comment")
 
         self._add_attack_tree_node_to_table_recursive(builder, resolved_tree.root_node, 0)
 
@@ -49,6 +49,8 @@ class TaraDocumentGenerator:
 
         name = f"[{node.name}](#{node.referenced_node_id.lower()})" if node.type in ["CIRC", "REF"] else node.name
 
+        feasibility_str = node.feasibility.calculate_feasibility_level().name
+
         builder.withRow(
             indent_str + name,
             node.type,
@@ -57,6 +59,7 @@ class TaraDocumentGenerator:
             knowledge_to_string(node.feasibility.knowledge),
             window_of_opportunity_to_string(node.feasibility.window_of_opportunity),
             equipment_to_string(node.feasibility.equipment),
+            feasibility_str,
             node.reasoning,
             security_controls_str,
             node.comment
