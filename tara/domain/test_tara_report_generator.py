@@ -50,14 +50,14 @@ class TestCase:
 
 * Node: (OR, AND, LEAF, REF)
 * ET: Elapsed Time (1w, 1m, 6m, >6m)
-* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
-* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
-* Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, MB: multiple Bespoke)
 
 | Attack Tree            | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ---------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-| Circumvent Control 1   |      |     |     |     |     |     |             |         |           |"""
+| Circumvent Control 1   |      | 1m  | E   | R   | E   | SP  |             |         |           |"""
 
         circ_c2 = """# CIRC_C-2
 
@@ -77,7 +77,7 @@ class TestCase:
 | Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
 | Blocking of Asset 1 | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
-| -- Threat 1         | LEAF | 6m  | P   | R   | M   | ST  | Reasoning 1 |         | Comment 1 |
+| -- Threat 1         | LEAF | 6m  | P   | R   | M   | ST  | Reasoning 1 | C-1     | Comment 1 |
 """
 
         at_a_1_man = """# {0}
@@ -158,7 +158,7 @@ class TestTaraReportGenerator(unittest.TestCase):
 
         self.assertEqual(threat_scenarios.getRow(0), ["TS-1", 
                                                       "Electrocuted person caused by blocking of Asset 1", 
-                                                      "Severe", "Medium", "High"])
+                                                      "Severe", "Low", "Medium"])
         self.assertEqual(threat_scenarios.getRow(1), ["TS-2", 
                                                       "Litigation caused by manipulation of Asset 1", 
                                                       "Major", "Medium", "Medium"])
@@ -168,3 +168,30 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(threat_scenarios.getRow(3), ["TS-4", 
                                                       "Litigation caused by extraction of Asset 2", 
                                                       "Major", "Medium", "Medium"])
+        
+        attack_trees_section: MarkdownSection = content[3]
+        self.assertEqual(attack_trees_section.level, 1)
+        self.assertEqual(attack_trees_section.title, "Attack Trees")
+
+        # index 4,5: Circumvent Tree 1
+        # index 6,7: Circumvent Tree 2
+
+        attack_trees_section: MarkdownSection = content[8]
+        self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "AT_A-1_BLOCK")
+
+        resolved_tree_a1_block: MarkdownTable = content[9]
+        self.assertIsInstance(resolved_tree_a1_block, MarkdownTable)
+        # self.assertEqual(resolved_tree_a1_block.getRow(0), ["Blocking of Asset 1", "OR", "6m", "E", "R", "M", "SP", "Reasoning 0", "", "Comment 0"])
+        self.assertEqual(resolved_tree_a1_block.getRow(1), ["-- Controlled Threat 1", "AND", "6m", "E", "R", "M", "SP", "", "", ""])
+        self.assertEqual(resolved_tree_a1_block.getRow(2), ["---- Threat 1", "LEAF", "6m", "P", "R", "M", "ST", "Reasoning 1", "C-1", "Comment 1"])
+        self.assertEqual(resolved_tree_a1_block.getRow(2), ["---- Circumvent Control 1", "CIRC", "1m", "E", "R", "E", "SP", "", "", ""])
+
+# # {0}
+
+# | Attack Tree               | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+# | -------------------       | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+# | Blocking of Asset 1       | OR   | 6m  | E   | R   | M   | SP  | Reasoning 0 |         | Comment 0 |
+# | -- Controlled Threat 1    | AND  | 6m  | E   | R   | M   | SP  |             |         |           |
+# | ---- Threat 1             | LEAF | 6m  | P   | R   | M   | ST  | Reasoning 1 | C-1     | Comment 1 |
+# | ---- Circumvent Control 1 | CIRC | 1m  | E   | R   | E   | SP  |             |         |           |

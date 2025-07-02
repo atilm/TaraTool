@@ -3,7 +3,7 @@ from tara.MarkdownLib.markdown_document import *
 from tara.MarkdownLib.markdown_document_builder import *
 from tara.domain.tara import Tara
 from tara.domain.damage_scenario import DamageScenario
-from tara.domain.attack_tree import attack_tree_id, AttackTree
+from tara.domain.attack_tree import attack_tree_id, AttackTree, AttackTreeResolvedNode
 from tara.domain.feasibility import Feasibility
 from tara.domain.risk import RiskLevel
 
@@ -11,15 +11,51 @@ class TaraDocumentGenerator:
     def __init__(self, error_logger: ErrorLogger):
         self.error_logger = error_logger
 
-    def generate(self, tara) -> MarkdownDocument:
+    def generate(self, tara: Tara) -> MarkdownDocument:
         title_level = 0
         h1 = 1
+        h2 = 2
 
-        return MarkdownDocumentBuilder() \
+        document_builder = MarkdownDocumentBuilder() \
             .withSection("Threat Analysis And Risk Assessment (TARA) Report", title_level) \
             .withSection("Threat Scenarios", h1) \
             .withTable(self._build_threat_scenario_table(tara)) \
-            .build()
+            .withSection("Attack Trees", h1)
+        
+        for attack_tree in tara.attack_trees:
+            document_builder = document_builder \
+                .withSection(attack_tree.id, h2) \
+                .withTable(self._build_resolved_attack_tree_table(attack_tree))
+
+        return document_builder.build()
+
+    def _build_resolved_attack_tree_table(self, attack_tree: AttackTree) -> MarkdownTable:
+        resolved_tree = attack_tree.get_resolved_tree()
+
+        builder = MarkdownTableBuilder() \
+            .withHeader("Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Reasoning", "Control", "Comment")
+
+        self._add_attack_tree_node_to_table_recursive(builder, resolved_tree.root_node)
+
+        return builder.build()
+
+    def _add_attack_tree_node_to_table_recursive(self, builder: MarkdownTableBuilder, node: AttackTreeResolvedNode) -> None:
+        """
+        Recursively adds nodes of the attack tree to the table builder.
+        """
+        builder.withRow(node.name, 
+                        node.type, 
+                        node.feasibility.time,
+                        node.feasibility.expertise,
+                        node.feasibility.knowledge,
+                        node.feasibility.window_of_opportunity,
+                        node.feasibility.equipment,
+                        node.reasoning,
+                        node.security_control_ids,
+                        node.comment)
+
+        for child in node.children:
+            self._add_attack_tree_node_to_table_recursive(builder, child)
 
     def _build_threat_scenario_table(self, tara: Tara) -> MarkdownTable:
         builder = MarkdownTableBuilder() \
