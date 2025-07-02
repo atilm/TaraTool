@@ -169,6 +169,8 @@ class TestTaraReportGenerator(unittest.TestCase):
                                                       "Litigation caused by extraction of Asset 2", 
                                                       "Major", "Medium", "Medium"])
         
+        # Resolved attack trees section
+        
         attack_trees_section: MarkdownSection = content[3]
         self.assertEqual(attack_trees_section.level, 1)
         self.assertEqual(attack_trees_section.title, "Attack Trees")
@@ -182,16 +184,7 @@ class TestTaraReportGenerator(unittest.TestCase):
 
         resolved_tree_a1_block: MarkdownTable = content[9]
         self.assertIsInstance(resolved_tree_a1_block, MarkdownTable)
-        # self.assertEqual(resolved_tree_a1_block.getRow(0), ["Blocking of Asset 1", "OR", "6m", "E", "R", "M", "SP", "Reasoning 0", "", "Comment 0"])
-        self.assertEqual(resolved_tree_a1_block.getRow(1), ["-- Controlled Threat 1", "AND", "6m", "E", "R", "M", "SP", "", "", ""])
-        self.assertEqual(resolved_tree_a1_block.getRow(2), ["---- Threat 1", "LEAF", "6m", "P", "R", "M", "ST", "Reasoning 1", "C-1", "Comment 1"])
-        self.assertEqual(resolved_tree_a1_block.getRow(2), ["---- Circumvent Control 1", "CIRC", "1m", "E", "R", "E", "SP", "", "", ""])
-
-# # {0}
-
-# | Attack Tree               | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
-# | -------------------       | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-# | Blocking of Asset 1       | OR   | 6m  | E   | R   | M   | SP  | Reasoning 0 |         | Comment 0 |
-# | -- Controlled Threat 1    | AND  | 6m  | E   | R   | M   | SP  |             |         |           |
-# | ---- Threat 1             | LEAF | 6m  | P   | R   | M   | ST  | Reasoning 1 | C-1     | Comment 1 |
-# | ---- Circumvent Control 1 | CIRC | 1m  | E   | R   | E   | SP  |             |         |           |
+        self.assertEqual(resolved_tree_a1_block.getRow(0), ["Blocking of Asset 1", "OR", "6m", "E", "R", "M", "SP", "Reasoning 0", "", "Comment 0"])
+        self.assertEqual(resolved_tree_a1_block.getRow(1), ["-- Controlled Threat 1", "AND", "6m", "E", "R", "M", "SP", "", "C-1", ""])
+        self.assertEqual(resolved_tree_a1_block.getRow(2), ["---- Threat 1", "LEAF", "6m", "P", "R", "M", "ST", "Reasoning 1", "", "Comment 1"])
+        self.assertEqual(resolved_tree_a1_block.getRow(3), ["---- Circumvent Control 1", "CIRC", "1m", "E", "R", "E", "SP", "", "", ""])

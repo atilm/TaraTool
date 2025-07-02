@@ -5,6 +5,7 @@ from tara.domain.feasibility import Feasibility, ElapsedTime, Expertise, Knowled
 from tara.utilities.error_logger import IErrorLogger
 from tara.MarkdownLib.markdown_parser import MarkdownTable
 from tara.domain.object_store import ObjectStore
+from tara.domain.feasibility_conversion import *
 
 class AttackTreeParser:
     def __init__(self, logger: IErrorLogger, object_store: ObjectStore):
@@ -92,82 +93,55 @@ class AttackTreeParser:
 
     @staticmethod
     def parse_elapsed_time_static(s: str, tree_id: str, logger: IErrorLogger) -> ElapsedTime:
-        if s == "1w":
-            return ElapsedTime.OneWeek
-        elif s == "1m":
-            return ElapsedTime.OneMonth
-        elif s == "6m":
-            return ElapsedTime.SixMonths
-        elif s == "3y":
-            return ElapsedTime.ThreeYears
-        elif s == ">3y":
-            return ElapsedTime.MoreThanThreeYears
-        elif s == "":
+        try:
+            return parse_elapsed_time(s)
+        except EmptyStringError:
             logger.log_warning(f"Empty elapsed time string found in attack tree {tree_id}. Defaulting to easiest rating.")
             return ElapsedTime.OneWeek
-        else:
+        except InvalidStringError:
             logger.log_error(f"Invalid elapsed time string found in attack tree {tree_id}: '{s}'")
+            return ElapsedTime.OneWeek
 
     @staticmethod
     def parse_expertise_static(s: str, tree_id: str, logger: IErrorLogger) -> Expertise:
-        if s == "L":
-            return Expertise.Layman
-        elif s == "P":
-            return Expertise.Proficient
-        elif s == "E":
-            return Expertise.Expert
-        elif s == "ME":
-            return Expertise.MultipleExperts
-        elif s == "":
+        try:
+            return parse_expertise(s)
+        except EmptyStringError:
             logger.log_warning(f"Empty expertise string found in attack tree {tree_id}. Defaulting to easiest rating.")
             return Expertise.Layman
-        else:
+        except InvalidStringError:
             logger.log_error(f"Invalid expertise string found in attack tree {tree_id}: '{s}'")
+            return Expertise.Layman
 
     @staticmethod
     def parse_knowledge_static(s: str, tree_id: str, logger: IErrorLogger) -> Knowledge:
-        if s == "P":
-            return Knowledge.Public
-        elif s == "R":
-            return Knowledge.Restricted
-        elif s == "C":
-            return Knowledge.Confidential
-        elif s == "SC":
-            return Knowledge.StrictlyConfidential
-        elif s == "":
+        try:
+            return parse_knowledge(s)
+        except EmptyStringError:
             logger.log_warning(f"Empty knowledge string found in attack tree {tree_id}. Defaulting to easiest rating.")
             return Knowledge.Public
-        else:
+        except InvalidStringError:
             logger.log_error(f"Invalid knowledge string found in attack tree {tree_id}: '{s}'")
+            return Knowledge.Public
 
     @staticmethod
     def parse_window_of_opportunity_static(s: str, tree_id: str, logger: IErrorLogger) -> WindowOfOpportunity:
-        if s == "U":
-            return WindowOfOpportunity.Unlimited
-        elif s == "E":
-            return WindowOfOpportunity.Easy
-        elif s == "M":
-            return WindowOfOpportunity.Moderate
-        elif s == "D":
-            return WindowOfOpportunity.Difficult
-        elif s == "":
+        try:
+            return parse_window_of_opportunity(s)
+        except EmptyStringError:
             logger.log_warning(f"Empty window of opportunity string found in attack tree {tree_id}. Defaulting to easiest rating.")
             return WindowOfOpportunity.Unlimited
-        else:
+        except InvalidStringError:
             logger.log_error(f"Invalid window of opportunity string found in attack tree {tree_id}: '{s}'")
+            return WindowOfOpportunity.Unlimited
 
     @staticmethod
     def parse_equipment_static(s: str, tree_id: str, logger: IErrorLogger) -> Equipment:
-        if s == "ST":
-            return Equipment.Standard
-        elif s == "SP":
-            return Equipment.Specialized
-        elif s == "B":
-            return Equipment.Bespoke
-        elif s == "MB":
-            return Equipment.MultipleBespoke
-        elif s == "":
+        try:
+            return parse_equipment(s)
+        except EmptyStringError:
             logger.log_warning(f"Empty equipment string found in attack tree {tree_id}. Defaulting to easiest rating.")
             return Equipment.Standard
-        else:
+        except InvalidStringError:
             logger.log_error(f"Invalid equipment string found in attack tree {tree_id}: '{s}'")
+            return Equipment.Standard

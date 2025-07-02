@@ -6,6 +6,7 @@ from tara.domain.damage_scenario import DamageScenario
 from tara.domain.attack_tree import attack_tree_id, AttackTree, AttackTreeResolvedNode
 from tara.domain.feasibility import Feasibility
 from tara.domain.risk import RiskLevel
+from tara.domain.feasibility_conversion import *
 
 class TaraDocumentGenerator:
     def __init__(self, error_logger: ErrorLogger):
@@ -35,27 +36,32 @@ class TaraDocumentGenerator:
         builder = MarkdownTableBuilder() \
             .withHeader("Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Reasoning", "Control", "Comment")
 
-        self._add_attack_tree_node_to_table_recursive(builder, resolved_tree.root_node)
+        self._add_attack_tree_node_to_table_recursive(builder, resolved_tree.root_node, 0)
 
         return builder.build()
 
-    def _add_attack_tree_node_to_table_recursive(self, builder: MarkdownTableBuilder, node: AttackTreeResolvedNode) -> None:
+    def _add_attack_tree_node_to_table_recursive(self, builder: MarkdownTableBuilder, node: AttackTreeResolvedNode, recursion_level: int) -> None:
         """
         Recursively adds nodes of the attack tree to the table builder.
         """
-        builder.withRow(node.name, 
-                        node.type, 
-                        node.feasibility.time,
-                        node.feasibility.expertise,
-                        node.feasibility.knowledge,
-                        node.feasibility.window_of_opportunity,
-                        node.feasibility.equipment,
-                        node.reasoning,
-                        node.security_control_ids,
-                        node.comment)
+        indent_str = f"{recursion_level * '--'} " if recursion_level > 0 else ""
+        security_controls_str = " ".join(node.security_control_ids) if node.security_control_ids else ""
+        
+        builder.withRow(
+            indent_str + node.name,
+            node.type,
+            elapsed_time_to_string(node.feasibility.time),
+            expertise_to_string(node.feasibility.expertise),
+            knowledge_to_string(node.feasibility.knowledge),
+            window_of_opportunity_to_string(node.feasibility.window_of_opportunity),
+            equipment_to_string(node.feasibility.equipment),
+            node.reasoning,
+            security_controls_str,
+            node.comment
+        )
 
         for child in node.children:
-            self._add_attack_tree_node_to_table_recursive(builder, child)
+            self._add_attack_tree_node_to_table_recursive(builder, child, recursion_level + 1)
 
     def _build_threat_scenario_table(self, tara: Tara) -> MarkdownTable:
         builder = MarkdownTableBuilder() \
