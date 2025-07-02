@@ -80,6 +80,9 @@ class AttackTreeNode:
         resolved_node.children = [child.get_resolved_node() for child in self.children]
         resolved_node.security_control_ids = control_ids
 
+        # if self.type == "REF":
+        #     resolved_node.referenced_node_id = self.referenced_node_id
+
         if not has_controls:
             return resolved_node
         else:
@@ -106,7 +109,8 @@ class AttackTreeNode:
         This is useful for adding circumvent trees to the resolved attack tree.
         """
         resolved_node = AttackTreeResolvedNode()
-        resolved_node.name = circumvent_tree.root_node.name # f"[{circumvent_tree.root_node.name}]({circumvent_tree.id})"
+        resolved_node.name = circumvent_tree.root_node.name
+        resolved_node.referenced_node_id = circumvent_tree.id
         resolved_node.type = "CIRC"
         resolved_node.feasibility = circumvent_tree.get_feasibility()
         resolved_node.reasoning = circumvent_tree.root_node.reasoning
@@ -199,6 +203,8 @@ class AttackTreeResolvedNode:
         self.comment: str = ""
         self.children = []
         self.security_control_ids: list[str] = []
+        # holds the referenced node ID for REF and CIRC nodes, None otherwise
+        self.referenced_node_id: str = None
 
 class ResolvedAttackTree:
     """

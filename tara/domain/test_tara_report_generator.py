@@ -82,10 +82,17 @@ class TestCase:
 
         at_a_1_man = """# {0}
 
+| Attack Tree                   | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Manipulation of Asset 1       | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
+| -- [Threat 1](./TAT_TREE.md)  | REF  |     |     |     |     |     | Reasoning 1 |         | Comment 1 |
+"""
+
+        technical_tree = """# {0}
+
 | Attack Tree             | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ----------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-| Manipulation of Asset 1 | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
-| -- Threat 1             | LEAF | 6m  | P   | R   | M   | ST  | Reasoning 1 |         | Comment 1 |
+| Threat 1                | LEAF | 6m  | P   | R   | M   | ST  |             |         |           |
 """
 
         at_a_2_man = """# {0}
@@ -111,6 +118,7 @@ class TestCase:
             "AT_A-1_MAN": at_a_1_man,
             "AT_A-2_MAN": at_a_2_man,
             "AT_A-2_EXT": at_a_2_ext,
+            "TAT_TREE": technical_tree,
         }
 
         for at_id, tree_content in attack_trees.items():
@@ -187,4 +195,4 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(resolved_tree_a1_block.getRow(0), ["Blocking of Asset 1", "OR", "6m", "E", "R", "M", "SP", "Reasoning 0", "", "Comment 0"])
         self.assertEqual(resolved_tree_a1_block.getRow(1), ["-- Controlled Threat 1", "AND", "6m", "E", "R", "M", "SP", "", "C-1", ""])
         self.assertEqual(resolved_tree_a1_block.getRow(2), ["---- Threat 1", "LEAF", "6m", "P", "R", "M", "ST", "Reasoning 1", "", "Comment 1"])
-        self.assertEqual(resolved_tree_a1_block.getRow(3), ["---- Circumvent Control 1", "CIRC", "1m", "E", "R", "E", "SP", "", "", ""])
+        self.assertEqual(resolved_tree_a1_block.getRow(3), ["---- [Circumvent Control 1](#circ_c-1)", "CIRC", "1m", "E", "R", "E", "SP", "", "", ""])

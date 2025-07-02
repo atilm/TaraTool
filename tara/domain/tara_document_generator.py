@@ -47,8 +47,10 @@ class TaraDocumentGenerator:
         indent_str = f"{recursion_level * '--'} " if recursion_level > 0 else ""
         security_controls_str = " ".join(node.security_control_ids) if node.security_control_ids else ""
 
+        name = f"[{node.name}](#{node.referenced_node_id.lower()})" if node.type == "CIRC" else node.name
+
         builder.withRow(
-            indent_str + node.name,
+            indent_str + name,
             node.type,
             elapsed_time_to_string(node.feasibility.time),
             expertise_to_string(node.feasibility.expertise),
