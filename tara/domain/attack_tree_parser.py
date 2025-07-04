@@ -30,6 +30,10 @@ class AttackTreeParser:
                 while name.startswith("-"):
                     name = name[1:]
                     indentation += 1
+
+                # ToDo: check that indentation is even
+                # Convert number of dashes to indentation level:
+                indentation = indentation // 2
                 name = name.strip()
 
                 if indentation == 0:
@@ -77,10 +81,15 @@ class AttackTreeParser:
                 node.reasoning = reasoning
                 node.security_control_ids = security_control_ids
 
-                if indentation > prev_indentation:
+                indentation_delta = indentation - prev_indentation
+                if indentation_delta == 1:
                     node_stack.append(prev_node)
-                elif indentation < prev_indentation:
-                    node_stack.pop()
+                elif indentation_delta < 0:
+                    for _ in range(-indentation_delta):
+                        node_stack.pop()
+                elif indentation_delta > 1:
+                    # ToDo: log this as an error instead of rasing an exception
+                    raise ValueError(f"Invalid indentation level in attack tree {attack_tree_id}: {indentation_delta}")
                 
                 if len(node_stack) != 0:
                     node_stack[-1].add_child(node)    

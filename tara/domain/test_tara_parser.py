@@ -303,14 +303,16 @@ class TaraParserTests(unittest.TestCase):
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
 * Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, MB: multiple Bespoke)
 
-| Attack Tree       | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
-| ----------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-| Root Threat       | OR   |     |     |     |     |     |             |         |           |
-| -- Threat1        | OR   |     |     |     |     |     |             |         |           |
-| ---- Sub Threat 1 |      | 1w  | L   | P   | U   | ST  |             |         |           |
-| ---- Sub Threat 2 |      | 1w  | L   | P   | U   | ST  |             |         |           |
-| -- Threat2        | AND  |     |     |     |     |     |             |         |           |
-| ---- Sub Threat 3 |      | 1w  | L   | P   | U   | ST  |             |         |           |"""
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat         | OR   |     |     |     |     |     |             |         |           |
+| -- Threat1          | OR   |     |     |     |     |     |             |         |           |
+| ---- Sub Threat 1   |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| ---- Sub Threat 2   |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| -- Threat2          | AND  |     |     |     |     |     |             |         |           |
+| ---- Sub Threat 3   |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| ------ Sub Threat 4 |      | 1w  | L   | P   | U   | ST  |             |         |           |
+| -- Threat 3         |      | 1w  | L   | P   | U   | ST  |             |         |           |"""
 
         attack_tree_directory = os.path.join(directory, "AttackTrees")
         attack_tree_file_path = os.path.join(attack_tree_directory, "AT_A-1_BLOCK.md")
@@ -324,11 +326,13 @@ class TaraParserTests(unittest.TestCase):
         self.assertEqual(len(tara.attack_trees), 1)
         root = tara.attack_trees[0].root_node
         self.assertIsInstance(root, AttackTreeOrNode)
-        self.assertEqual(len(root.children), 2)
+        self.assertEqual(len(root.children), 3)
         self.assertIsInstance(root.children[0], AttackTreeOrNode)
         self.assertEqual(len(root.children[0].children), 2)
         self.assertIsInstance(root.children[1], AttackTreeAndNode)
         self.assertEqual(len(root.children[1].children), 1)
+        self.assertEqual(len(root.children[1].children[0].children), 1)
+        self.assertEqual(root.children[2].name, "Threat 3")
 
     def test_parse_reference_nodes_in_attack_trees(self):
         # Arrange
