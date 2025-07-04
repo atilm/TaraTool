@@ -419,14 +419,24 @@ class TaraParserTests(unittest.TestCase):
         default_test_case.mock_reader.setup_file(multiple_roots_file_path, attack_tree_multiple_roots)
 
         # General structural error "Error parsing attack tree"
-        attack_tree_empty_table = """# AT_A-2_MAN
+        attack_tree_no_root = """# AT_A-2_MAN
 
 | Attack Tree    | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | -------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
 | -- Root Threat | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
 | ---- Threat 1  | LEAF | 1w  | L   | P   | U   | ST  | Reasoning 1 |         | Comment 1 |"""
-        empty_table_file_path = os.path.join(directory, "AttackTrees",  "AT_A-2_MAN.md")
-        default_test_case.mock_reader.setup_file(empty_table_file_path, attack_tree_empty_table)
+        no_root_file_path = os.path.join(directory, "AttackTrees",  "AT_A-2_MAN.md")
+        default_test_case.mock_reader.setup_file(no_root_file_path, attack_tree_no_root)
+
+        # Wrong indentations
+        attack_tree_wrong_indentation = """# TAT_Wrong_Indentation
+| Attack Tree      | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ---------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Root Threat      | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
+| ---- Threat 1    | LEAF | 1w  | L   | P   | U   | ST  | Reasoning 1 |         | Comment 1 |
+| ----- Threat 2   | LEAF | 1w  | L   | P   | U   | ST  | Reasoning 1 |         | Comment 1 |"""
+        wrong_indentation_file_path = os.path.join(directory, "AttackTrees",  "TAT_Wrong_Indentation.md")
+        default_test_case.mock_reader.setup_file(wrong_indentation_file_path, attack_tree_wrong_indentation)
 
         # Act
         tara = default_test_case.parser.parse(directory)
@@ -447,6 +457,9 @@ class TaraParserTests(unittest.TestCase):
         self.assertIn("Multiple root nodes found in attack tree AT_A-1_EXT. Only one root node is allowed.", default_test_case.logger.get_errors())
 
         self.assertIn("Error parsing attack tree AT_A-2_MAN", default_test_case.logger.get_errors())
+
+        self.assertIn("Node Threat 1 is indented too far in attack tree TAT_Wrong_Indentation.", default_test_case.logger.get_errors())
+        self.assertIn("Node Threat 2 has an uneven number of indenting dashes in attack tree TAT_Wrong_Indentation.", default_test_case.logger.get_errors())
 
     def test_error_missing_attack_tree(self):
         # Arrange

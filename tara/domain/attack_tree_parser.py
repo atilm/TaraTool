@@ -30,11 +30,14 @@ class AttackTreeParser:
                 while name.startswith("-"):
                     name = name[1:]
                     indentation += 1
+                name = name.strip()
 
-                # ToDo: check that indentation is even
+                # Check that indentation is even
+                if indentation % 2 != 0:
+                    self.logger.log_error(f"Node {name} has an uneven number of indenting dashes in attack tree {attack_tree_id}.")
+
                 # Convert number of dashes to indentation level:
                 indentation = indentation // 2
-                name = name.strip()
 
                 if indentation == 0:
                     root_node_count += 1
@@ -88,8 +91,7 @@ class AttackTreeParser:
                     for _ in range(-indentation_delta):
                         node_stack.pop()
                 elif indentation_delta > 1:
-                    # ToDo: log this as an error instead of rasing an exception
-                    raise ValueError(f"Invalid indentation level in attack tree {attack_tree_id}: {indentation_delta}")
+                    self.logger.log_error(f"Node {name} is indented too far in attack tree {attack_tree_id}.")
                 
                 if len(node_stack) != 0:
                     node_stack[-1].add_child(node)    
