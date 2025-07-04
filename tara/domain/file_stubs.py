@@ -103,6 +103,8 @@ Use drawio.png files or mermaid diagrams to illustrate the system architecture.
 
 ## Feasibility Ratings
 
+Feasibility ratings probably according to ISO/IEC 18045:
+
 ### Feasibility Mapping
 
 | Level | Value    |
