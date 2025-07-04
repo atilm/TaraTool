@@ -49,16 +49,21 @@ class TaraDocumentGenerator:
 
         name = f"[{node.name}](#{node.referenced_node_id.lower()})" if node.type in ["CIRC", "REF"] else node.name
 
-        feasibility_str = node.feasibility.calculate_feasibility_level().name
+        feasibility_str = f"({node.feasibility.calculate_feasibility_score()}) {node.feasibility.calculate_feasibility_level().name}"
+
+        def build_rating_string(security_property, to_string_func):
+            if security_property is None:
+                return "Unknown"
+            return f"{to_string_func(security_property)} ({security_property.value})"
 
         builder.withRow(
             indent_str + name,
             node.type,
-            elapsed_time_to_string(node.feasibility.time),
-            expertise_to_string(node.feasibility.expertise),
-            knowledge_to_string(node.feasibility.knowledge),
-            window_of_opportunity_to_string(node.feasibility.window_of_opportunity),
-            equipment_to_string(node.feasibility.equipment),
+            build_rating_string(node.feasibility.time, elapsed_time_to_string),
+            build_rating_string(node.feasibility.expertise, expertise_to_string),
+            build_rating_string(node.feasibility.knowledge, knowledge_to_string),
+            build_rating_string(node.feasibility.window_of_opportunity, window_of_opportunity_to_string),
+            build_rating_string(node.feasibility.equipment, equipment_to_string),
             feasibility_str,
             node.reasoning,
             security_controls_str,
