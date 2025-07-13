@@ -6,13 +6,17 @@
 
 ## Next
 
+* [ ] Bug: exception instead of error message when circumvent tree does not exist
+* [x] Bug: Exception when a control is defined on a REF node -> generally output much more information on exceptions
+* [ ] Bug: **"Attack tree has no root node" is uncaught exception when generating documentation 
+* [ ] Imp: Improve performance of resolved tree generation. Walk the tree only once.
+* [ ] Find a possibility to persistently document the handling of remaining risks
+* [ ] Detect circular references in attack trees
 * [ ] Refactor Report builder and improve error handling
 * [ ] Output more information about object on exception in ObjectStore
 * [ ] Empty assets and controls tables should not lead to errors -> ignore completely empty rows
 * [ ] Complete the generated report
   * [.] Insert complete attack trees (with calculated feasibilities and updated reference links)
-* [ ] Find a possibility to persistently document the handling of remaining risks
-* [ ] Detect circular references in attack trees
 
 ## Features List
 
