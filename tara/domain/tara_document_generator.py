@@ -3,7 +3,7 @@ from tara.MarkdownLib.markdown_document import *
 from tara.MarkdownLib.markdown_document_builder import *
 from tara.domain.tara import Tara
 from tara.domain.damage_scenario import DamageScenario
-from tara.domain.attack_tree import attack_tree_id, AttackTree, AttackTreeResolvedNode
+from tara.domain.attack_tree import attack_tree_id, AttackTree, ResolvedAttackTree, AttackTreeResolvedNode
 from tara.domain.feasibility import Feasibility
 from tara.domain.risk import RiskLevel
 from tara.domain.feasibility_conversion import *
@@ -17,22 +17,26 @@ class TaraDocumentGenerator:
         h1 = 1
         h2 = 2
 
+
+        # _build_threat_scenario_table calculates all feasibilities
+        # to avoid double calculations, we resolve the attack trees here
+        resolved_trees = []
         document_builder = MarkdownDocumentBuilder() \
             .withSection("Threat Analysis And Risk Assessment (TARA) Report", title_level) \
             .withSection("Threat Scenarios", h1) \
-            .withTable(self._build_threat_scenario_table(tara)) \
+            .withTable(self._build_threat_scenario_table(tara, resolved_trees)) \
             .withSection("Attack Trees", h1)
         
-        for attack_tree in tara.attack_trees:
+        # resolved_trees = [tree.get_resolved_tree() for tree in tara.attack_trees if tree.root_node]
+
+        for resolved_tree in resolved_trees:
             document_builder = document_builder \
-                .withSection(attack_tree.id, h2) \
-                .withTable(self._build_resolved_attack_tree_table(attack_tree))
+                .withSection(resolved_tree.id, h2) \
+                .withTable(self._build_resolved_attack_tree_table(resolved_tree))
 
         return document_builder.build()
 
-    def _build_resolved_attack_tree_table(self, attack_tree: AttackTree) -> MarkdownTable:
-        resolved_tree = attack_tree.get_resolved_tree()
-
+    def _build_resolved_attack_tree_table(self, resolved_tree: AttackTree) -> MarkdownTable:
         builder = MarkdownTableBuilder() \
             .withHeader("Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Feasibility", "Reasoning", "Control", "Comment")
 
@@ -73,7 +77,7 @@ class TaraDocumentGenerator:
         for child in node.children:
             self._add_attack_tree_node_to_table_recursive(builder, child, recursion_level + 1)
 
-    def _build_threat_scenario_table(self, tara: Tara) -> MarkdownTable:
+    def _build_threat_scenario_table(self, tara: Tara, resolved_trees: list[ResolvedAttackTree]) -> MarkdownTable:
         builder = MarkdownTableBuilder() \
             .withHeader("ID", "Threat Scenario", "Impact", "Feasibility", "Risk")
 
@@ -88,7 +92,7 @@ class TaraDocumentGenerator:
 
                     at_id = attack_tree_id(asset, security_property)
                     attack_tree: AttackTree = self._find_by_id(tara.attack_trees, at_id)
-                    feasibility = attack_tree.get_feasibility() if attack_tree else Feasibility()
+                    feasibility = attack_tree.get_feasibility(resolved_trees) if attack_tree else Feasibility()
                     feasibility_level = feasibility.calculate_feasibility_level()
                     linked_feasibility = f"[{feasibility_level.name}](#{at_id.lower()})"
 
