@@ -473,6 +473,18 @@ class TaraParserTests(unittest.TestCase):
         # Assert
         self.assertIn("No attack tree found for ID AT_A-1_BLOCK.", t.logger.get_errors())
 
+    def test_error_missing_circumvent_tree(self):
+        # Arrange
+        t = TestCase()
+        directory = t.directory
+        t.mock_reader.unset_file(os.path.join(directory, "AttackTrees", "CIRC_C-1.md"))
+
+        # Act
+        tara = t.parser.parse(directory)
+
+        # Assert
+        self.assertIn("No circumvent tree found for ID CIRC_C-1.", t.logger.get_errors())
+
     def test_error_missing_assumptions_table(self):
         # Arrange
         default_test_case = TestCase()

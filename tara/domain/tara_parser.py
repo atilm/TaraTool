@@ -11,7 +11,7 @@ from tara.domain.feasibility import *
 from tara.utilities.file_reader import IFileReader
 from tara.utilities.error_logger import IErrorLogger
 from tara.MarkdownLib.markdown_parser import MarkdownParser, MarkdownDocument, MarkdownTable
-from tara.domain.attack_tree import AttackTree, AttackTreeNode, AttackTreeOrNode, AttackTreeAndNode, AttackTreeReferenceNode, attack_tree_id
+from tara.domain.attack_tree import AttackTreeNode, AttackTreeOrNode, AttackTreeAndNode, AttackTreeReferenceNode, circumvent_tree_id
 from tara.domain.object_store import ObjectStore
 
 class TaraParser:
@@ -194,6 +194,9 @@ class TaraParser:
         for control_id in node.security_control_ids:
             if not self.object_store.has(control_id):
                 self.logger.log_error(f"Node {node.name} in attack tree {attack_tree_id} references non-existing control '{control_id}'.")
+            if not self.object_store.has(circumvent_tree_id(control_id)):
+                self.logger.log_error(f"No circumvent tree found for ID {circumvent_tree_id(control_id)}.")
+                
 
     def read_table(self, file_type: FileType, directory: str, file_name: str = None) -> MarkdownTable:
         """

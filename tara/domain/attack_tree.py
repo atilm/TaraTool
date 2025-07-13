@@ -14,6 +14,15 @@ def attack_tree_id(asset: Asset, security_property: SecurityProperty) -> str:
     """
     return f"AT_{asset.id}_{security_property.to_attack_id()}"
 
+def circumvent_tree_id(control_id: str) -> str:
+    """
+    Generates the circumvent tree ID based on the control ID.
+    
+    :param control_id: The ID of the security control.
+    :return: A string representing the circumvent tree ID.
+    """
+    return f"CIRC_{control_id}"
+
 class AttackTreeNode:
     def __init__(self, object_store: ObjectStore):
         self.name: str = ""
@@ -35,7 +44,8 @@ class AttackTreeNode:
 
     def get_feasibility(self):
         if self.security_control_ids:
-            active_circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in self.get_active_control_ids()]
+
+            active_circumvent_trees = [self.object_store.get(circumvent_tree_id(control_id)) for control_id in self.get_active_control_ids()]
             if not all(circumvent_tree for circumvent_tree in active_circumvent_trees):
                 raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
             and_node = AttackTreeAndNode(self.object_store)
@@ -65,7 +75,7 @@ class AttackTreeNode:
         """
 
         control_ids = self.get_active_control_ids()
-        circumvent_trees = [self.object_store.get(f"CIRC_{control_id}") for control_id in control_ids]
+        circumvent_trees = [self.object_store.get(circumvent_tree_id(control_id)) for control_id in control_ids]
 
         has_controls = len(control_ids) > 0
 

@@ -6,9 +6,6 @@
 
 ## Next
 
-* [ ] Bug: exception instead of error message when circumvent tree does not exist
-* [x] Bug: Exception when a control is defined on a REF node -> generally output much more information on exceptions
-* [ ] Bug: **"Attack tree has no root node" is uncaught exception when generating documentation 
 * [ ] Imp: Improve performance of resolved tree generation. Walk the tree only once.
 * [ ] Find a possibility to persistently document the handling of remaining risks
 * [ ] Detect circular references in attack trees
@@ -16,7 +13,7 @@
 * [ ] Output more information about object on exception in ObjectStore
 * [ ] Empty assets and controls tables should not lead to errors -> ignore completely empty rows
 * [ ] Complete the generated report
-  * [.] Insert complete attack trees (with calculated feasibilities and updated reference links)
+  * [x] Insert complete attack trees (with calculated feasibilities and updated reference links)
 
 ## Features List
 
@@ -61,7 +58,7 @@
   * [ ] Add existing controls
   * [ ] Link from threat scenarios to damage scenarios
   * [ ] Link from threat scenario feasibilities to existing attack trees
-  * [ ] Add extended attack trees (feasibilities, circumvent trees)
+  * [x] Add extended attack trees (feasibilities, circumvent trees)
   * [ ] Link from threat scenario feasibilities to extended attack trees
   * [ ] Create table of contents
 * [ ] Update IDs -> VSCode search / replace?
@@ -70,18 +67,9 @@
 ### Error Cases
 
 * [ ] AttackTrees
-  * [x] Non-existent feasibility rating
-  * [x] Unknown node type
-  * [x] Missing Attack Tree Table -> File Name in error message
-  * [x] Multiple level-0 nodes
-  * [x] Non-zero indentation for root-node
-  * [x] And or Or-Nodes without children
   * [ ] Empty table -> probably caught by general error
-  * [ ] uneven number of indentations -> unnecessary restriction?
   * [ ] Output warnings for unneeded attack tree files
-* [x] Missing Assumptions Table
 * [ ] Missing Files
   * [ ] Assumptions
   * [ ] ...
 * [ ] Mis-formatted tables
-* [x] Damage Scenarios: only accept defined impacts

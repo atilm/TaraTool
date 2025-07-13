@@ -1,7 +1,7 @@
 from tara.domain.tara import Tara
 from tara.domain.asset import Asset
 from tara.domain.security_property import SecurityProperty
-from tara.domain.attack_tree import attack_tree_id
+from tara.domain.attack_tree import attack_tree_id, circumvent_tree_id
 from tara.utilities.file_writer import FileWriter
 from tara.utilities.error_logger import IErrorLogger
 
@@ -42,7 +42,7 @@ class AttackTreeStubGenerator:
 
         # Define circumvent tree stubs for all security controls
         for control in tara.security_controls:
-            tree_id = f"CIRC_{control.id}"
+            tree_id = circumvent_tree_id(control.id)
             root_node_name = f"Circumvent {control.name}"
             tree_definitions.append(TreeDefinition(tree_id, root_node_name))
 
