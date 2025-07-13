@@ -225,7 +225,7 @@ class AttackTree:
         This method should be overridden in subclasses to provide specific feasibility logic.
         """
         if self.root_node is None:
-            raise ValueError("Attack tree has no root node.")
+            raise ValueError(f"Attack tree with id '{self.id}' has no root node.")
         
         return self.root_node.get_feasibility()
     
