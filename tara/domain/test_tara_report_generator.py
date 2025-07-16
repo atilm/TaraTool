@@ -186,11 +186,11 @@ class TestTaraReportGenerator(unittest.TestCase):
         # index 4,5: Circumvent Tree 1
         # index 6,7: Circumvent Tree 2
 
-        attack_trees_section: MarkdownSection = content[8]
+        attack_trees_section: MarkdownSection = content[4]
         self.assertEqual(attack_trees_section.level, 2)
         self.assertEqual(attack_trees_section.title, "AT_A-1_BLOCK")
 
-        resolved_tree_a1_block: MarkdownTable = content[9]
+        resolved_tree_a1_block: MarkdownTable = content[5]
         self.assertIsInstance(resolved_tree_a1_block, MarkdownTable)
         self.assertTrue(resolved_tree_a1_block.hasHeader(["Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Feasibility", "Reasoning", "Control", "Comment"]))
         self.assertEqual(resolved_tree_a1_block.getRow(0), ["Blocking of Asset 1", "OR", "6m (4)", "E (6)", "R (3)", "M (4)", "SP (4)", "(21) Low", "Reasoning 0", "", "Comment 0"])
@@ -198,11 +198,11 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(resolved_tree_a1_block.getRow(2), ["---- Threat 1", "LEAF", "6m (4)", "P (3)", "R (3)", "M (4)", "ST (0)", "(14) Medium", "Reasoning 1", "", "Comment 1"])
         self.assertEqual(resolved_tree_a1_block.getRow(3), ["---- [Circumvent Control 1](#circ_c-1)", "CIRC", "1m (1)", "E (6)", "R (3)", "E (1)", "SP (4)", "(15) Medium", "", "", ""])
 
-        attack_trees_section: MarkdownSection = content[10]
+        attack_trees_section: MarkdownSection = content[6]
         self.assertEqual(attack_trees_section.level, 2)
         self.assertEqual(attack_trees_section.title, "AT_A-1_MAN")
 
-        resolved_tree_a1_man: MarkdownTable = content[11]
+        resolved_tree_a1_man: MarkdownTable = content[7]
         self.assertIsInstance(resolved_tree_a1_man, MarkdownTable)
         self.assertEqual(resolved_tree_a1_man.getRow(0), ["Manipulation of Asset 1", "OR", "6m (4)", "P (3)", "R (3)", "M (4)", "ST (0)", "(14) Medium", "Reasoning 0", "", "Comment 0"])
         self.assertEqual(resolved_tree_a1_man.getRow(1), ["-- [Threat 1](#tat_tree)", "REF", "6m (4)", "P (3)", "R (3)", "M (4)", "ST (0)", "(14) Medium", "Reasoning 1", "", "Comment 1"])
