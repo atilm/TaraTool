@@ -20,9 +20,12 @@ class TestCase(unittest.TestCase):
         tree = t.parse_attack_tree(attack_tree_description, "ATT-1")
 
         # Act
-        resolved_tree = tree.get_resolved_tree()
+        resolved_trees = []
+        tree.get_feasibility(resolved_trees)
 
         # Assert
+        self.assertEqual(len(resolved_trees), 1)
+        resolved_tree = resolved_trees[0]
         self.assertEqual(resolved_tree.id, "ATT-1")
         self.assertIsInstance(resolved_tree.root_node, AttackTreeResolvedNode)
         self.assertEqual(resolved_tree.root_node.name, "Root Threat")
@@ -81,9 +84,12 @@ class TestCase(unittest.TestCase):
         self.assertEqual(t.logger.errors, [])
 
         # Act
-        resolved_tree = tree.get_resolved_tree()
+        resolved_trees = []
+        tree.get_feasibility(resolved_trees)
 
         # Assert
+        self.assertEqual(len(resolved_trees), 1)
+        resolved_tree = resolved_trees[0]
         self.assertEqual(resolved_tree.root_node.security_control_ids, ["C-2"])
 
     def test_for_active_controls_the_circumvent_tree_is_used(self):
@@ -115,9 +121,12 @@ class TestCase(unittest.TestCase):
         c2_tree = t.parse_attack_tree(c2_description, "CIRC_C-2")
 
         # Act
-        resolved_tree = tree.get_resolved_tree()
+        resolved_trees = []
+        tree.get_feasibility(resolved_trees)
 
         # Assert
+        self.assertEqual(len(resolved_trees), 1)
+        resolved_tree = resolved_trees[0]
 
         # There is an AND node inserted into the tree
         self.assertEqual(resolved_tree.root_node.type, "AND")
@@ -163,7 +172,11 @@ class TestCase(unittest.TestCase):
         t.parse_attack_tree(c1_description, "CIRC_C-1")
 
         # Act
-        resolved_tree = tree.get_resolved_tree()
+        resolved_trees = []
+        tree.get_feasibility(resolved_trees)
+
+        self.assertEqual(len(resolved_trees), 1)
+        resolved_tree = resolved_trees[0]
 
         self.assertEqual(t.logger.errors, [])
         self.assertEqual(t.logger.warnings, [])
