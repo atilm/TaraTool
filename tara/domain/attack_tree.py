@@ -45,7 +45,7 @@ class AttackTreeNode:
         """
         return [control_id for control_id in self.security_control_ids if self.object_store.get(control_id).is_active]
 
-    def get_feasibility(self, resolved_node: 'AttackTreeResolvedNode'=None):
+    def get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None):
         if self.security_control_ids:
             active_control_ids = self.get_active_control_ids()
             active_circumvent_trees = [self.object_store.get(circumvent_tree_id(control_id)) for control_id in active_control_ids]
@@ -60,20 +60,24 @@ class AttackTreeNode:
                 circumvent_tree.root_node.referenced_node_id = circumvent_tree.id
                 and_node.add_child(circumvent_tree.root_node)
             # feasibility = and_node.get_feasibility_without_controls(resolved_node)
-            feasibility = and_node.get_feasibility(resolved_node)
+            feasibility = and_node.get_feasibility(resolved_parent)
             # ToDo: are the commented lines above an alternative to the following?
-            if resolved_node != None and len(resolved_node.children) > 0:
-                resolved_node.children[-1].security_control_ids = active_control_ids
+
+            # resolved_node.children[-1] is now the AND node that combines the original node and the circumvent trees
+            # after invoking get_feasibility we can set the control_ids without triggering an endless recursion
+            if resolved_parent != None and len(resolved_parent.children) > 0:
+                resolved_parent.children[-1].security_control_ids = active_control_ids
+
             return feasibility
 
-        return self.get_feasibility_without_controls(resolved_node)
+        return self.get_feasibility_without_controls(resolved_parent)
 
     def without_controls(self) -> 'AttackTreeLeafNode':
         deep_copy = copy.deepcopy(self)
         deep_copy.security_control_ids = []
         return deep_copy
 
-    def get_feasibility_without_controls(self, resolved_node: 'AttackTreeResolvedNode'=None) -> Feasibility:
+    def get_feasibility_without_controls(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         """
         Returns the feasibility of the node without considering any controls.
         This is useful for calculating the base feasibility of the node.
