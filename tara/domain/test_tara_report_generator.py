@@ -42,14 +42,14 @@ class TestCase:
 | ID  | Name      | Security Goal | Active |
 | --- | --------- | ------------- | ------ |
 | C-1 | Control 1 | Goal-1        | x      |
-| C-2 | Control 2 | Goal-1        |        |
+| C-2 | Control 2 | Goal-1        | x      |
 """)
         
         # self.mock_reader.setup_file(os.path.join(self.directory, "AttackTrees", "k.md"),
         circ_c1 = """# CIRC_C-1
 
 * Node: (OR, AND, LEAF, REF)
-* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* ET: Elapsed Time (1w, 1m, 6m, 3y, >3y)
 * Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
 * Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
@@ -63,15 +63,16 @@ class TestCase:
         circ_c2 = """# CIRC_C-2
 
 * Node: (OR, AND, LEAF, REF)
-* ET: Elapsed Time (1w, 1m, 6m, >6m)
-* Ex: Expertise (L: Layman, P: Proficient, E: Expert, mE: multiple Experts)
-* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, sC: strictly Confidential)
+* ET: Elapsed Time (1w, 1m, 6m, 3y, >3y)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
 * WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
-* Eq: Equipment (St: Standard, Sp: Specialized, B: Bespoke, mB: multiple Bespoke)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, MB: multiple Bespoke)
 
 | Attack Tree            | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ---------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-| Circumvent Control 2   |      |     |     |     |     |     |             |         |           |"""
+| Circumvent Control 2   | OR   |     |     |     |     |     |             |         |           |
+| -- Circ Threat 2       |      | >3y | ME  | C   | M   |  B  |             |         |           |"""
         
         at_a_1_block = """# {0}
 
@@ -101,7 +102,7 @@ class TestCase:
 | Attack Tree             | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ----------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
 | Manipulation of Asset 2 | OR   |     |     |     |     |     | Reasoning 0 |         | Comment 0 |
-| -- Threat 1             | LEAF | 6m  | P   | R   | M   | ST  | Reasoning 1 |         | Comment 1 |
+| -- Threat 1             | LEAF | 6m  | P   | R   | M   | ST  | Reasoning 1 | C-1 C-2 | Comment 1 |
 """
 
         at_a_2_ext = """# {0}
@@ -173,7 +174,7 @@ class TestTaraReportGenerator(unittest.TestCase):
                                                       "Major", "[Medium](#at_a-1_man)", "Medium"])
         self.assertEqual(threat_scenarios.getRow(2), ["TS-3", 
                                                       "Litigation caused by manipulation of Asset 2", 
-                                                      "Major", "[Medium](#at_a-2_man)", "Medium"])
+                                                      "Major", "[VeryLow](#at_a-2_man)", "VeryLow"])
         self.assertEqual(threat_scenarios.getRow(3), ["TS-4", 
                                                       "Litigation caused by extraction of Asset 2", 
                                                       "Major", "[Medium](#at_a-2_ext)", "Medium"])
@@ -203,5 +204,14 @@ class TestTaraReportGenerator(unittest.TestCase):
 
         resolved_tree_a1_man: MarkdownTable = content[7]
         self.assertIsInstance(resolved_tree_a1_man, MarkdownTable)
+        self.assertEqual(resolved_tree_a1_man.getRowCount(), 2)
         self.assertEqual(resolved_tree_a1_man.getRow(0), ["Manipulation of Asset 1", "OR", "6m (4)", "P (3)", "R (3)", "M (4)", "ST (0)", "(14) Medium", "Reasoning 0", "", "Comment 0"])
         self.assertEqual(resolved_tree_a1_man.getRow(1), ["-- [Threat 1](#tat_tree)", "REF", "6m (4)", "P (3)", "R (3)", "M (4)", "ST (0)", "(14) Medium", "Reasoning 1", "", "Comment 1"])
+
+        attack_trees_section: MarkdownSection = content[8]
+        self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "AT_A-2_MAN")
+        
+        resolved_tree_a2_man: MarkdownTable = content[9]
+        self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
+        self.assertEqual(resolved_tree_a2_man.getRowCount(), 5)

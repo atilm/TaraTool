@@ -70,78 +70,38 @@ class AttackTreeNode:
 
             return feasibility
 
-        return self.get_feasibility_without_controls(resolved_parent)
+        return self.get_feasibility_without_controls(self._get_feasibility, resolved_parent)
 
     def without_controls(self) -> 'AttackTreeLeafNode':
         deep_copy = copy.deepcopy(self)
         deep_copy.security_control_ids = []
         return deep_copy
 
-    def get_feasibility_without_controls(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
+    def get_feasibility_without_controls(self, get_feasibility, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         """
         Returns the feasibility of the node without considering any controls.
         This is useful for calculating the base feasibility of the node.
+
+        get_feasibility: A callable that retrieves the feasibility of the node.
         """
-        raise NotImplementedError("This method should be overridden in subclasses.")
-    
-    # def get_resolved_node(self) -> 'AttackTreeResolvedNode':
-    #     """
-    #     Returns a resolved node representation of the attack tree node.
-    #     This is useful for creating a resolved attack tree.
-    #     """
-
-    #     control_ids = self.get_active_control_ids()
-    #     circumvent_trees = [self.object_store.get(circumvent_tree_id(control_id)) for control_id in control_ids]
-
-    #     has_controls = len(control_ids) > 0
-
-    #     resolved_node = AttackTreeResolvedNode()
-    #     resolved_node.name = self.name
-    #     resolved_node.type = self.type
-    #     resolved_node.reasoning = self.reasoning
-    #     resolved_node.comment = self.comment
-    #     # if the original node has controls, they are split into an uncontrolled node and the circumvent trees
-    #     # therefore the uncontrolled feasibility is shown when there are controls
-    #     resolved_node.feasibility = self.get_feasibility_without_controls() if has_controls else self.get_feasibility()
-    #     resolved_node.children = [child.get_resolved_node() for child in self.children]
-    #     resolved_node.security_control_ids = control_ids
-    #     # "REF" nodes have the attribute referenced_node_id set to the ID of the referenced node
-    #     resolved_node.referenced_node_id = self.referenced_node_id if hasattr(self, 'referenced_node_id') else None
-
-    #     if not has_controls:
-    #         return resolved_node
-    #     else:
-    #         # insert an AND node which combines the unmitigated original node and its circumvent trees
-    #         and_node = AttackTreeResolvedNode()
-    #         and_node.name = f"Controlled {self.name}"
-    #         and_node.type = "AND"
-    #         and_node.feasibility = self.get_feasibility()
-    #         and_node.security_control_ids = control_ids
-
-    #         resolved_node.security_control_ids = []
-    #         and_node.children.append(resolved_node)
-
-    #         for circumvent_tree in circumvent_trees:
-    #             if circumvent_tree is None:
-    #                 raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
-    #             and_node.children.append(self.circumvent_tree_to_resolved_node(circumvent_tree))
-
-    #         return and_node
+        resolved_node = AttackTreeResolvedNode() if resolved_parent is not None else None
         
-    # def circumvent_tree_to_resolved_node(self, circumvent_tree: 'AttackTree') -> 'AttackTreeResolvedNode':
-    #     """
-    #     Converts a circumvent tree to a resolved node representation.
-    #     This is useful for adding circumvent trees to the resolved attack tree.
-    #     """
-    #     resolved_node = AttackTreeResolvedNode()
-    #     resolved_node.name = circumvent_tree.root_node.name
-    #     resolved_node.referenced_node_id = circumvent_tree.id
-    #     resolved_node.type = "CIRC"
-    #     resolved_node.feasibility = circumvent_tree.get_feasibility()
-    #     resolved_node.reasoning = circumvent_tree.root_node.reasoning
-    #     resolved_node.comment = circumvent_tree.root_node.comment
-    #     resolved_node.children = []
-    #     return resolved_node
+        # do not expand circumvent nodes or reference nodes, so that they show up as references in the report
+        # instead of being expanded in-place in every using attack tree
+        feasibility = get_feasibility(None if self.type == "CIRC" or self.type == "REF" else resolved_node)
+        
+        if resolved_parent is not None:
+            resolved_node.fill_from_node(self, feasibility)
+            resolved_parent.children.append(resolved_node)
+
+        return feasibility
+    
+    def _get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
+        """
+        This method should be implemented by subclasses to calculate the feasibility of the node.
+        It is expected to return a Feasibility object.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
 
 class AttackTreeAndNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
@@ -149,25 +109,10 @@ class AttackTreeAndNode(AttackTreeNode):
         self.name = ""
         self.type = "AND"
 
-    def get_feasibility_without_controls(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
-        """
-        Returns the feasibility of the AND node.
-        The feasibility is calculated as the maximum feasibility of all child nodes.
-        """
+    def _get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         if not self.children:
             raise ValueError("AND node has no children.")
         
-        resolved_node = AttackTreeResolvedNode() if resolved_parent is not None else None
-        
-        feasibility = self._apply_and(None if self.type == "CIRC" else resolved_node)
-        
-        if resolved_parent is not None:
-            resolved_node.fill_from_node(self, feasibility)
-            resolved_parent.children.append(resolved_node)
-
-        return feasibility
-    
-    def _apply_and(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         feasibility = self.children[0].get_feasibility(resolved_parent)
 
         for child in self.children[1:]:
@@ -175,31 +120,21 @@ class AttackTreeAndNode(AttackTreeNode):
         
         return feasibility
         
-
 class AttackTreeOrNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
         super().__init__(object_store)
         self.name = ""
         self.type = "OR"
-
-    def get_feasibility_without_controls(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
-        """
-        Returns the feasibility of the OR node.
-        The feasibility is calculated as the minimum feasibility of all child nodes.
-        """
+    
+    def _get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         if not self.children:
             raise ValueError("OR node has no children.")
         
-        resolved_node = AttackTreeResolvedNode() if resolved_parent is not None else None
+        feasibility = self.children[0].get_feasibility(resolved_parent)
 
-        feasibility = self.children[0].get_feasibility(resolved_node)
         for child in self.children[1:]:
-            feasibility = feasibility.or_feasibility(child.get_feasibility(resolved_node))
+            feasibility = feasibility.or_feasibility(child.get_feasibility(resolved_parent))
         
-        if resolved_parent is not None:
-            resolved_node.fill_from_node(self, feasibility)
-            resolved_parent.children.append(resolved_node)
-
         return feasibility
 
 class AttackTreeLeafNode(AttackTreeNode):
@@ -208,30 +143,16 @@ class AttackTreeLeafNode(AttackTreeNode):
         self.name = ""
         self.type = "LEAF"
         self._feasibility = feasibility
-
-    def get_feasibility_without_controls(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
-        """
-        Returns the feasibility of the node without considering any controls.
-        This is useful for calculating the base feasibility of the node.
-        """
-
-        if resolved_parent is not None:
-            resolved_node = AttackTreeResolvedNode()
-            resolved_node.fill_from_node(self, self._feasibility)
-            resolved_parent.children.append(resolved_node)
-
+    
+    def _get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         return self._feasibility
 
 class AttackTreeReferenceNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
         super().__init__(object_store)
         self.type = "REF"
-
-    def get_feasibility_without_controls(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
-        """
-        Returns the feasibility of the referenced node.
-        If the referenced node is not found, raises an error.
-        """
+    
+    def _get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         if self.referenced_node_id is None:
             raise ValueError("Referenced node ID is not set.")
         
@@ -239,14 +160,7 @@ class AttackTreeReferenceNode(AttackTreeNode):
         if referenced_tree is None:
             raise ValueError(f"Referenced node with ID {self.referenced_node_id} not found.")
         
-        resolved_node = AttackTreeResolvedNode() if resolved_parent is not None else None
-
-        feasibility = referenced_tree.root_node.get_feasibility(resolved_node)
-
-        if resolved_parent is not None:
-            resolved_node.fill_from_node(self, feasibility)
-            resolved_parent.children.append(resolved_node)
-
+        feasibility = referenced_tree.root_node.get_feasibility(resolved_parent)
         return feasibility
 
 class AttackTreeResolvedNode:
@@ -308,15 +222,3 @@ class AttackTree:
             resolved_tree.root_node = container_node.children[0]
             resolved_trees.append(resolved_tree)
             return feasibility
-    
-    # def get_resolved_tree(self) -> ResolvedAttackTree:
-    #     """
-    #     Returns a new attack tree where each node has a resolved feasibility.
-    #     Evaluated circumvent trees are added.
-    #     References are updated to work within a single report document.
-    #     """
-
-    #     resolved_tree = ResolvedAttackTree(self.id)
-
-    #     resolved_tree.root_node = self.root_node.get_resolved_node()
-    #     return resolved_tree
