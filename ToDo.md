@@ -6,7 +6,12 @@
 
 ## Next
 
-* [ ] Imp: Improve performance of resolved tree generation. Walk the tree only once.
+* [ ] Apply the change to the AND node which fixed the bug to all node types
+* [ ] Also implement that reference nodes are not further expanded
+
+* [.] Imp: Improve performance of resolved tree generation. Walk the tree only once.
+  * [ ] Do not expand REF and CIRC trees in report file
+  * [ ] Instead list the Technical-ATs and the CIRC trees
 * [ ] Find a possibility to persistently document the handling of remaining risks
 * [ ] Detect circular references in attack trees
 * [ ] Refactor Report builder and improve error handling

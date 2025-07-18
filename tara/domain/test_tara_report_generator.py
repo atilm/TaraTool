@@ -57,7 +57,8 @@ class TestCase:
 
 | Attack Tree            | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ---------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-| Circumvent Control 1   |      | 1m  | E   | R   | E   | SP  |             |         |           |"""
+| Circumvent Control 1   | AND  |     |     |     |     |     |             |         |           |
+| -- Circ Threat 1       |      | 1m  | E   | R   | E   | SP  |             |         |           |"""
 
         circ_c2 = """# CIRC_C-2
 
@@ -183,15 +184,13 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(attack_trees_section.level, 1)
         self.assertEqual(attack_trees_section.title, "Attack Trees")
 
-        # index 4,5: Circumvent Tree 1
-        # index 6,7: Circumvent Tree 2
-
         attack_trees_section: MarkdownSection = content[4]
         self.assertEqual(attack_trees_section.level, 2)
         self.assertEqual(attack_trees_section.title, "AT_A-1_BLOCK")
 
         resolved_tree_a1_block: MarkdownTable = content[5]
         self.assertIsInstance(resolved_tree_a1_block, MarkdownTable)
+        self.assertEqual(resolved_tree_a1_block.getRowCount(), 4)
         self.assertTrue(resolved_tree_a1_block.hasHeader(["Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Feasibility", "Reasoning", "Control", "Comment"]))
         self.assertEqual(resolved_tree_a1_block.getRow(0), ["Blocking of Asset 1", "OR", "6m (4)", "E (6)", "R (3)", "M (4)", "SP (4)", "(21) Low", "Reasoning 0", "", "Comment 0"])
         self.assertEqual(resolved_tree_a1_block.getRow(1), ["-- Controlled Threat 1", "AND", "6m (4)", "E (6)", "R (3)", "M (4)", "SP (4)", "(21) Low", "", "C-1", ""])

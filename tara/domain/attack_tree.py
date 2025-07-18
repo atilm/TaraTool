@@ -158,17 +158,23 @@ class AttackTreeAndNode(AttackTreeNode):
             raise ValueError("AND node has no children.")
         
         resolved_node = AttackTreeResolvedNode() if resolved_parent is not None else None
-
-        feasibility = self.children[0].get_feasibility(resolved_node)
-
-        for child in self.children[1:]:
-            feasibility = feasibility.and_feasibility(child.get_feasibility(resolved_node))
+        
+        feasibility = self._apply_and(None if self.type == "CIRC" else resolved_node)
         
         if resolved_parent is not None:
             resolved_node.fill_from_node(self, feasibility)
             resolved_parent.children.append(resolved_node)
 
         return feasibility
+    
+    def _apply_and(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
+        feasibility = self.children[0].get_feasibility(resolved_parent)
+
+        for child in self.children[1:]:
+            feasibility = feasibility.and_feasibility(child.get_feasibility(resolved_parent))
+        
+        return feasibility
+        
 
 class AttackTreeOrNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
