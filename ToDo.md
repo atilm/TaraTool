@@ -6,6 +6,8 @@
 
 ## Next
 
+* [ ] Ensure that attack tree ids are only generated ids, CIRC or TAT (We now use the fact that technical tree IDs start with TAT)
+
 * [.] Imp: Improve performance of resolved tree generation. Walk the tree only once.
   * [ ] Do not expand REF and CIRC trees in report file
   * [ ] Instead list the Technical-ATs and the CIRC trees

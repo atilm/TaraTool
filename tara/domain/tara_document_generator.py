@@ -26,8 +26,15 @@ class TaraDocumentGenerator:
             .withSection("Threat Scenarios", h1) \
             .withTable(self._build_threat_scenario_table(tara, resolved_trees)) \
             .withSection("Attack Trees", h1)
-        
-        # resolved_trees = [tree.get_resolved_tree() for tree in tara.attack_trees if tree.root_node]
+
+        # Add resolved circumvent and technical trees to resolved_trees
+        circumvent_trees = [tree for tree in tara.attack_trees if tree.id.startswith("CIRC")]
+        for tree in circumvent_trees:
+            tree.get_feasibility(resolved_trees)
+
+        technical_trees = [tree for tree in tara.attack_trees if tree.id.startswith("TAT")]
+        for tree in technical_trees:
+            tree.get_feasibility(resolved_trees)
 
         for resolved_tree in resolved_trees:
             document_builder = document_builder \

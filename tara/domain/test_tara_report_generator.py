@@ -146,9 +146,13 @@ class TestTaraReportGenerator(unittest.TestCase):
         # Assert
         self.assertIsInstance(document, MarkdownDocument)
 
+        
         content = document.getContent()
 
         self.assertEqual(t.logger.errors, [])
+
+        # title (1) + threat scenarios table (2) + Attack Trees Title (1) + 7 resolved attack trees (14)
+        self.assertEqual(len(content), 18)
 
         title: MarkdownSection = content[0]
         threat_scenarios_section: MarkdownSection = content[1]
