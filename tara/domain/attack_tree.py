@@ -55,7 +55,11 @@ class AttackTreeNode:
             and_node.name = f"Controlled {self.name}"
             # and_node.security_control_ids = active_control_ids
             and_node.add_child(self.without_controls())
-            for circumvent_tree in active_circumvent_trees:
+            for circumvent_tree_original in active_circumvent_trees:
+                # create a deep copy of the circumvent tree to avoid modifying the original,
+                # because setting the type to CIRC and setting a referenced_node_id will prevent
+                # that the tree is expanded in the documentation. But the original tree SHOULD be expanded.
+                circumvent_tree = copy.deepcopy(circumvent_tree_original)
                 circumvent_tree.root_node.type = "CIRC"
                 circumvent_tree.root_node.referenced_node_id = circumvent_tree.id
                 and_node.add_child(circumvent_tree.root_node)

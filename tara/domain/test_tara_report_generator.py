@@ -94,7 +94,8 @@ class TestCase:
 
 | Attack Tree             | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | ----------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
-| Threat 1                | LEAF | 6m  | P   | R   | M   | ST  |             |         |           |
+| Threat 1                | AND  |     |     |     |     |     |             |         |           |
+| -- Technical Threat 1   | LEAF | 6m  | P   | R   | M   | ST  |             |         |           |
 """
 
         at_a_2_man = """# {0}
@@ -219,3 +220,35 @@ class TestTaraReportGenerator(unittest.TestCase):
         resolved_tree_a2_man: MarkdownTable = content[9]
         self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
         self.assertEqual(resolved_tree_a2_man.getRowCount(), 5)
+
+        attack_trees_section: MarkdownSection = content[10]
+        self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "AT_A-2_EXT")
+        
+        resolved_tree_a2_man: MarkdownTable = content[11]
+        self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
+        self.assertEqual(resolved_tree_a2_man.getRowCount(), 2)
+
+        attack_trees_section: MarkdownSection = content[12]
+        self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "CIRC_C-1")
+        
+        resolved_tree_a2_man: MarkdownTable = content[13]
+        self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
+        self.assertEqual(resolved_tree_a2_man.getRowCount(), 2)
+
+        attack_trees_section: MarkdownSection = content[14]
+        self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "CIRC_C-2")
+        
+        resolved_tree_a2_man: MarkdownTable = content[15]
+        self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
+        self.assertEqual(resolved_tree_a2_man.getRowCount(), 2)
+
+        attack_trees_section: MarkdownSection = content[16]
+        self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "TAT_TREE")
+        
+        resolved_tree_a2_man: MarkdownTable = content[17]
+        self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
+        self.assertEqual(resolved_tree_a2_man.getRowCount(), 2)
