@@ -53,7 +53,6 @@ class AttackTreeNode:
                 raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
             and_node = AttackTreeAndNode(self.object_store)
             and_node.name = f"Controlled {self.name}"
-            # and_node.security_control_ids = active_control_ids
             and_node.add_child(self.without_controls())
             for circumvent_tree_original in active_circumvent_trees:
                 # create a deep copy of the circumvent tree to avoid modifying the original,
@@ -63,11 +62,9 @@ class AttackTreeNode:
                 circumvent_tree.root_node.type = "CIRC"
                 circumvent_tree.root_node.referenced_node_id = circumvent_tree.id
                 and_node.add_child(circumvent_tree.root_node)
-            # feasibility = and_node.get_feasibility_without_controls(resolved_node)
             feasibility = and_node.get_feasibility(resolved_parent)
-            # ToDo: are the commented lines above an alternative to the following?
 
-            # resolved_node.children[-1] is now the AND node that combines the original node and the circumvent trees
+            # resolved_parent.children[-1] is now the AND node that combines the original node and the circumvent trees
             # after invoking get_feasibility we can set the control_ids without triggering an endless recursion
             if resolved_parent != None and len(resolved_parent.children) > 0:
                 resolved_parent.children[-1].security_control_ids = active_control_ids
