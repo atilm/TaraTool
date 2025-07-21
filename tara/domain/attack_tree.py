@@ -3,6 +3,7 @@ from tara.domain.asset import Asset
 from tara.domain.security_property import SecurityProperty
 from tara.domain.object_store import ObjectStore
 import copy
+from enum import Enum
 
 def attack_tree_id(asset: Asset, security_property: SecurityProperty) -> str:
     """
@@ -23,10 +24,17 @@ def circumvent_tree_id(control_id: str) -> str:
     """
     return f"CIRC_{control_id}"
 
+class AttackTreeNodeType(Enum):
+    AND = "AND"
+    OR = "OR"
+    LEAF = "LEAF"
+    REF = "REF"
+
 class AttackTreeNode:
     def __init__(self, object_store: ObjectStore):
         self.name: str = ""
-        self.type: str = ""  # AND, OR, LEAF, REF, CIRC
+        self.is_circumvent_tree: bool = False
+        self._type: AttackTreeNodeType = None
         self.reasoning: str = ""
         self.comment: str = ""
         self.children = []
@@ -34,6 +42,15 @@ class AttackTreeNode:
         # When a node is marked with CIRC, then a referenced_node_id is set to the ID of the circumvent tree
         self.referenced_node_id: str = None
         self.object_store: ObjectStore = object_store
+
+    def get_type(self) -> str:
+        """
+        Returns the type of the attack tree node.
+        """
+        if self.is_circumvent_tree:
+            return "CIRC"
+        
+        return self._type.value if self._type else "UNKNOWN"
 
     def add_child(self, child_node):
         self.children.append(child_node)
@@ -56,10 +73,10 @@ class AttackTreeNode:
             and_node.add_child(self.without_controls())
             for circumvent_tree_original in active_circumvent_trees:
                 # create a deep copy of the circumvent tree to avoid modifying the original,
-                # because setting the type to CIRC and setting a referenced_node_id will prevent
+                # because setting is_circumvent_tree and setting a referenced_node_id will prevent
                 # that the tree is expanded in the documentation. But the original tree SHOULD be expanded.
                 circumvent_tree = copy.deepcopy(circumvent_tree_original)
-                circumvent_tree.root_node.type = "CIRC"
+                circumvent_tree.root_node.is_circumvent_tree = True
                 circumvent_tree.root_node.referenced_node_id = circumvent_tree.id
                 and_node.add_child(circumvent_tree.root_node)
             feasibility = and_node.get_feasibility(resolved_parent)
@@ -89,7 +106,7 @@ class AttackTreeNode:
         
         # do not expand circumvent nodes or reference nodes, so that they show up as references in the report
         # instead of being expanded in-place in every using attack tree
-        feasibility = get_feasibility(None if self.type == "CIRC" or self.type == "REF" else resolved_node)
+        feasibility = get_feasibility(None if self.referenced_node_id else resolved_node)
         
         if resolved_parent is not None:
             resolved_node.fill_from_node(self, feasibility)
@@ -108,7 +125,7 @@ class AttackTreeAndNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
         super().__init__(object_store)
         self.name = ""
-        self.type = "AND"
+        self._type = AttackTreeNodeType.AND
 
     def _get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         if not self.children:
@@ -125,7 +142,7 @@ class AttackTreeOrNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
         super().__init__(object_store)
         self.name = ""
-        self.type = "OR"
+        self._type = AttackTreeNodeType.OR
     
     def _get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         if not self.children:
@@ -142,7 +159,7 @@ class AttackTreeLeafNode(AttackTreeNode):
     def __init__(self, feasibility: Feasibility, object_store: ObjectStore):
         super().__init__(object_store)
         self.name = ""
-        self.type = "LEAF"
+        self._type = AttackTreeNodeType.LEAF
         self._feasibility = feasibility
     
     def _get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
@@ -151,7 +168,7 @@ class AttackTreeLeafNode(AttackTreeNode):
 class AttackTreeReferenceNode(AttackTreeNode):
     def __init__(self, object_store: ObjectStore):
         super().__init__(object_store)
-        self.type = "REF"
+        self._type = AttackTreeNodeType.REF
     
     def _get_feasibility(self, resolved_parent: 'AttackTreeResolvedNode'=None) -> Feasibility:
         if self.referenced_node_id is None:
@@ -181,7 +198,7 @@ class AttackTreeResolvedNode:
         Fills the resolved node from a regular attack tree node.
         """
         self.name = node.name
-        self.type = node.type
+        self.type = node.get_type()
         self.reasoning = node.reasoning
         self.comment = node.comment
         self.feasibility = feasibility

@@ -58,7 +58,7 @@ class TaraDocumentGenerator:
         indent_str = f"{recursion_level * '--'} " if recursion_level > 0 else ""
         security_controls_str = " ".join(node.security_control_ids) if node.security_control_ids else ""
 
-        name = f"[{node.name}](#{node.referenced_node_id.lower()})" if node.type in ["CIRC", "REF"] else node.name
+        name = f"[{node.name}](#{node.referenced_node_id.lower()})" if node.referenced_node_id else node.name
 
         feasibility_str = f"({node.feasibility.calculate_feasibility_score()}) {node.feasibility.calculate_feasibility_level().name}"
 
