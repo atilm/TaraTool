@@ -31,6 +31,7 @@ class AttackTreeNode:
         self.children = []
         self.security_control_ids: list[str] = []
         self.object_store: ObjectStore = object_store
+        self.cached_feasibility: Feasibility = None
 
     def add_child(self, child_node):
         self.children.append(child_node)
@@ -43,6 +44,9 @@ class AttackTreeNode:
         return [control_id for control_id in self.security_control_ids if self.object_store.get(control_id).is_active]
 
     def get_feasibility(self):
+        if self.cached_feasibility is not None:
+            return self.cached_feasibility
+
         if self.security_control_ids:
 
             active_circumvent_trees = [self.object_store.get(circumvent_tree_id(control_id)) for control_id in self.get_active_control_ids()]
@@ -52,9 +56,12 @@ class AttackTreeNode:
             and_node.add_child(self.without_controls())
             for circumvent_tree in active_circumvent_trees:
                 and_node.add_child(circumvent_tree.root_node)
-            return and_node.get_feasibility()
+            
+            self.cached_feasibility = and_node.get_feasibility()
+            return self.cached_feasibility
 
-        return self.get_feasibility_without_controls()
+        self.cached_feasibility = self.get_feasibility_without_controls()
+        return self.cached_feasibility
 
     def without_controls(self) -> 'AttackTreeLeafNode':
         deep_copy = copy.deepcopy(self)
@@ -85,7 +92,7 @@ class AttackTreeNode:
         resolved_node.reasoning = self.reasoning
         resolved_node.comment = self.comment
         # if the original node has controls, they are split into an uncontrolled noded and the circumvent trees
-        # threrefore the uncontrooled feasibility is shown when there are controls
+        # threrefore the uncontrolled feasibility is shown when there are controls
         resolved_node.feasibility = self.get_feasibility_without_controls() if has_controls else self.get_feasibility()
         resolved_node.children = [child.get_resolved_node() for child in self.children]
         resolved_node.security_control_ids = control_ids
