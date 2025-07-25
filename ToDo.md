@@ -6,6 +6,7 @@
 
 ## Next
 
+* [ ] Integrate changes from the other performance branch
 * [ ] Imp: Improve performance of resolved tree generation. Walk the tree only once.
 * [ ] Find a possibility to persistently document the handling of remaining risks
 * [ ] Detect circular references in attack trees
@@ -54,13 +55,20 @@
     * [x] Include Reference Nodes
 * [x] Risk Calculation
 * [.] Create report
-  * [ ] Add existing damage scenarios
-  * [ ] Add existing controls
-  * [ ] Link from threat scenarios to damage scenarios
-  * [ ] Link from threat scenario feasibilities to existing attack trees
-  * [x] Add extended attack trees (feasibilities, circumvent trees)
-  * [ ] Link from threat scenario feasibilities to extended attack trees
-  * [ ] Create table of contents
+  * [ ] Title and Company
+  * [ ] Table of Contents
+  * [ ] Summary: Initial and Final Risk Matrix
+  * [ ] System Description inserted
+  * [ ] List of Assumptions -> translated into security claims
+  * [ ] Security Control with Link to Security Goal
+  * [ ] List of Damage Scenarios
+  * [ ] List of Assets with Security Properties (and damage when violated)
+  * [ ] List of Threats, List of Threat Scenarios
+  * [ ] List of Attack Trees. Leafs with detailed description and reasoning
+  * [ ] List of Risk Treatments (reduce -> Security Goal, share -> Security Claim, retain -> Security Claim) Threat Scenarios grouped by damage scenario with initial risk, risk treatment, security goals and security claims
+  * [ ] List of Security Claims linked to assumptions (with responsible entities)
+  * [ ] List of Security Goals
+  * [ ] Description of Methodology
 * [ ] Update IDs -> VSCode search / replace?
 * [ ] Simple but non-trivial example document
 
