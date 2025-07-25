@@ -236,15 +236,15 @@ class AttackTree:
         self.description = ""
         self.root_node: AttackTreeNode = None
 
-    def get_feasibility(self) -> Feasibility:
+    def get_feasibility(self, without_controls: bool = False) -> Feasibility:
         """
         Returns the feasibility of the attack tree.
         This method should be overridden in subclasses to provide specific feasibility logic.
         """
         if self.root_node is None:
             raise ValueError(f"Attack tree with id '{self.id}' has no root node.")
-        
-        return self.root_node.get_feasibility()
+
+        return self.root_node.get_feasibility_without_controls() if without_controls else self.root_node.get_feasibility() 
     
     def get_resolved_tree(self) -> ResolvedAttackTree:
         """

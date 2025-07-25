@@ -217,6 +217,53 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
 
         self.assertEqual(feasibility, expected_feasibility)
 
+    def test_controls_can_be_deactivated_through_a_parameter(self):
+        t = AttackTreeTestCase()
+        
+        t.register_control("C-1", True)
+
+        tree = """# ATT-1
+
+* Node: (OR, AND, LEAF, REF)
+* ET: Elapsed Time (1w, 1m, 6m, >6m)
+* Ex: Expertise (L: Layman, P: Proficient, E: Expert, ME: multiple Experts)
+* Kn: Knowledge (P: Public, R: Restricted, C: Confidential, SC: strictly Confidential)
+* WoO: Window of Opportunity (U: Unlimited, E: Easy, M: Moderate, D: Difficult)
+* Eq: Equipment (ST: Standard, SP: Specialized, B: Bespoke, mB: multiple Bespoke)
+
+| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 1    |      | 1m  | P   | R   | E   | SP  |             | C-1     |           |
+"""
+
+        circ_c1 = """# CIRC_C-1
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 1 |      | 1w  | E   | P   | D   | ST  |             |         |           |
+"""
+
+        tree_obj = t.parse_attack_tree(tree, "ATT-1")
+        circ_c1_obj = t.parse_attack_tree(circ_c1, "CIRC_C-1")
+
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Act
+        feasibility = tree_obj.get_feasibility(without_controls=True)
+
+        # Assert
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Feasibility(Threat 1 with control) should be = Feasibility(Threat 1 without control) AND Feasibility(Circumvent Control 1)
+        expected_feasibility = Feasibility()
+        expected_feasibility.time = ElapsedTime.OneMonth
+        expected_feasibility.expertise = Expertise.Proficient
+        expected_feasibility.knowledge = Knowledge.Restricted
+        expected_feasibility.window_of_opportunity = WindowOfOpportunity.Easy
+        expected_feasibility.equipment = Equipment.Specialized
+
+        self.assertEqual(feasibility, expected_feasibility)
+
     def test_multiple_controls_can_be_combinded(self):
         t = AttackTreeTestCase()
         

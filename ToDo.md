@@ -6,9 +6,12 @@
 
 ## Next
 
-* [ ] Integrate changes from the other performance branch
-* [ ] Imp: Improve performance of resolved tree generation. Walk the tree only once.
 * [ ] Find a possibility to persistently document the handling of remaining risks
+  * [ ] Output threat scenario in separate file
+    * [ ] reference asset, security property and damage scenario
+    * [ ] Column for specifying risk handling and security goal or security claim
+    * [ ] Initial Risk and Mitigated Risk
+  * [ ] Read-in threat scenario file if present and preserve risk handling entries
 * [ ] Detect circular references in attack trees
 * [ ] Refactor Report builder and improve error handling
 * [ ] Output more information about object on exception in ObjectStore
