@@ -5,6 +5,7 @@ from tara.utilities.error_logger import MemoryErrorLogger
 from tara.domain.file_stubs import FileType
 from tara.domain.tara_parser import TaraParser
 from tara.domain.tara_document_generator import TaraDocumentGenerator
+from tara.domain.threat_scenario_document_generator import ThreatScenarioDocumentGenerator
 from tara.MarkdownLib.markdown_document import *
 
 class TestCase:
@@ -132,6 +133,47 @@ class TestCase:
         self.parser = TaraParser(self.mock_reader, self.logger)
 
 class TestTaraReportGenerator(unittest.TestCase):
+    def test_a_markdown_document_with_threat_scenarios_can_be_generated(self):
+        t = TestCase()
+        tara = t.parser.parse(t.directory)
+        self.assertEqual(t.logger.errors, [])
+
+        # Act
+        generator = ThreatScenarioDocumentGenerator()
+        document: MarkdownDocument = generator.generate(tara)
+
+        # Assert
+        self.assertIsInstance(document, MarkdownDocument)
+        content = document.getContent()
+
+        self.assertEqual(t.logger.errors, [])
+
+        # title (1) + threat scenarios table (1)
+        self.assertEqual(len(content), 2)
+
+        title: MarkdownSection = content[0]
+        self.assertIsInstance(title, MarkdownSection)
+        self.assertEqual(title.level, 1)
+        self.assertEqual(title.title, "Threat Scenarios")
+
+        threat_scenarios: MarkdownTable = content[1]
+        self.assertIsInstance(threat_scenarios, MarkdownTable)
+        self.assertTrue(threat_scenarios.hasHeader(["ID", "Asset" ,"Damage", "Threat", "Threat Scenario", "Impact", "Initial Risk", "Risk Handling", "Residual Risk", "Feasibility"]))
+        self.assertEqual(threat_scenarios.getRowCount(), 4)
+
+        self.assertEqual(threat_scenarios.getRow(0), ["TS-1", "A-1", "DS-1", "BLOCK",
+                                                      "Electrocuted person caused by blocking of Asset 1", 
+                                                      "Severe", "High", "", "Medium", "[Low](#at_a-1_block)"])
+        self.assertEqual(threat_scenarios.getRow(1), ["TS-2", "A-1", "DS-2", "MAN",
+                                                      "Litigation caused by manipulation of Asset 1", 
+                                                      "Major", "Medium", "", "Medium", "[Medium](#at_a-1_man)"])
+        self.assertEqual(threat_scenarios.getRow(2), ["TS-3", "A-2", "DS-2", "MAN",
+                                                      "Litigation caused by manipulation of Asset 2", 
+                                                      "Major", "Medium", "", "VeryLow", "[VeryLow](#at_a-2_man)"])
+        self.assertEqual(threat_scenarios.getRow(3), ["TS-4", "A-2", "DS-2", "EXT",
+                                                      "Litigation caused by extraction of Asset 2", 
+                                                      "Major", "Medium", "", "Medium", "[Medium](#at_a-2_ext)"])
+
     def test_a_report_for_a_tara_without_controls_can_be_generated(self):
         # Arrange
         t = TestCase()

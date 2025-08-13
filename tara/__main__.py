@@ -3,6 +3,7 @@ from tara.domain.file_stubs import file_stubs
 from tara.domain.tara_parser import TaraParser
 from tara.domain.attack_tree_stub_generator import AttackTreeStubGenerator
 from tara.domain.tara_document_generator import TaraDocumentGenerator
+from tara.domain.threat_scenario_document_generator import ThreatScenarioDocumentGenerator
 from tara.utilities.file_reader import FileReader
 from tara.utilities.file_writer import FileWriter
 from tara.utilities.error_logger import ErrorLogger
@@ -50,12 +51,19 @@ def generate():
     if error_logger.has_errors():
         print("Errors found during parsing. Please fix them before generating the document.")
         sys.exit(1)
+
+    threat_scenario_generator = ThreatScenarioDocumentGenerator()
+    threat_scenarios_document = threat_scenario_generator.generate(tara)
     
     generator = TaraDocumentGenerator(error_logger)
     document = generator.generate(tara)
     if error_logger.has_errors():
         print("Errors found tara generation.")
         sys.exit(1)
+
+    with open("06_ThreatScenarios.md", 'w') as f:
+        writer = MarkdownWriter()
+        f.write(writer.write(threat_scenarios_document))
 
     with open("tara_report.md", 'w') as f:
         writer = MarkdownWriter()

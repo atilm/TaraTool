@@ -43,12 +43,20 @@ class AttackTreeNode:
         """
         return [control_id for control_id in self.security_control_ids if self.object_store.get(control_id).is_active]
 
-    def get_feasibility(self):
+    def invalidate_cache(self):
+        """
+        Invalidates the cached feasibility of the node.
+        This is useful when the node has been modified and the feasibility needs to be recalculated.
+        """
+        self.cached_feasibility = None
+        for child in self.children:
+            child.invalidate_cache()
+
+    def get_feasibility(self, without_controls: bool = False):
         if self.cached_feasibility is not None:
             return self.cached_feasibility
 
-        if self.security_control_ids:
-
+        if not(without_controls) and self.security_control_ids:
             active_circumvent_trees = [self.object_store.get(circumvent_tree_id(control_id)) for control_id in self.get_active_control_ids()]
             if not all(circumvent_tree for circumvent_tree in active_circumvent_trees):
                 raise ValueError("One or more referenced circumvent trees do not exist in the object store.")
@@ -57,10 +65,10 @@ class AttackTreeNode:
             for circumvent_tree in active_circumvent_trees:
                 and_node.add_child(circumvent_tree.root_node)
             
-            self.cached_feasibility = and_node.get_feasibility()
+            self.cached_feasibility = and_node.get_feasibility(without_controls)
             return self.cached_feasibility
 
-        self.cached_feasibility = self.get_feasibility_without_controls()
+        self.cached_feasibility = self.get_feasibility_without_controls(without_controls)
         return self.cached_feasibility
 
     def without_controls(self) -> 'AttackTreeLeafNode':
@@ -68,7 +76,7 @@ class AttackTreeNode:
         deep_copy.security_control_ids = []
         return deep_copy
 
-    def get_feasibility_without_controls(self) -> Feasibility:
+    def get_feasibility_without_controls(self, without_controls: bool = False) -> Feasibility:
         """
         Returns the feasibility of the node without considering any controls.
         This is useful for calculating the base feasibility of the node.
@@ -140,7 +148,7 @@ class AttackTreeAndNode(AttackTreeNode):
         self.name = ""
         self.type = "AND"
 
-    def get_feasibility_without_controls(self) -> Feasibility:
+    def get_feasibility_without_controls(self, without_controls: bool = False) -> Feasibility:
         """
         Returns the feasibility of the AND node.
         The feasibility is calculated as the maximum feasibility of all child nodes.
@@ -148,10 +156,10 @@ class AttackTreeAndNode(AttackTreeNode):
         if not self.children:
             raise ValueError("AND node has no children.")
         
-        feasibility = self.children[0].get_feasibility()
+        feasibility = self.children[0].get_feasibility(without_controls)
 
         for child in self.children[1:]:
-            feasibility = feasibility.and_feasibility(child.get_feasibility())
+            feasibility = feasibility.and_feasibility(child.get_feasibility(without_controls))
         
         return feasibility
 
@@ -161,7 +169,7 @@ class AttackTreeOrNode(AttackTreeNode):
         self.name = ""
         self.type = "OR"
 
-    def get_feasibility_without_controls(self) -> Feasibility:
+    def get_feasibility_without_controls(self, without_controls: bool = False) -> Feasibility:
         """
         Returns the feasibility of the OR node.
         The feasibility is calculated as the minimum feasibility of all child nodes.
@@ -169,10 +177,10 @@ class AttackTreeOrNode(AttackTreeNode):
         if not self.children:
             raise ValueError("OR node has no children.")
         
-        feasibility = self.children[0].get_feasibility()
+        feasibility = self.children[0].get_feasibility(without_controls)
 
         for child in self.children[1:]:
-            feasibility = feasibility.or_feasibility(child.get_feasibility())
+            feasibility = feasibility.or_feasibility(child.get_feasibility(without_controls))
         
         return feasibility
 
@@ -183,7 +191,7 @@ class AttackTreeLeafNode(AttackTreeNode):
         self.type = "LEAF"
         self._feasibility = feasibility
 
-    def get_feasibility_without_controls(self) -> Feasibility:
+    def get_feasibility_without_controls(self, without_controls: bool = False) -> Feasibility:
         """
         Returns the feasibility of the node without considering any controls.
         This is useful for calculating the base feasibility of the node.
@@ -196,7 +204,7 @@ class AttackTreeReferenceNode(AttackTreeNode):
         self.type = "REF"
         self.referenced_node_id: str = None
 
-    def get_feasibility_without_controls(self) -> Feasibility:
+    def get_feasibility_without_controls(self, without_controls: bool = False) -> Feasibility:
         """
         Returns the feasibility of the referenced node.
         If the referenced node is not found, raises an error.
@@ -208,7 +216,7 @@ class AttackTreeReferenceNode(AttackTreeNode):
         if referenced_node is None:
             raise ValueError(f"Referenced node with ID {self.referenced_node_id} not found.")
         
-        return referenced_node.get_feasibility()
+        return referenced_node.get_feasibility(without_controls)
 
 class AttackTreeResolvedNode:
     def __init__(self):
@@ -236,6 +244,16 @@ class AttackTree:
         self.description = ""
         self.root_node: AttackTreeNode = None
 
+    def invalidate_cache(self):
+        """
+        Invalidates the cached feasibility of the attack tree.
+        This is useful when the tree has been modified and the feasibility needs to be recalculated.
+        """
+        if self.root_node:
+            self.root_node.invalidate_cache()
+        else:
+            raise ValueError(f"Attack tree with id '{self.id}' has no root node.")
+
     def get_feasibility(self, without_controls: bool = False) -> Feasibility:
         """
         Returns the feasibility of the attack tree.
@@ -244,8 +262,8 @@ class AttackTree:
         if self.root_node is None:
             raise ValueError(f"Attack tree with id '{self.id}' has no root node.")
 
-        return self.root_node.get_feasibility_without_controls() if without_controls else self.root_node.get_feasibility() 
-    
+        return self.root_node.get_feasibility(without_controls)
+
     def get_resolved_tree(self) -> ResolvedAttackTree:
         """
         Returns a new attack tree where each node has a resolved feasibility.

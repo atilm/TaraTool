@@ -6,6 +6,9 @@
 
 ## Next
 
+* [ ] Test for calculation of uncontrolled risks including all node types
+* [x] Restore performance (less frequent cache invalidation)
+
 * [ ] Find a possibility to persistently document the handling of remaining risks
   * [ ] Output threat scenario in separate file
     * [ ] reference asset, security property and damage scenario
