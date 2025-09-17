@@ -476,3 +476,76 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.equipment = Equipment.Specialized
 
         self.assertEqual(feasibility, expected_feasibility)
+
+    def test_a_feasibility_without_controls_can_be_calculated(self):
+        t = AttackTreeTestCase()
+        
+        t.register_control("C-1", True)
+        t.register_control("C-2", True)
+
+        tree = """# ATT-1
+
+| Attack Tree                     | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 1                        | AND  |     |     |     |     |     |             | C-1     |           |
+| -- Threat 2                     | OR   |     |     |     |     |     |             | C-1     |           |
+| ---- Threat 3                   |      | 1w  | L   | P   | U   | ST  |             | C-1     |           |
+| -- [Technical Tree](./TAT-1.md) | REF  |     |     |     |     |     |             | C-1     |           |
+"""
+
+        technical_tree = """# TAT-1
+        
+| Attack Tree | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ----------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Threat 5    |      | 1w  | L   | P   | U   | ST  |             | C-1     |           |
+"""
+
+        circ_c1 = """# CIRC_C-1
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 1 |      |     |     |     |     |     |             | C-2     |           |
+"""
+
+        circ_c2 = """# CIRC_C-2
+
+| Attack Tree         | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
+| ------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
+| Circumvent Threat 2 |      | 6m  | ME  | C   | D   | MB  |             |         |           |
+"""
+
+        tree_obj = t.parse_attack_tree(tree, "ATT-1")
+        t.parse_attack_tree(technical_tree, "TAT-1")
+        t.parse_attack_tree(circ_c1, "CIRC_C-1")
+        t.parse_attack_tree(circ_c2, "CIRC_C-2")
+
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Act
+        tree_obj.invalidate_cache()
+        feasibility_with_controls = tree_obj.get_feasibility()
+        tree_obj.invalidate_cache()
+        feasibility_without_controls = tree_obj.get_feasibility(without_controls=True)
+
+        # Assert
+        self.assertEqual(t.logger.get_errors(), [])
+
+        # Feasibility(Threat 1 with control) should be = Feasibility(Threat 1 without control) AND Feasibility(Circumvent Control 1)
+        expected_feasibility_with_controls = Feasibility()
+        expected_feasibility_with_controls.time = ElapsedTime.SixMonths
+        expected_feasibility_with_controls.expertise = Expertise.MultipleExperts
+        expected_feasibility_with_controls.knowledge = Knowledge.Confidential
+        expected_feasibility_with_controls.window_of_opportunity = WindowOfOpportunity.Difficult
+        expected_feasibility_with_controls.equipment = Equipment.MultipleBespoke
+
+        self.assertEqual(feasibility_with_controls, expected_feasibility_with_controls)
+
+        # Feasibility(Threat 1 without control) should be = Feasibility(Threat 1 without control) AND Feasibility(Circumvent Control 1 without control)
+        expected_feasibility_without_controls = Feasibility()
+        expected_feasibility_without_controls.time = ElapsedTime.OneWeek
+        expected_feasibility_without_controls.expertise = Expertise.Layman
+        expected_feasibility_without_controls.knowledge = Knowledge.Public
+        expected_feasibility_without_controls.window_of_opportunity = WindowOfOpportunity.Unlimited
+        expected_feasibility_without_controls.equipment = Equipment.Standard
+
+        self.assertEqual(feasibility_without_controls, expected_feasibility_without_controls)

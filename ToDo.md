@@ -6,7 +6,7 @@
 
 ## Next
 
-* [ ] Test for calculation of uncontrolled risks including all node types
+* [x] Test for calculation of uncontrolled risks including all node types
 * [x] Restore performance (less frequent cache invalidation)
 
 * [ ] Find a possibility to persistently document the handling of remaining risks
