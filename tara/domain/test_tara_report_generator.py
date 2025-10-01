@@ -194,8 +194,6 @@ class TestTaraReportGenerator(unittest.TestCase):
 
         self.assertEqual(t.logger.errors, [])
 
-        # title (1) + threat scenarios table (2) + Attack Trees Title (1) + 7 resolved attack trees (14)
-        self.assertEqual(len(content), 18)
         content_iter = iter(content)
 
         title: MarkdownSection = next(content_iter)
@@ -203,6 +201,27 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(title.level, 0)
         self.assertEqual(title.title, "Threat Analysis And Risk Assessment (TARA) Report")
         
+        toc_section: MarkdownSection = next(content_iter)
+        self.assertIsInstance(toc_section, MarkdownSection)
+        
+        toc_paragraph: MarkdownParagraph = next(content_iter)
+        self.assertIsInstance(toc_paragraph, MarkdownParagraph)
+        self.assertEqual(toc_paragraph.lines[0], "- [TOE Description and Scope](#toe-description-and-scope)")
+
+        toe_section: MarkdownSection = next(content_iter)
+        
+        assumptions_section: MarkdownSection = next(content_iter)
+        
+        assumptions: MarkdownTable = next(content_iter)
+        self.assertIsInstance(assumptions, MarkdownTable)
+        self.assertTrue(assumptions.hasHeader(["ID", "Name", "Security Claim", "Comment"]))
+        self.assertEqual(assumptions.getRowCount(), 2)
+        self.assertEqual(assumptions.getRow(1), ["Ast-2", "jkl", "mno", "pqr"])
+
+        controls_section: MarkdownSection = next(content_iter)
+        damage_scenarios_section: MarkdownSection = next(content_iter)
+        assets_section: MarkdownSection = next(content_iter)
+
         threat_scenarios_section: MarkdownSection = next(content_iter)
         self.assertIsInstance(threat_scenarios_section, MarkdownSection)
         self.assertEqual(threat_scenarios_section.level, 1)
@@ -294,3 +313,5 @@ class TestTaraReportGenerator(unittest.TestCase):
         resolved_tree_a2_man: MarkdownTable = next(content_iter)
         self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
         self.assertEqual(resolved_tree_a2_man.getRowCount(), 2)
+
+        appendix_section = next(content_iter)

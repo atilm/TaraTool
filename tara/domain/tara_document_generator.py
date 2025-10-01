@@ -19,6 +19,14 @@ class TaraDocumentGenerator:
 
         document_builder = MarkdownDocumentBuilder() \
             .withSection("Threat Analysis And Risk Assessment (TARA) Report", title_level) \
+            .withSection("Table of Contents", h1) \
+            .withParagraph(self._build_toc_lines()) \
+            .withSection("TOE Description and Scope", h1) \
+            .withSection("Assumptions", h1) \
+            .withTable(self._build_assumptions_table(tara)) \
+            .withSection("Security Controls", h1) \
+            .withSection("Damage Scenarios", h1) \
+            .withSection("Assets", h1) \
             .withSection("Threat Scenarios", h1) \
             .withTable(self._build_threat_scenario_table(tara)) \
             .withSection("Attack Trees", h1)
@@ -28,7 +36,31 @@ class TaraDocumentGenerator:
                 .withSection(attack_tree.id, h2) \
                 .withTable(self._build_resolved_attack_tree_table(attack_tree))
 
+        document_builder.withSection("Appendix", h1)
+
         return document_builder.build()
+
+    def _build_toc_lines(self) -> list[str]:
+        lines = [
+            "- [TOE Description and Scope](#toe-description-and-scope)",
+            "- [Assumptions](#assumptions)",
+            "- [Security Controls](#security-controls)",
+            "- [Damage Scenarios](#damage-scenarios)",
+            "- [Assets](#assets)",
+            "- [Threat Scenarios](#threat-scenarios)",
+            "- [Attack Trees](#attack-trees)",
+            "- [Appendix](#appendix)"
+        ]
+        return lines
+
+    def _build_assumptions_table(self, tara: Tara) -> MarkdownTable:
+        builder = MarkdownTableBuilder() \
+            .withHeader("ID", "Name", "Security Claim", "Comment")
+        
+        for assumption in tara.assumptions:
+            builder.withRow(assumption.id, assumption.name, assumption.security_claim, assumption.comment)
+
+        return builder.build()
 
     def _build_resolved_attack_tree_table(self, attack_tree: AttackTree) -> MarkdownTable:
         resolved_tree = attack_tree.get_resolved_tree()

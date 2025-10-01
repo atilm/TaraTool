@@ -6,8 +6,39 @@
 
 ## Next
 
-* [x] Test for calculation of uncontrolled risks including all node types
-* [x] Restore performance (less frequent cache invalidation)
+
+* [ ] Target Report Structure
+  * [x] Table of Contents
+  * [ ] TOE description and Scope
+  * [x] Assumptions and Claims with evidence
+  * [ ] Security Controls (activity, IGNORE links to assumption)
+  * [ ] Damage Scenarios
+  * [ ] Assets with security properties and related damages
+  * [ ] Threat-Scenarios (id | asset, security property, damage scenario, applied controls, attack tree | initial risk | residual risk)
+  * [ ] Evaluation
+    * [ ] Attack trees (with new structure)
+    * [ ] Technical Attack Trees
+    * [ ] Circumvent Trees
+  * [ ] Appendix
+    * [ ] Security Control Specifications
+
+
+* [ ] Generate a Latex Report
+  * [ ] Add latex to pdf to Docker-Container
+  * [ ] New cli verb generate-pdf
+  * [ ] Generate pdf
+    * [ ] Structure of all headings and TOC
+    * [ ] Hardcode Texts
+    * [ ] Generate the tabular content from the tara
+    * [ ] Find a solution to include system description and control specifications
+      * [ ] Either: do it yourself
+        * [ ] Parse Paragraphs (and lines) into Markdown Document
+        * [ ] Parse Links into Markdown Document
+        * [ ] Parse multi-level lists into Markdown Document
+        * [ ] Parse System and Context description into Latex
+      * [ ] Or: use existing tools
+        * [ ] find existing tool which converts markdown file to part of latex
+        * [ ] or include handmade latex files for system-description and control-descriptions into latex-document \include{...}
 
 * [ ] Find a possibility to persistently document the handling of remaining risks
   * [ ] Output threat scenario in separate file

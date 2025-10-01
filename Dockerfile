@@ -1,4 +1,20 @@
 FROM python:3.11-slim
+
+# Install Tex Live
+RUN apt-get update && apt-get -y upgrade \
+    && apt-get -y install --no-install-recommends \
+    texlive-latex-base \
+    texlive-extra-utils \
+    texlive-latex-extra
+
+# Clean up
+RUN apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+ENV DEBIAN_FRONTEND=dialog \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
 # Add user 'tara' with UID/GID 1000:1000
 RUN addgroup --gid 1000 tara && \
     adduser --disabled-password --gecos "" --uid 1000 --gid 1000 tara
