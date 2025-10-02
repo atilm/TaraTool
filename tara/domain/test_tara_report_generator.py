@@ -276,10 +276,10 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(resolved_tree_a1_block.getRowCount(), 4)
 
         self.assertTrue(resolved_tree_a1_block.hasHeader(["Attack Tree", "Node", "Feasibility"]))
-        self.assertEqual(resolved_tree_a1_block.getRow(0), ["OR", "Blocking of Asset 1<br><br>ET: 6m (4), EX: E (6), Kn: R (3), WoO: M (4), Eq: SP (4)<br><br>Reasoning:<br><br>Reasoning 0", "(21) Low"])
-        self.assertEqual(resolved_tree_a1_block.getRow(1), ["-- AND", "**Controlled:** Threat 1<br><br>ET: 6m (4), EX: E (6), Kn: R (3), WoO: M (4), Eq: SP (4)", "(21) Low"])
-        self.assertEqual(resolved_tree_a1_block.getRow(2), ["-- -- LEAF", "Threat 1<br><br>ET: 6m (4), EX: P (3), Kn: R (3), WoO: M (4), Eq: ST (0)<br><br>Reasoning:<br><br>Reasoning 1", "(14) Medium"])
-        self.assertEqual(resolved_tree_a1_block.getRow(3), ["-- -- CIRC", "[CIRC_C-1 Circumvent Control 1](#circ_c-1)<br><br>ET: 1m (1), EX: E (6), Kn: R (3), WoO: E (1), Eq: SP (4)", "(15) Medium"])
+        self.assertEqual(resolved_tree_a1_block.getRow(0), ["OR", "Blocking of Asset 1<br><br>ET: 6m (4), Ex: E (6), Kn: R (3), WoO: M (4), Eq: SP (4)<br><br>**Reasoning:**<br>Reasoning 0", "(21) Low"])
+        self.assertEqual(resolved_tree_a1_block.getRow(1), ["-- AND", "**Controlled:** Threat 1<br><br>ET: 6m (4), Ex: E (6), Kn: R (3), WoO: M (4), Eq: SP (4)", "(21) Low"])
+        self.assertEqual(resolved_tree_a1_block.getRow(2), ["-- -- LEAF", "Threat 1<br><br>ET: 6m (4), Ex: P (3), Kn: R (3), WoO: M (4), Eq: ST (0)<br><br>**Reasoning:**<br>Reasoning 1", "(14) Medium"])
+        self.assertEqual(resolved_tree_a1_block.getRow(3), ["-- -- CIRC", "[CIRC_C-1 Circumvent Control 1](#circ_c-1)<br><br>ET: 1m (1), Ex: E (6), Kn: R (3), WoO: E (1), Eq: SP (4)", "(15) Medium"])
 
         attack_trees_section: MarkdownSection = next(content_iter)
         self.assertEqual(attack_trees_section.level, 2)
@@ -288,8 +288,8 @@ class TestTaraReportGenerator(unittest.TestCase):
         resolved_tree_a1_man: MarkdownTable = next(content_iter)
         self.assertIsInstance(resolved_tree_a1_man, MarkdownTable)
         self.assertEqual(resolved_tree_a1_man.getRowCount(), 2)
-        self.assertEqual(resolved_tree_a1_man.getRow(0), ["OR", "Manipulation of Asset 1<br><br>ET: 6m (4), EX: P (3), Kn: R (3), WoO: M (4), Eq: ST (0)<br><br>Reasoning:<br><br>Reasoning 0", "(14) Medium"])
-        self.assertEqual(resolved_tree_a1_man.getRow(1), ["-- REF", "[TAT_TREE Threat 1](#tat_tree)<br><br>ET: 6m (4), EX: P (3), Kn: R (3), WoO: M (4), Eq: ST (0)<br><br>Reasoning:<br><br>Reasoning 1", "(14) Medium"])
+        self.assertEqual(resolved_tree_a1_man.getRow(0), ["OR", "Manipulation of Asset 1<br><br>ET: 6m (4), Ex: P (3), Kn: R (3), WoO: M (4), Eq: ST (0)<br><br>**Reasoning:**<br>Reasoning 0", "(14) Medium"])
+        self.assertEqual(resolved_tree_a1_man.getRow(1), ["-- REF", "[TAT_TREE Threat 1](#tat_tree)<br><br>ET: 6m (4), Ex: P (3), Kn: R (3), WoO: M (4), Eq: ST (0)<br><br>**Reasoning:**<br>Reasoning 1", "(14) Medium"])
 
         attack_trees_section: MarkdownSection = next(content_iter)
         self.assertEqual(attack_trees_section.level, 2)

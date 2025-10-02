@@ -88,8 +88,8 @@ class TaraDocumentGenerator:
                 return "Unknown"
             return f"{to_string_func(security_property)} ({security_property.value})"
 
-        description = f"{description}<br><br>ET: {build_rating_string(node.feasibility.time, elapsed_time_to_string)}, EX: {build_rating_string(node.feasibility.expertise, expertise_to_string)}, Kn: {build_rating_string(node.feasibility.knowledge, knowledge_to_string)}, WoO: {build_rating_string(node.feasibility.window_of_opportunity, window_of_opportunity_to_string)}, Eq: {build_rating_string(node.feasibility.equipment, equipment_to_string)}"
-        description += f"<br><br>Reasoning:<br><br>{node.reasoning}" if node.reasoning else ""
+        description = f"{description}<br><br>ET: {build_rating_string(node.feasibility.time, elapsed_time_to_string)}, Ex: {build_rating_string(node.feasibility.expertise, expertise_to_string)}, Kn: {build_rating_string(node.feasibility.knowledge, knowledge_to_string)}, WoO: {build_rating_string(node.feasibility.window_of_opportunity, window_of_opportunity_to_string)}, Eq: {build_rating_string(node.feasibility.equipment, equipment_to_string)}"
+        description += f"<br><br>**Reasoning:**<br>{node.reasoning}" if node.reasoning else ""
 
         builder.withRow(
             indent_str,
