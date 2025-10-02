@@ -112,7 +112,7 @@ class AttackTreeNode:
         else:
             # insert an AND node which combines the unmitigated original node and its circumvent trees
             and_node = AttackTreeResolvedNode()
-            and_node.name = f"Controlled {self.name}"
+            and_node.name = f"**Controlled:** {self.name}"
             and_node.type = "AND"
             and_node.feasibility = self.get_feasibility()
             and_node.security_control_ids = control_ids

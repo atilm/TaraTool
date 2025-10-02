@@ -66,7 +66,7 @@ class TaraDocumentGenerator:
         resolved_tree = attack_tree.get_resolved_tree()
 
         builder = MarkdownTableBuilder() \
-            .withHeader("Attack Tree", "Node", "ET", "Ex", "Kn", "WoO", "Eq", "Feasibility", "Reasoning", "Control", "Comment")
+            .withHeader("Attack Tree", "Node", "Feasibility")
 
         self._add_attack_tree_node_to_table_recursive(builder, resolved_tree.root_node, 0)
 
@@ -76,10 +76,10 @@ class TaraDocumentGenerator:
         """
         Recursively adds nodes of the attack tree to the table builder.
         """
-        indent_str = f"{recursion_level * '--'} " if recursion_level > 0 else ""
+        indent_str = f"{recursion_level * '-- '}{node.type}"
         security_controls_str = " ".join(node.security_control_ids) if node.security_control_ids else ""
 
-        name = f"[{node.name}](#{node.referenced_node_id.lower()})" if node.type in ["CIRC", "REF"] else node.name
+        description = f"[{node.referenced_node_id} {node.name}](#{node.referenced_node_id.lower()})" if node.type in ["CIRC", "REF"] else node.name
 
         feasibility_str = f"({node.feasibility.calculate_feasibility_score()}) {node.feasibility.calculate_feasibility_level().name}"
 
@@ -88,18 +88,13 @@ class TaraDocumentGenerator:
                 return "Unknown"
             return f"{to_string_func(security_property)} ({security_property.value})"
 
+        description = f"{description}<br><br>ET: {build_rating_string(node.feasibility.time, elapsed_time_to_string)}, EX: {build_rating_string(node.feasibility.expertise, expertise_to_string)}, Kn: {build_rating_string(node.feasibility.knowledge, knowledge_to_string)}, WoO: {build_rating_string(node.feasibility.window_of_opportunity, window_of_opportunity_to_string)}, Eq: {build_rating_string(node.feasibility.equipment, equipment_to_string)}"
+        description += f"<br><br>Reasoning:<br><br>{node.reasoning}" if node.reasoning else ""
+
         builder.withRow(
-            indent_str + name,
-            node.type,
-            build_rating_string(node.feasibility.time, elapsed_time_to_string),
-            build_rating_string(node.feasibility.expertise, expertise_to_string),
-            build_rating_string(node.feasibility.knowledge, knowledge_to_string),
-            build_rating_string(node.feasibility.window_of_opportunity, window_of_opportunity_to_string),
-            build_rating_string(node.feasibility.equipment, equipment_to_string),
+            indent_str,
+            description,
             feasibility_str,
-            node.reasoning,
-            security_controls_str,
-            node.comment
         )
 
         for child in node.children:

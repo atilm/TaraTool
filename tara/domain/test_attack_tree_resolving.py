@@ -121,7 +121,7 @@ class TestCase(unittest.TestCase):
 
         # There is an AND node inserted into the tree
         self.assertEqual(resolved_tree.root_node.type, "AND")
-        self.assertEqual(resolved_tree.root_node.name, "Controlled Root Threat")
+        self.assertEqual(resolved_tree.root_node.name, "**Controlled:** Root Threat")
         self.assertEqual(resolved_tree.root_node.feasibility, tree.get_feasibility())
         self.assertEqual(len(resolved_tree.root_node.children), 3)
         self.assertEqual(resolved_tree.root_node.children[0].name, "Root Threat")
@@ -174,7 +174,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(len(resolved_tree.root_node.children), 1)
         controlled_node = resolved_tree.root_node.children[0]
         self.assertIsInstance(controlled_node, AttackTreeResolvedNode)
-        self.assertEqual(controlled_node.name, "Controlled Technical Tree")
+        self.assertEqual(controlled_node.name, "**Controlled:** Technical Tree")
         self.assertEqual(controlled_node.type, "AND")
         self.assertEqual(len(controlled_node.children), 2)
         ref_node = controlled_node.children[0]
