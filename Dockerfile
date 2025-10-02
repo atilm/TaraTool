@@ -7,6 +7,10 @@ RUN apt-get update && apt-get -y upgrade \
     texlive-extra-utils \
     texlive-latex-extra
 
+# Install Pandoc
+RUN apt-get -y install --no-install-recommends \
+    pandoc
+
 # Clean up
 RUN apt-get autoremove -y \
     && apt-get clean -y \
