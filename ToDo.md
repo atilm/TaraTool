@@ -2,10 +2,10 @@
 
 ## Refactoring
 
+* [ ] Remove Threat Scenario Document Generator
 * [ ] Remove duplication of header contents
 
 ## Next
-
 
 * [ ] Target Report Structure
   * [x] Table of Contents
@@ -14,9 +14,9 @@
   * [ ] Security Controls (activity, IGNORE links to assumption)
   * [ ] Damage Scenarios
   * [ ] Assets with security properties and related damages
-  * [ ] Threat-Scenarios (id | asset, security property, damage scenario, applied controls, attack tree | initial risk | residual risk)
+  * [.] Threat-Scenarios (id | description, asset, security property, damage scenario, applied controls, attack tree | initial risk | residual risk)
   * [ ] Evaluation
-    * [ ] Attack trees (with new structure)
+    * [x] Attack trees (with new structure)
     * [ ] Technical Attack Trees
     * [ ] Circumvent Trees
   * [ ] Appendix

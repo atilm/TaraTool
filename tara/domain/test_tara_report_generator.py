@@ -174,7 +174,7 @@ class TestTaraReportGenerator(unittest.TestCase):
                                                       "Litigation caused by extraction of Asset 2", 
                                                       "Major", "Medium", "", "Medium", "[Medium](#at_a-2_ext)"])
 
-    def test_a_report_for_a_tara_without_controls_can_be_generated(self):
+    def test_a_report_for_a_tara_can_be_generated(self):
         # Arrange
         t = TestCase()
         tara = t.parser.parse(t.directory)
@@ -229,21 +229,37 @@ class TestTaraReportGenerator(unittest.TestCase):
         
         threat_scenarios: MarkdownTable = next(content_iter)
         self.assertIsInstance(threat_scenarios, MarkdownTable)
-        self.assertTrue(threat_scenarios.hasHeader(["ID", "Threat Scenario", "Impact", "Feasibility", "Risk"]))
+        self.assertTrue(threat_scenarios.hasHeader(["ID", "Threat Scenario", "Initial Risk", "Residual Risk"]))
         self.assertEqual(threat_scenarios.getRowCount(), 4)
 
-        self.assertEqual(threat_scenarios.getRow(0), ["TS-1", 
-                                                      "Electrocuted person caused by blocking of Asset 1", 
-                                                      "Severe", "[Low](#at_a-1_block)", "Medium"])
-        self.assertEqual(threat_scenarios.getRow(1), ["TS-2", 
-                                                      "Litigation caused by manipulation of Asset 1", 
-                                                      "Major", "[Medium](#at_a-1_man)", "Medium"])
+        self.assertEqual(threat_scenarios.getRow(0), ["TS-1",
+                                                      "Electrocuted person caused by blocking of Asset 1<br><br>"
+                                                      "**Asset:** A-1<br>"
+                                                      "**Damage Scenario:** DS-1 (Severe)<br>"
+                                                      "**Applied Controls:** n.a.<br>"
+                                                      "**Attack Tree:** [AT_A-1_BLOCK](#at_a-1_block) (Low)<br>", 
+                                                      "High", "Medium"])
+        self.assertEqual(threat_scenarios.getRow(1), ["TS-2",
+                                                      "Litigation caused by manipulation of Asset 1<br><br>"
+                                                      "**Asset:** A-1<br>"
+                                                      "**Damage Scenario:** DS-2 (Major)<br>"
+                                                      "**Applied Controls:** n.a.<br>"
+                                                      "**Attack Tree:** [AT_A-1_MAN](#at_a-1_man) (Medium)<br>",
+                                                      "Medium", "Medium"])
         self.assertEqual(threat_scenarios.getRow(2), ["TS-3", 
-                                                      "Litigation caused by manipulation of Asset 2", 
-                                                      "Major", "[VeryLow](#at_a-2_man)", "VeryLow"])
+                                                      "Litigation caused by manipulation of Asset 2<br><br>"
+                                                      "**Asset:** A-2<br>"
+                                                      "**Damage Scenario:** DS-2 (Major)<br>"
+                                                      "**Applied Controls:** n.a.<br>"
+                                                      "**Attack Tree:** [AT_A-2_MAN](#at_a-2_man) (VeryLow)<br>", 
+                                                      "Medium", "VeryLow"])
         self.assertEqual(threat_scenarios.getRow(3), ["TS-4", 
-                                                      "Litigation caused by extraction of Asset 2", 
-                                                      "Major", "[Medium](#at_a-2_ext)", "Medium"])
+                                                      "Litigation caused by extraction of Asset 2<br><br>"
+                                                      "**Asset:** A-2<br>"
+                                                      "**Damage Scenario:** DS-2 (Major)<br>"
+                                                      "**Applied Controls:** n.a.<br>"
+                                                      "**Attack Tree:** [AT_A-2_EXT](#at_a-2_ext) (Medium)<br>",
+                                                      "Medium", "Medium"])
         
         # Resolved attack trees section
         
@@ -276,7 +292,12 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(resolved_tree_a1_block.getRowCount(), 4)
 
         self.assertTrue(resolved_tree_a1_block.hasHeader(["Attack Tree", "Node", "Feasibility"]))
-        self.assertEqual(resolved_tree_a1_block.getRow(0), ["OR", "Blocking of Asset 1<br><br>ET: 6m (4), Ex: E (6), Kn: R (3), WoO: M (4), Eq: SP (4)<br><br>**Reasoning:**<br>Reasoning 0", "(21) Low"])
+        self.assertEqual(resolved_tree_a1_block.getRow(0), ["OR",
+                                                            "Blocking of Asset 1<br><br>"
+                                                            "ET: 6m (4), Ex: E (6), Kn: R (3), WoO: M (4), Eq: SP (4)<br><br>"
+                                                            "**Reasoning:**<br>"
+                                                            "Reasoning 0",
+                                                            "(21) Low"])
         self.assertEqual(resolved_tree_a1_block.getRow(1), ["-- AND", "**Controlled:** Threat 1<br><br>ET: 6m (4), Ex: E (6), Kn: R (3), WoO: M (4), Eq: SP (4)", "(21) Low"])
         self.assertEqual(resolved_tree_a1_block.getRow(2), ["-- -- LEAF", "Threat 1<br><br>ET: 6m (4), Ex: P (3), Kn: R (3), WoO: M (4), Eq: ST (0)<br><br>**Reasoning:**<br>Reasoning 1", "(14) Medium"])
         self.assertEqual(resolved_tree_a1_block.getRow(3), ["-- -- CIRC", "[CIRC_C-1 Circumvent Control 1](#circ_c-1)<br><br>ET: 1m (1), Ex: E (6), Kn: R (3), WoO: E (1), Eq: SP (4)", "(15) Medium"])
