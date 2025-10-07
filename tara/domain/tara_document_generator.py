@@ -37,18 +37,26 @@ class TaraDocumentGenerator:
             .withSection("Assets", h1) \
             .withTable(self._build_assets_table(tara)) \
             .withSection("Threat Scenarios", h1) \
-            .withTable(self._build_threat_scenario_table(tara)) \
-            .withSection("Attack Trees", h1)
+            .withTable(self._build_threat_scenario_table(tara))
+        
+        # Ouptut attack trees
+        self._build_attack_tree_section("Attack Trees", \
+                                        lambda attack_tree: not (attack_tree.id.startswith('CIRC') or attack_tree.id.startswith('TAT')), \
+                                        document_builder, tara)
 
-        for attack_tree in tara.attack_trees:
-            document_builder = document_builder \
-                .withSection(attack_tree.id, h2) \
-                .withTable(self._build_resolved_attack_tree_table(attack_tree))
+        # Output technical attack trees
+        self._build_attack_tree_section("Technical Attack Trees", \
+                                        lambda attack_tree: attack_tree.id.startswith('TAT'), \
+                                        document_builder, tara)
+            
+        # Output circumvent trees
+        self._build_attack_tree_section("Circumvent Trees", \
+                                        lambda attack_tree: attack_tree.id.startswith('CIRC'), \
+                                        document_builder, tara)
 
         document_builder.withSection("Appendix", h1)
 
         return document_builder.build()
-
 
     def _build_toc_lines(self) -> list[str]:
         lines = [
@@ -113,6 +121,17 @@ class TaraDocumentGenerator:
             builder.withRow(asset.id, description)
         return builder.build()
     
+    def _build_attack_tree_section(self, heading: str, predicate, document_builder: MarkdownDocumentBuilder , tara: Tara) -> None:
+        document_builder.withSection(heading, 1)
+        circumvent_trees = sorted(
+            [at for at in tara.attack_trees if predicate(at)],
+            key=lambda at: at.id
+        )
+        for attack_tree in circumvent_trees:
+            document_builder = document_builder \
+                .withSection(attack_tree.id, 2) \
+                .withTable(self._build_resolved_attack_tree_table(attack_tree))
+
     def _build_resolved_attack_tree_table(self, attack_tree: AttackTree) -> MarkdownTable:
         resolved_tree = attack_tree.get_resolved_tree()
 

@@ -324,22 +324,6 @@ class TestTaraReportGenerator(unittest.TestCase):
 
         attack_trees_section: MarkdownSection = next(content_iter)
         self.assertEqual(attack_trees_section.level, 2)
-        self.assertEqual(attack_trees_section.title, "CIRC_C-1")
-        
-        resolved_tree_a2_man: MarkdownTable = next(content_iter)
-        self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
-        self.assertEqual(resolved_tree_a2_man.getRowCount(), 2)
-
-        attack_trees_section: MarkdownSection = next(content_iter)
-        self.assertEqual(attack_trees_section.level, 2)
-        self.assertEqual(attack_trees_section.title, "CIRC_C-2")
-        
-        resolved_tree_a2_man: MarkdownTable = next(content_iter)
-        self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
-        self.assertEqual(resolved_tree_a2_man.getRowCount(), 2)
-
-        attack_trees_section: MarkdownSection = next(content_iter)
-        self.assertEqual(attack_trees_section.level, 2)
         self.assertEqual(attack_trees_section.title, "AT_A-1_BLOCK")
 
         resolved_tree_a1_block: MarkdownTable = next(content_iter)
@@ -369,26 +353,50 @@ class TestTaraReportGenerator(unittest.TestCase):
 
         attack_trees_section: MarkdownSection = next(content_iter)
         self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "AT_A-2_EXT")
+        
+        resolved_tree_a2_ext: MarkdownTable = next(content_iter)
+        self.assertIsInstance(resolved_tree_a2_ext, MarkdownTable)
+        self.assertEqual(resolved_tree_a2_ext.getRowCount(), 2)
+
+        attack_trees_section: MarkdownSection = next(content_iter)
+        self.assertEqual(attack_trees_section.level, 2)
         self.assertEqual(attack_trees_section.title, "AT_A-2_MAN")
         
         resolved_tree_a2_man: MarkdownTable = next(content_iter)
         self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
         self.assertEqual(resolved_tree_a2_man.getRowCount(), 5)
 
-        attack_trees_section: MarkdownSection = next(content_iter)
-        self.assertEqual(attack_trees_section.level, 2)
-        self.assertEqual(attack_trees_section.title, "AT_A-2_EXT")
-        
-        resolved_tree_a2_man: MarkdownTable = next(content_iter)
-        self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
-        self.assertEqual(resolved_tree_a2_man.getRowCount(), 2)
+        technical_trees_section: MarkdownSection = next(content_iter)
+        self.assertEqual(technical_trees_section.level, 1)
+        self.assertEqual(technical_trees_section.title, "Technical Attack Trees")
 
         attack_trees_section: MarkdownSection = next(content_iter)
         self.assertEqual(attack_trees_section.level, 2)
         self.assertEqual(attack_trees_section.title, "TAT_TREE")
         
-        resolved_tree_a2_man: MarkdownTable = next(content_iter)
-        self.assertIsInstance(resolved_tree_a2_man, MarkdownTable)
-        self.assertEqual(resolved_tree_a2_man.getRowCount(), 2)
+        technical_tree: MarkdownTable = next(content_iter)
+        self.assertIsInstance(technical_tree, MarkdownTable)
+        self.assertEqual(technical_tree.getRowCount(), 2)
+
+        circumvent_trees_section: MarkdownSection = next(content_iter)
+        self.assertEqual(circumvent_trees_section.level, 1)
+        self.assertEqual(circumvent_trees_section.title, "Circumvent Trees")
+
+        attack_trees_section: MarkdownSection = next(content_iter)
+        self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "CIRC_C-1")
+        
+        circ_c1: MarkdownTable = next(content_iter)
+        self.assertIsInstance(circ_c1, MarkdownTable)
+        self.assertEqual(circ_c1.getRowCount(), 2)
+
+        attack_trees_section: MarkdownSection = next(content_iter)
+        self.assertEqual(attack_trees_section.level, 2)
+        self.assertEqual(attack_trees_section.title, "CIRC_C-2")
+        
+        cric_c2: MarkdownTable = next(content_iter)
+        self.assertIsInstance(cric_c2, MarkdownTable)
+        self.assertEqual(cric_c2.getRowCount(), 2)
 
         appendix_section = next(content_iter)
