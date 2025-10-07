@@ -44,6 +44,7 @@ class TestCase:
 | --- | --------- | ------------- | ------ |
 | C-1 | Control 1 | Goal-1        | x      |
 | C-2 | Control 2 | Goal-1        | x      |
+| C-3 | Control 3 |               |        |
 """)
         
         # self.mock_reader.setup_file(os.path.join(self.directory, "AttackTrees", "k.md"),
@@ -219,6 +220,15 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(assumptions.getRow(1), ["Ast-2", "jkl", "mno", "pqr"])
 
         controls_section: MarkdownSection = next(content_iter)
+
+        controls: MarkdownTable = next(content_iter)
+        self.assertIsInstance(controls, MarkdownTable)
+        self.assertTrue(controls.hasHeader(["ID", "Name", "Active"]))
+        self.assertEqual(controls.getRowCount(), 3)
+        self.assertEqual(controls.getRow(0), ["C-1", "Control 1", "x"])
+        self.assertEqual(controls.getRow(1), ["C-2", "Control 2", "x"])
+        self.assertEqual(controls.getRow(2), ["C-3", "Control 3", " "])
+
         damage_scenarios_section: MarkdownSection = next(content_iter)
         assets_section: MarkdownSection = next(content_iter)
 

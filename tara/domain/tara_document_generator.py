@@ -30,6 +30,7 @@ class TaraDocumentGenerator:
             .withSection("Assumptions", h1) \
             .withTable(self._build_assumptions_table(tara)) \
             .withSection("Security Controls", h1) \
+            .withTable(self._build_controls_table(tara)) \
             .withSection("Damage Scenarios", h1) \
             .withSection("Assets", h1) \
             .withSection("Threat Scenarios", h1) \
@@ -64,6 +65,16 @@ class TaraDocumentGenerator:
         
         for assumption in tara.assumptions:
             builder.withRow(assumption.id, assumption.name, assumption.security_claim, assumption.comment)
+
+        return builder.build()
+
+    def _build_controls_table(self, tara: Tara) -> MarkdownTable:
+        builder = MarkdownTableBuilder() \
+            .withHeader("ID", "Name", "Active")
+
+        for control in tara.security_controls:
+            active_str = "x" if control.is_active else " "
+            builder.withRow(control.id, control.name, active_str)
 
         return builder.build()
 
@@ -148,7 +159,7 @@ class TaraDocumentGenerator:
                     threat_scenario = f"{damage_scenario_name} caused by {attack_description} of {asset.name}<br><br>"
                     threat_scenario += f"**Asset:** {asset.id}<br>"
                     threat_scenario += f"**Damage Scenario:** {ds_id} ({impact_name})<br>"
-                    threat_scenario += f"**Applied Controls:** {' '.join(residual_feasibility.applied_controls) if len(residual_feasibility.applied_controls) > 0 else "none"}<br>"
+                    threat_scenario += f"**Applied Controls:** {self._applied_controls_str(residual_feasibility)}<br>"
                     threat_scenario += f"**Attack Tree:** [{at_id}](#{at_id.lower()}) ({residual_feasibility_level.name})<br>"
 
                     builder.withRow(f"TS-{i}", threat_scenario, initial_risk.name, residual_risk.name)
@@ -156,6 +167,12 @@ class TaraDocumentGenerator:
 
         return builder.build()
     
+    def _applied_controls_str(self, feasibility: Feasibility) -> str:
+        if len(feasibility.applied_controls) == 0:
+            return "none"
+        sorted_controls = sorted(feasibility.applied_controls)
+        return ' '.join(sorted_controls)
+
     def _calculate_feasibilities(self, tara: Tara, without_controls: bool, feasibilities: dict) -> None:
         for t in tara.attack_trees:
             t.invalidate_cache()
