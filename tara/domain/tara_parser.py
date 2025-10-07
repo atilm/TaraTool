@@ -29,6 +29,9 @@ class TaraParser:
         """
 
         tara = Tara()
+
+        tara.toe_description = self.read_file(FileType.DESCRIPTION, directory)
+
         assumptions_table = self.read_table(FileType.ASSUMPTIONS, directory)
         tara.assumptions = self.extract_assumptions(assumptions_table)
 
@@ -205,10 +208,8 @@ class TaraParser:
         The method reads the file, finds the table and parses it.
         """
 
-        if file_name is None:
-            file_name = FileType.to_path(file_type)
+        content = self.read_file(file_type, directory, file_name)
 
-        content = self.file_reader.read_file(os.path.join(directory, file_name))
         parser = MarkdownParser()
         document: MarkdownDocument = parser.parse(content)
 
@@ -218,6 +219,20 @@ class TaraParser:
 
         self.logger.log_error(f"{file_type} table not found in the document.")
         return None
+
+    def read_file(self, file_type: FileType, directory: str, file_name: str = None) -> str:
+        """
+        Reads the content of a file specified by its type and directory.
+        
+        :param file_type: The type of the file to read.
+        :param directory: The directory containing the file.
+        :param file_name: Optional specific file name. If not provided, it is derived from the file type.
+        :return: The content of the file as a string.
+        """
+        if file_name is None:
+            file_name = FileType.to_path(file_type)
+
+        return self.file_reader.read_file(os.path.join(directory, file_name))
 
     def extract_assumptions(self, table: MarkdownTable) -> list[Assumption]:
         """

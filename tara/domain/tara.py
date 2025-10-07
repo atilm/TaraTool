@@ -6,6 +6,7 @@ from tara.domain.security_control import SecurityControl
 
 class Tara:
     def __init__(self):
+        self.toe_description: str = ""
         self.assumptions: list[Assumption] = []
         self.assets: list[Asset] = []
         self.damage_scenarios: list[DamageScenario] = []

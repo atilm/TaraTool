@@ -61,9 +61,9 @@ def generate():
         print("Errors found tara generation.")
         sys.exit(1)
 
-    with open("06_ThreatScenarios.md", 'w') as f:
-        writer = MarkdownWriter()
-        f.write(writer.write(threat_scenarios_document))
+    # with open("06_ThreatScenarios.md", 'w') as f:
+    #     writer = MarkdownWriter()
+    #     f.write(writer.write(threat_scenarios_document))
 
     with open("tara_report.md", 'w') as f:
         writer = MarkdownWriter()

@@ -21,13 +21,13 @@ class TaraDocumentGenerator:
     def generate(self, tara: Tara) -> MarkdownDocument:
         title_level = 0
         h1 = 1
-        h2 = 2
 
         document_builder = MarkdownDocumentBuilder() \
             .withSection("Threat Analysis And Risk Assessment (TARA) Report", title_level) \
             .withSection("Table of Contents", h1) \
             .withParagraph(self._build_toc_lines()) \
             .withSection("TOE Description and Scope", h1) \
+            .withParagraph(self._build_toe_description(tara)) \
             .withSection("Assumptions", h1) \
             .withTable(self._build_assumptions_table(tara)) \
             .withSection("Security Controls", h1) \
@@ -70,6 +70,21 @@ class TaraDocumentGenerator:
             "- [Appendix](#appendix)"
         ]
         return lines
+
+    def _build_toe_description(self, tara: Tara) -> list[str]:
+        lines = []
+
+        for line in tara.toe_description.splitlines():
+            # remove the title line
+            if line.startswith("# "):
+                line = ""
+            # demote all other headings by one level
+            elif line.startswith("##"):
+                line = "#" + line
+
+            lines.append(line)
+
+        return ['\n'.join(lines)]
 
     def _build_assumptions_table(self, tara: Tara) -> MarkdownTable:
         builder = MarkdownTableBuilder() \

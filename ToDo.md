@@ -2,6 +2,8 @@
 
 * [ ] Test for non-existing control ids
 
+* [ ] ToDo remove threat_scenario_document_generator
+
 ## Refactoring
 
 * [ ] Remove Threat Scenario Document Generator
@@ -18,10 +20,10 @@
   * [x] Assets with security properties and related damages
   * [x] Threat-Scenarios (id | description, asset, security property, damage scenario, applied controls, attack tree | initial risk | residual risk)
     * [x] List applied controls
-  * [ ] Evaluation
+  * [x] Evaluation
     * [x] Attack trees (with new structure)
-    * [ ] Technical Attack Trees
-    * [ ] Circumvent Trees
+    * [x] Technical Attack Trees
+    * [x] Circumvent Trees
   * [ ] Appendix
     * [ ] Security Control Specifications
 

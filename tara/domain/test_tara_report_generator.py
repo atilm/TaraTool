@@ -13,6 +13,15 @@ class TestCase:
         self.directory = "mock_directory"
         self.logger = MemoryErrorLogger()
         self.mock_reader = MockFileReader()
+        self.mock_reader.setup_file(os.path.join(self.directory, FileType.to_path(FileType.DESCRIPTION)),
+"""# Description and Scope
+
+## Overview
+
+![SystemOverview](SystemDescription.drawio.png)
+
+More Text
+""")
         self.mock_reader.setup_file(os.path.join(self.directory, FileType.to_path(FileType.ASSUMPTIONS)),
 """# Assumptions
 
@@ -190,7 +199,6 @@ class TestTaraReportGenerator(unittest.TestCase):
         # Assert
         self.assertIsInstance(document, MarkdownDocument)
 
-        
         content = document.getContent()
 
         self.assertEqual(t.logger.errors, [])
@@ -210,6 +218,17 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(toc_paragraph.lines[0], "- [TOE Description and Scope](#toe-description-and-scope)")
 
         toe_section: MarkdownSection = next(content_iter)
+        self.assertIsInstance(toe_section, MarkdownSection)
+
+        toe_description: MarkdownParagraph = next(content_iter)
+        self.assertIsInstance(toe_description, MarkdownParagraph)
+        self.assertEqual(toe_description.lines[0], """
+
+### Overview
+
+![SystemOverview](SystemDescription.drawio.png)
+
+More Text""")
         
         assumptions_section: MarkdownSection = next(content_iter)
         
