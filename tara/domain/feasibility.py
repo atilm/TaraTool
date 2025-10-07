@@ -62,6 +62,7 @@ class Feasibility:
         self.knowledge: Knowledge = Knowledge.Public
         self.window_of_opportunity: WindowOfOpportunity = WindowOfOpportunity.Unlimited
         self.equipment: Equipment = Equipment.Standard
+        self.applied_controls = set()  # Set of control IDs that have been applied to achieve this feasibility
         
     def calculate_feasibility_level(self) -> FeasibilityLevel:
         total_score = self.calculate_feasibility_score()
@@ -83,11 +84,13 @@ class Feasibility:
     def or_feasibility(self, other: 'Feasibility') -> 'Feasibility':
         if not isinstance(other, Feasibility):
             raise ValueError("Can only combine with another Feasibility instance")
+
+        feasibility = self.get_deep_copy() \
+                            if self.calculate_feasibility_score() < other.calculate_feasibility_score() \
+                            else other.get_deep_copy()
         
-        if self.calculate_feasibility_score() <= other.calculate_feasibility_score():
-            return self.get_deep_copy()
-        else:
-            return other.get_deep_copy()
+        feasibility.applied_controls = self.applied_controls.union(other.applied_controls)
+        return feasibility
         
     def and_feasibility(self, other: 'Feasibility') -> 'Feasibility':
         if not isinstance(other, Feasibility):
@@ -99,6 +102,7 @@ class Feasibility:
         new_feasibility.knowledge = max(self.knowledge, other.knowledge)
         new_feasibility.window_of_opportunity = max(self.window_of_opportunity, other.window_of_opportunity)
         new_feasibility.equipment = max(self.equipment, other.equipment)
+        new_feasibility.applied_controls = self.applied_controls.union(other.applied_controls)
         
         return new_feasibility
 
@@ -109,6 +113,7 @@ class Feasibility:
         new_feasibility.knowledge = self.knowledge
         new_feasibility.window_of_opportunity = self.window_of_opportunity
         new_feasibility.equipment = self.equipment
+        new_feasibility.applied_controls = set(self.applied_controls)
         return new_feasibility
 
     def __eq__(self, other):
@@ -124,6 +129,8 @@ class Feasibility:
         if self.window_of_opportunity != other.window_of_opportunity:
             return False
         if self.equipment != other.equipment:
+            return False
+        if self.applied_controls != other.applied_controls:
             return False
         
         return True

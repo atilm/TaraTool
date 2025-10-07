@@ -1,5 +1,7 @@
 # To Do
 
+* [ ] Test for non-existing control ids
+
 ## Refactoring
 
 * [ ] Remove Threat Scenario Document Generator
@@ -14,7 +16,8 @@
   * [ ] Security Controls (activity, IGNORE links to assumption)
   * [ ] Damage Scenarios
   * [ ] Assets with security properties and related damages
-  * [.] Threat-Scenarios (id | description, asset, security property, damage scenario, applied controls, attack tree | initial risk | residual risk)
+  * [ ] Threat-Scenarios (id | description, asset, security property, damage scenario, applied controls, attack tree | initial risk | residual risk)
+    * [.] List applied controls
   * [ ] Evaluation
     * [x] Attack trees (with new structure)
     * [ ] Technical Attack Trees

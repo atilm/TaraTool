@@ -214,6 +214,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.knowledge = Knowledge.Restricted
         expected_feasibility.window_of_opportunity = WindowOfOpportunity.Difficult
         expected_feasibility.equipment = Equipment.Specialized
+        expected_feasibility.applied_controls = {"C-1"}
 
         self.assertEqual(feasibility, expected_feasibility)
 
@@ -263,6 +264,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.equipment = Equipment.Specialized
 
         self.assertEqual(feasibility, expected_feasibility)
+        self.assertSetEqual(feasibility.applied_controls, set())
 
     def test_multiple_controls_can_be_combinded(self):
         t = AttackTreeTestCase()
@@ -316,6 +318,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.knowledge = Knowledge.Public
         expected_feasibility.window_of_opportunity = WindowOfOpportunity.Unlimited
         expected_feasibility.equipment = Equipment.MultipleBespoke
+        expected_feasibility.applied_controls = {"C-1", "C-2"}
 
         self.assertEqual(feasibility, expected_feasibility)
 
@@ -365,6 +368,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.knowledge = Knowledge.Public
         expected_feasibility.window_of_opportunity = WindowOfOpportunity.Unlimited
         expected_feasibility.equipment = Equipment.MultipleBespoke
+        expected_feasibility.applied_controls = {"C-1", "C-2"}
 
         self.assertEqual(feasibility, expected_feasibility)
 
@@ -380,7 +384,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
 | Attack Tree                       | Node | ET  | Ex  | Kn  | WoO | Eq  | Reasoning   | Control | Comment   |
 | --------------------------------- | ---- | --- | --- | --- | --- | --- | ----------- | ------- | --------- |
 | Threat 1                          | AND  |     |     |     |     |     |             | C-1     |           |
-| -- Threat 1                       | OR   |     |     |     |     |     |             | C-2     |           |
+| -- Threat 2                       | OR   |     |     |     |     |     |             | C-2     |           |
 | ---- [Technical Tree](./TAT-1.md) | REF  |     |     |     |     |     |             | C-3     |           |
 """
 
@@ -433,6 +437,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.knowledge = Knowledge.Confidential
         expected_feasibility.window_of_opportunity = WindowOfOpportunity.Easy
         expected_feasibility.equipment = Equipment.MultipleBespoke
+        expected_feasibility.applied_controls = {"C-1", "C-2", "C-3"}
 
         self.assertEqual(feasibility, expected_feasibility)
 
@@ -476,6 +481,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility.equipment = Equipment.Specialized
 
         self.assertEqual(feasibility, expected_feasibility)
+        self.assertSetEqual(feasibility.applied_controls, set())
 
     def test_a_feasibility_without_controls_can_be_calculated(self):
         t = AttackTreeTestCase()
@@ -537,6 +543,7 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility_with_controls.knowledge = Knowledge.Confidential
         expected_feasibility_with_controls.window_of_opportunity = WindowOfOpportunity.Difficult
         expected_feasibility_with_controls.equipment = Equipment.MultipleBespoke
+        expected_feasibility_with_controls.applied_controls = {"C-1", "C-2"}
 
         self.assertEqual(feasibility_with_controls, expected_feasibility_with_controls)
 
@@ -549,3 +556,4 @@ class TestFeasibilityForAttackTrees(unittest.TestCase):
         expected_feasibility_without_controls.equipment = Equipment.Standard
 
         self.assertEqual(feasibility_without_controls, expected_feasibility_without_controls)
+        self.assertSetEqual(feasibility_without_controls.applied_controls, set())

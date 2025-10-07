@@ -180,31 +180,36 @@ class TaraParserTests(unittest.TestCase):
                         Expertise.Layman,
                         Knowledge.Public,
                         WindowOfOpportunity.Unlimited,
-                        Equipment.Standard)
+                        Equipment.Standard,
+                        ["C-1"])
         self.assert_feasibility(root_node_0.children[1],
                         ElapsedTime.OneMonth,
                         Expertise.Proficient,
                         Knowledge.Restricted,
                         WindowOfOpportunity.Easy,
-                        Equipment.Specialized)
+                        Equipment.Specialized,
+                        ["C-1"]) # C-2 is inactive
         self.assert_feasibility(root_node_0.children[2],
                         ElapsedTime.SixMonths,
                         Expertise.Expert,
                         Knowledge.Confidential,
                         WindowOfOpportunity.Moderate,
-                        Equipment.Bespoke)
+                        Equipment.Bespoke,
+                        [])
         self.assert_feasibility(root_node_0.children[3],
                         ElapsedTime.ThreeYears,
                         Expertise.MultipleExperts,
                         Knowledge.StrictlyConfidential,
                         WindowOfOpportunity.Difficult,
-                        Equipment.MultipleBespoke)
+                        Equipment.MultipleBespoke,
+                        [])
         self.assert_feasibility(root_node_0.children[4],
                         ElapsedTime.MoreThanThreeYears,
                         Expertise.Layman,
                         Knowledge.Public,
                         WindowOfOpportunity.Unlimited,
-                        Equipment.Standard)
+                        Equipment.Standard,
+                        [])
 
         # assert controls are parsed
         self.assertEqual(len(root_node_0.children[0].security_control_ids), 1)
@@ -233,13 +238,14 @@ class TaraParserTests(unittest.TestCase):
         self.assertFalse(tara.security_controls[1].is_active)
 
 
-    def assert_feasibility(self, node: AttackTreeNode, time, expertise, knowledge, woOpportunity, equipement):
+    def assert_feasibility(self, node: AttackTreeNode, time, expertise, knowledge, woOpportunity, equipement, security_controls_ids = []):
         expected_feasibility = Feasibility()
         expected_feasibility.time = time
         expected_feasibility.expertise = expertise
         expected_feasibility.knowledge = knowledge
         expected_feasibility.window_of_opportunity = woOpportunity
         expected_feasibility.equipment = equipement
+        expected_feasibility.applied_controls = set(security_controls_ids)
         
         self.assertEqual(node.get_feasibility(), expected_feasibility)
 

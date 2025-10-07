@@ -64,8 +64,10 @@ class AttackTreeNode:
             and_node.add_child(self.without_controls())
             for circumvent_tree in active_circumvent_trees:
                 and_node.add_child(circumvent_tree.root_node)
-            
+
             self.cached_feasibility = and_node.get_feasibility(without_controls)
+            self.cached_feasibility.applied_controls = self.cached_feasibility.applied_controls.union(set(self.get_active_control_ids()))
+
             return self.cached_feasibility
 
         self.cached_feasibility = self.get_feasibility_without_controls(without_controls)
