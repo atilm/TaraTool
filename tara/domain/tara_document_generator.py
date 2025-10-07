@@ -148,7 +148,7 @@ class TaraDocumentGenerator:
                     threat_scenario = f"{damage_scenario_name} caused by {attack_description} of {asset.name}<br><br>"
                     threat_scenario += f"**Asset:** {asset.id}<br>"
                     threat_scenario += f"**Damage Scenario:** {ds_id} ({impact_name})<br>"
-                    threat_scenario += f"**Applied Controls:** n.a.<br>"
+                    threat_scenario += f"**Applied Controls:** {' '.join(residual_feasibility.applied_controls) if len(residual_feasibility.applied_controls) > 0 else "none"}<br>"
                     threat_scenario += f"**Attack Tree:** [{at_id}](#{at_id.lower()}) ({residual_feasibility_level.name})<br>"
 
                     builder.withRow(f"TS-{i}", threat_scenario, initial_risk.name, residual_risk.name)

@@ -236,28 +236,28 @@ class TestTaraReportGenerator(unittest.TestCase):
                                                       "Electrocuted person caused by blocking of Asset 1<br><br>"
                                                       "**Asset:** A-1<br>"
                                                       "**Damage Scenario:** DS-1 (Severe)<br>"
-                                                      "**Applied Controls:** n.a.<br>"
+                                                      "**Applied Controls:** C-1<br>"
                                                       "**Attack Tree:** [AT_A-1_BLOCK](#at_a-1_block) (Low)<br>", 
                                                       "High", "Medium"])
         self.assertEqual(threat_scenarios.getRow(1), ["TS-2",
                                                       "Litigation caused by manipulation of Asset 1<br><br>"
                                                       "**Asset:** A-1<br>"
                                                       "**Damage Scenario:** DS-2 (Major)<br>"
-                                                      "**Applied Controls:** n.a.<br>"
+                                                      "**Applied Controls:** none<br>"
                                                       "**Attack Tree:** [AT_A-1_MAN](#at_a-1_man) (Medium)<br>",
                                                       "Medium", "Medium"])
         self.assertEqual(threat_scenarios.getRow(2), ["TS-3", 
                                                       "Litigation caused by manipulation of Asset 2<br><br>"
                                                       "**Asset:** A-2<br>"
                                                       "**Damage Scenario:** DS-2 (Major)<br>"
-                                                      "**Applied Controls:** n.a.<br>"
+                                                      "**Applied Controls:** C-1 C-2<br>"
                                                       "**Attack Tree:** [AT_A-2_MAN](#at_a-2_man) (VeryLow)<br>", 
                                                       "Medium", "VeryLow"])
         self.assertEqual(threat_scenarios.getRow(3), ["TS-4", 
                                                       "Litigation caused by extraction of Asset 2<br><br>"
                                                       "**Asset:** A-2<br>"
                                                       "**Damage Scenario:** DS-2 (Major)<br>"
-                                                      "**Applied Controls:** n.a.<br>"
+                                                      "**Applied Controls:** none<br>"
                                                       "**Attack Tree:** [AT_A-2_EXT](#at_a-2_ext) (Medium)<br>",
                                                       "Medium", "Medium"])
         
