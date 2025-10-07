@@ -11,6 +11,12 @@ class DamageScenario:
                               ImpactCategory.Financial: Impact.Negligible,
                               ImpactCategory.Privacy: Impact.Negligible }
 
+    def get_impact_by_category(self, category: ImpactCategory) -> Impact:
+        """
+        Returns the impact for the specified category.
+        """
+        return self.impacts.get(category, Impact.Negligible)
+
     def get_impact(self) -> Impact:
         """
         Returns the highest impact from all categories.

@@ -13,8 +13,8 @@
   * [x] Table of Contents
   * [ ] TOE description and Scope
   * [x] Assumptions and Claims with evidence
-  * [ ] Security Controls (activity, IGNORE links to assumption)
-  * [ ] Damage Scenarios
+  * [x] Security Controls (activity, IGNORE links to assumption)
+  * [x] Damage Scenarios
   * [ ] Assets with security properties and related damages
   * [x] Threat-Scenarios (id | description, asset, security property, damage scenario, applied controls, attack tree | initial risk | residual risk)
     * [x] List applied controls

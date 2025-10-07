@@ -32,11 +32,12 @@ class TaraDocumentGenerator:
             .withSection("Security Controls", h1) \
             .withTable(self._build_controls_table(tara)) \
             .withSection("Damage Scenarios", h1) \
+            .withTable(self._build_damage_scenarios_table(tara)) \
             .withSection("Assets", h1) \
             .withSection("Threat Scenarios", h1) \
             .withTable(self._build_threat_scenario_table(tara)) \
             .withSection("Attack Trees", h1)
-        
+
         for attack_tree in tara.attack_trees:
             document_builder = document_builder \
                 .withSection(attack_tree.id, h2) \
@@ -45,6 +46,19 @@ class TaraDocumentGenerator:
         document_builder.withSection("Appendix", h1)
 
         return document_builder.build()
+
+    def _build_damage_scenarios_table(self, tara: Tara) -> MarkdownTable:
+        from tara.domain.impacts import ImpactCategory
+        builder = MarkdownTableBuilder().withHeader("ID", "Scenario")
+        for ds in tara.damage_scenarios:
+            scenario = f"{ds.name}<br><br>"
+            scenario += f"**Safety:** {ds.get_impact_by_category(ImpactCategory.Safety).name}<br>"
+            scenario += f"**Operational:** {ds.get_impact_by_category(ImpactCategory.Operational).name}<br>"
+            scenario += f"**Financial:** {ds.get_impact_by_category(ImpactCategory.Financial).name}<br>"
+            scenario += f"**Privacy:** {ds.get_impact_by_category(ImpactCategory.Privacy).name}<br>"
+            scenario += f"**Reasoning:**<br>{ds.reasoning}"
+            builder.withRow(ds.id, scenario)
+        return builder.build()
 
     def _build_toc_lines(self) -> list[str]:
         lines = [

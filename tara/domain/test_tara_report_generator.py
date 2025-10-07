@@ -230,6 +230,29 @@ class TestTaraReportGenerator(unittest.TestCase):
         self.assertEqual(controls.getRow(2), ["C-3", "Control 3", " "])
 
         damage_scenarios_section: MarkdownSection = next(content_iter)
+
+
+        damage_scenarios: MarkdownTable = next(content_iter)
+        self.assertIsInstance(damage_scenarios, MarkdownTable)
+        self.assertTrue(damage_scenarios.hasHeader(["ID", "Scenario"]))
+        self.assertEqual(damage_scenarios.getRowCount(), 2)
+        self.assertEqual(damage_scenarios.getRow(0), ["DS-1",
+                                                      "Electrocuted person<br><br>"
+                                                      "**Safety:** Severe<br>"
+                                                      "**Operational:** Major<br>"
+                                                      "**Financial:** Moderate<br>"
+                                                      "**Privacy:** Negligible<br>"
+                                                      "**Reasoning:**<br>"
+                                                      "Reason 1"])
+        self.assertEqual(damage_scenarios.getRow(1), ["DS-2", 
+                                                      "Litigation<br><br>"
+                                                      "**Safety:** Negligible<br>"
+                                                      "**Operational:** Negligible<br>"
+                                                      "**Financial:** Major<br>"
+                                                      "**Privacy:** Negligible<br>"
+                                                      "**Reasoning:**<br>"
+                                                      "Reason 2"])
+
         assets_section: MarkdownSection = next(content_iter)
 
         threat_scenarios_section: MarkdownSection = next(content_iter)
