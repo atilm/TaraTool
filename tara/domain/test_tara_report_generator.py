@@ -255,6 +255,28 @@ class TestTaraReportGenerator(unittest.TestCase):
 
         assets_section: MarkdownSection = next(content_iter)
 
+        assets: MarkdownTable = next(content_iter)
+        self.assertIsInstance(assets, MarkdownTable)
+        self.assertTrue(assets.hasHeader(["ID", "Asset"]))
+        self.assertEqual(assets.getRowCount(), 2)
+        self.assertEqual(assets.getRow(0), ["A-1",
+                                            "Asset 1<br><br>"
+                                            "Description 1<br><br>"
+                                            "**Availability:** DS-1<br>"
+                                            "**Integrity:** DS-2<br>"
+                                            "**Confidentiality:** none<br>"
+                                            "**Reasoning:**<br>"
+                                            "Reasoning 1"])
+        self.assertEqual(assets.getRow(1), ["A-2",
+                                            "Asset 2<br><br>"
+                                            "Description 2<br><br>"
+                                            "**Availability:** none<br>"
+                                            "**Integrity:** DS-2<br>"
+                                            "**Confidentiality:** DS-2<br>"
+                                            "**Reasoning:**<br>"
+                                            "Reasoning 2"])
+
+
         threat_scenarios_section: MarkdownSection = next(content_iter)
         self.assertIsInstance(threat_scenarios_section, MarkdownSection)
         self.assertEqual(threat_scenarios_section.level, 1)

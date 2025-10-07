@@ -15,7 +15,7 @@
   * [x] Assumptions and Claims with evidence
   * [x] Security Controls (activity, IGNORE links to assumption)
   * [x] Damage Scenarios
-  * [ ] Assets with security properties and related damages
+  * [x] Assets with security properties and related damages
   * [x] Threat-Scenarios (id | description, asset, security property, damage scenario, applied controls, attack tree | initial risk | residual risk)
     * [x] List applied controls
   * [ ] Evaluation
@@ -24,7 +24,6 @@
     * [ ] Circumvent Trees
   * [ ] Appendix
     * [ ] Security Control Specifications
-
 
 * [ ] Generate a Latex Report
   * [ ] Add latex to pdf to Docker-Container
@@ -96,18 +95,18 @@
 * [x] Risk Calculation
 * [.] Create report
   * [ ] Title and Company
-  * [ ] Table of Contents
+  * [x] Table of Contents
   * [ ] Summary: Initial and Final Risk Matrix
   * [ ] System Description inserted
-  * [ ] List of Assumptions -> translated into security claims
-  * [ ] Security Control with Link to Security Goal
-  * [ ] List of Damage Scenarios
-  * [ ] List of Assets with Security Properties (and damage when violated)
-  * [ ] List of Threats, List of Threat Scenarios
-  * [ ] List of Attack Trees. Leafs with detailed description and reasoning
+  * [x] List of Assumptions -> translated into security claims
+  * [x] Security Control with Link to Security Goal
+  * [x] List of Damage Scenarios
+  * [x] List of Assets with Security Properties (and damage when violated)
+  * [x] List of Threats, List of Threat Scenarios
+  * [x] List of Attack Trees. Leafs with detailed description and reasoning
   * [ ] List of Risk Treatments (reduce -> Security Goal, share -> Security Claim, retain -> Security Claim) Threat Scenarios grouped by damage scenario with initial risk, risk treatment, security goals and security claims
-  * [ ] List of Security Claims linked to assumptions (with responsible entities)
-  * [ ] List of Security Goals
+  * [-] List of Security Claims linked to assumptions (with responsible entities)
+  * [-] List of Security Goals
   * [ ] Description of Methodology
 * [ ] Update IDs -> VSCode search / replace?
 * [ ] Simple but non-trivial example document

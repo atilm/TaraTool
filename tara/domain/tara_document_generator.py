@@ -7,6 +7,7 @@ from tara.domain.attack_tree import attack_tree_id, AttackTree, AttackTreeResolv
 from tara.domain.feasibility import Feasibility
 from tara.domain.risk import RiskLevel
 from tara.domain.feasibility_conversion import *
+from tara.domain.security_property import SecurityProperty
 
 class FeasibilityComparision:
     def __init__(self):
@@ -34,6 +35,7 @@ class TaraDocumentGenerator:
             .withSection("Damage Scenarios", h1) \
             .withTable(self._build_damage_scenarios_table(tara)) \
             .withSection("Assets", h1) \
+            .withTable(self._build_assets_table(tara)) \
             .withSection("Threat Scenarios", h1) \
             .withTable(self._build_threat_scenario_table(tara)) \
             .withSection("Attack Trees", h1)
@@ -47,18 +49,6 @@ class TaraDocumentGenerator:
 
         return document_builder.build()
 
-    def _build_damage_scenarios_table(self, tara: Tara) -> MarkdownTable:
-        from tara.domain.impacts import ImpactCategory
-        builder = MarkdownTableBuilder().withHeader("ID", "Scenario")
-        for ds in tara.damage_scenarios:
-            scenario = f"{ds.name}<br><br>"
-            scenario += f"**Safety:** {ds.get_impact_by_category(ImpactCategory.Safety).name}<br>"
-            scenario += f"**Operational:** {ds.get_impact_by_category(ImpactCategory.Operational).name}<br>"
-            scenario += f"**Financial:** {ds.get_impact_by_category(ImpactCategory.Financial).name}<br>"
-            scenario += f"**Privacy:** {ds.get_impact_by_category(ImpactCategory.Privacy).name}<br>"
-            scenario += f"**Reasoning:**<br>{ds.reasoning}"
-            builder.withRow(ds.id, scenario)
-        return builder.build()
 
     def _build_toc_lines(self) -> list[str]:
         lines = [
@@ -92,6 +82,37 @@ class TaraDocumentGenerator:
 
         return builder.build()
 
+    def _build_damage_scenarios_table(self, tara: Tara) -> MarkdownTable:
+        from tara.domain.impacts import ImpactCategory
+        builder = MarkdownTableBuilder().withHeader("ID", "Scenario")
+        for ds in tara.damage_scenarios:
+            scenario = f"{ds.name}<br><br>"
+            scenario += f"**Safety:** {ds.get_impact_by_category(ImpactCategory.Safety).name}<br>"
+            scenario += f"**Operational:** {ds.get_impact_by_category(ImpactCategory.Operational).name}<br>"
+            scenario += f"**Financial:** {ds.get_impact_by_category(ImpactCategory.Financial).name}<br>"
+            scenario += f"**Privacy:** {ds.get_impact_by_category(ImpactCategory.Privacy).name}<br>"
+            scenario += f"**Reasoning:**<br>{ds.reasoning}"
+            builder.withRow(ds.id, scenario)
+        return builder.build()
+
+    def _build_assets_table(self, tara: Tara) -> MarkdownTable:
+        builder = MarkdownTableBuilder().withHeader("ID", "Asset")
+        for asset in tara.assets:
+            
+            def get_ds_str(prop):
+                ds_ids = asset.damage_scenarios.get(prop, [])
+                return ds_ids[0] if ds_ids else "none"
+            
+            # Compose the asset description as in the test expectations
+            description = f"{asset.name}<br><br>"
+            description += f"{asset.description}<br><br>"
+            description += f"**Availability:** {get_ds_str(SecurityProperty.Availability)}<br>"
+            description += f"**Integrity:** {get_ds_str(SecurityProperty.Integrity)}<br>"
+            description += f"**Confidentiality:** {get_ds_str(SecurityProperty.Confidentiality)}<br>"
+            description += f"**Reasoning:**<br>{asset.reasoning}"
+            builder.withRow(asset.id, description)
+        return builder.build()
+    
     def _build_resolved_attack_tree_table(self, attack_tree: AttackTree) -> MarkdownTable:
         resolved_tree = attack_tree.get_resolved_tree()
 
