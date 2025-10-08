@@ -260,7 +260,7 @@ More Text""")
                                                       "**Safety:** Severe<br>"
                                                       "**Operational:** Major<br>"
                                                       "**Financial:** Moderate<br>"
-                                                      "**Privacy:** Negligible<br>"
+                                                      "**Privacy:** Negligible<br><br>"
                                                       "**Reasoning:**<br>"
                                                       "Reason 1"])
         self.assertEqual(damage_scenarios.getRow(1), ["DS-2", 
@@ -268,7 +268,7 @@ More Text""")
                                                       "**Safety:** Negligible<br>"
                                                       "**Operational:** Negligible<br>"
                                                       "**Financial:** Major<br>"
-                                                      "**Privacy:** Negligible<br>"
+                                                      "**Privacy:** Negligible<br><br>"
                                                       "**Reasoning:**<br>"
                                                       "Reason 2"])
 
@@ -283,7 +283,7 @@ More Text""")
                                             "Description 1<br><br>"
                                             "**Availability:** DS-1<br>"
                                             "**Integrity:** DS-2<br>"
-                                            "**Confidentiality:** none<br>"
+                                            "**Confidentiality:** none<br><br>"
                                             "**Reasoning:**<br>"
                                             "Reasoning 1"])
         self.assertEqual(assets.getRow(1), ["A-2",
@@ -291,7 +291,7 @@ More Text""")
                                             "Description 2<br><br>"
                                             "**Availability:** none<br>"
                                             "**Integrity:** DS-2<br>"
-                                            "**Confidentiality:** DS-2<br>"
+                                            "**Confidentiality:** DS-2<br><br>"
                                             "**Reasoning:**<br>"
                                             "Reasoning 2"])
 

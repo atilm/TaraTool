@@ -113,8 +113,9 @@ class TaraDocumentGenerator:
             scenario += f"**Safety:** {ds.get_impact_by_category(ImpactCategory.Safety).name}<br>"
             scenario += f"**Operational:** {ds.get_impact_by_category(ImpactCategory.Operational).name}<br>"
             scenario += f"**Financial:** {ds.get_impact_by_category(ImpactCategory.Financial).name}<br>"
-            scenario += f"**Privacy:** {ds.get_impact_by_category(ImpactCategory.Privacy).name}<br>"
-            scenario += f"**Reasoning:**<br>{ds.reasoning}"
+            scenario += f"**Privacy:** {ds.get_impact_by_category(ImpactCategory.Privacy).name}"
+
+            scenario += f"<br><br>**Reasoning:**<br>{ds.reasoning}" if ds.reasoning else ""
             builder.withRow(ds.id, scenario)
         return builder.build()
 
@@ -131,8 +132,9 @@ class TaraDocumentGenerator:
             description += f"{asset.description}<br><br>"
             description += f"**Availability:** {get_ds_str(SecurityProperty.Availability)}<br>"
             description += f"**Integrity:** {get_ds_str(SecurityProperty.Integrity)}<br>"
-            description += f"**Confidentiality:** {get_ds_str(SecurityProperty.Confidentiality)}<br>"
-            description += f"**Reasoning:**<br>{asset.reasoning}"
+            description += f"**Confidentiality:** {get_ds_str(SecurityProperty.Confidentiality)}"
+
+            description += f"<br><br>**Reasoning:**<br>{asset.reasoning}" if asset.reasoning else ""
             builder.withRow(asset.id, description)
         return builder.build()
     
