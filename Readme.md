@@ -17,3 +17,7 @@ docker run -it --name mytara-docker -v "$(pwd)":/workspace tara-docker:latest ba
 ```
 docker start -ai mytara-docker
 ```
+
+## Create a html file from the Markdown Report
+
+`pandoc --css=tara_report.css -s -f markdown+smart --toc --metadata pagetitle="Tara" --to=html5 tara_report.md -o tara_report.html`
