@@ -1,14 +1,8 @@
 FROM python:3.11-slim
 
-# Install Tex Live
+# Install Pandoc
 RUN apt-get update && apt-get -y upgrade \
     && apt-get -y install --no-install-recommends \
-    texlive-latex-base \
-    texlive-extra-utils \
-    texlive-latex-extra
-
-# Install Pandoc
-RUN apt-get -y install --no-install-recommends \
     pandoc
 
 # Clean up
