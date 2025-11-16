@@ -1,8 +1,5 @@
 # To Do
 
-* [ ] Test for non-existing control ids
-
-* [ ] ToDo remove threat_scenario_document_generator
 
 ## Refactoring
 
@@ -11,39 +8,14 @@
 
 ## Next
 
-* [ ] Target Report Structure
-  * [x] Table of Contents
-  * [ ] TOE description and Scope
-  * [x] Assumptions and Claims with evidence
-  * [x] Security Controls (activity, IGNORE links to assumption)
-  * [x] Damage Scenarios
-  * [x] Assets with security properties and related damages
-  * [x] Threat-Scenarios (id | description, asset, security property, damage scenario, applied controls, attack tree | initial risk | residual risk)
-    * [x] List applied controls
-  * [x] Evaluation
-    * [x] Attack trees (with new structure)
-    * [x] Technical Attack Trees
-    * [x] Circumvent Trees
-  * [ ] Appendix
-    * [ ] Security Control Specifications
+* [ ] Call pandoc from the app when report is generated
+* [ ] Remove duplicate TOC from generated HTML
+* [ ] Customize the reports title
+* [ ] Add example document
+* [ ] Add Readme documentation
 
-* [ ] Generate a Latex Report
-  * [ ] Add latex to pdf to Docker-Container
-  * [ ] New cli verb generate-pdf
-  * [ ] Generate pdf
-    * [ ] Structure of all headings and TOC
-    * [ ] Hardcode Texts
-    * [ ] Generate the tabular content from the tara
-    * [ ] Find a solution to include system description and control specifications
-      * [ ] Either: do it yourself
-        * [ ] Parse Paragraphs (and lines) into Markdown Document
-        * [ ] Parse Links into Markdown Document
-        * [ ] Parse multi-level lists into Markdown Document
-        * [ ] Parse System and Context description into Latex
-      * [ ] Or: use existing tools
-        * [ ] find existing tool which converts markdown file to part of latex
-        * [ ] or include handmade latex files for system-description and control-descriptions into latex-document \include{...}
-
+* [ ] Test for non-existing control ids
+* [ ] ToDo remove threat_scenario_document_generator
 * [ ] Find a possibility to persistently document the handling of remaining risks
   * [ ] Output threat scenario in separate file
     * [ ] reference asset, security property and damage scenario
